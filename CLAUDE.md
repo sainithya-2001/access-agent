@@ -97,4 +97,6 @@ python scripts/run_figures.py --pages 96            # M3: classify, extract, des
 python scripts/test_verifier.py                     # M4: planted-error test of the verifier
 python scripts/run_agent.py --pages 96              # M5: agent loop with traces
 python scripts/run_agent.py --pages 96 --inject wrong_number   # M5 demo: agent fixes a planted error
+python scripts/run_export.py --pages 84-91,95-97   # M6: accessible.html (agent on every figure, cached)
+python scripts/check_a11y.py                       # M6: axe-core on the newest accessible.html (npm install first)
 ```

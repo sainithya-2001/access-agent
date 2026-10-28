@@ -1,0 +1,8 @@
+{
+  "name": "access-agent",
+  "private": true,
+  "description": "Only used for axe-core, which scripts/check_a11y.py injects into the exported HTML.",
+  "devDependencies": {
+    "axe-core": "4.10.2"
+  }
+}

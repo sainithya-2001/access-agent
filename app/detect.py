@@ -75,9 +75,12 @@ def _tables(page: fitz.Page) -> list[tuple[fitz.Rect, list[list[str | None]]]]:
     except Exception:
         return out
     for t in found.tables:
-        rows = t.extract()
+        rect = fitz.Rect(t.bbox)
+        # find_tables finds the box reliably but garbles cell text in this book
+        # ("32.5%" → "325%\n.", "67,059" → "67059\n,"), so read the cells from word positions.
+        rows = _rows_from_text(page, rect) or t.extract()
         if len(rows) >= 2:
-            out.append((fitz.Rect(t.bbox), rows))
+            out.append((rect, rows))
     return out
 
 

@@ -6,3 +6,4 @@ cache/
 data/raw/
 output/
 data/samples/*.pdf
+node_modules/

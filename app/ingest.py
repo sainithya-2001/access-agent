@@ -39,24 +39,64 @@ def _doc_id(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()[:12]
 
 
+def _is_bold(span: dict) -> bool:
+    return bool("bold" in span.get("font", "").lower() or (span.get("flags", 0) & 16))
+
+
+def _line_style(line: dict) -> tuple[float, bool]:
+    spans = [s for s in line.get("spans", []) if s["text"].strip()]
+    if not spans:
+        return (0.0, False)
+    size = max(spans, key=lambda s: len(s["text"].strip()))["size"]
+    return (round(size, 1), all(_is_bold(s) for s in spans))
+
+
+def _split_heading_lines(block: dict) -> list[dict]:
+    """PyMuPDF sometimes puts a heading and the paragraph under it in one block
+    ("Uses of a Time Series Graph Time series graphs are..."). Split off up to two leading
+    lines whose style (size, all-bold) differs from the rest."""
+    lines = [ln for ln in block.get("lines", []) if any(s["text"].strip() for s in ln.get("spans", []))]
+    if len(lines) < 2:
+        return [block]
+    first = _line_style(lines[0])
+    n = 1
+    while n < min(len(lines), 2) and _line_style(lines[n]) == first:
+        n += 1
+    rest = {_line_style(ln) for ln in lines[n:]}
+    head_text = " ".join(s["text"].strip() for ln in lines[:n] for s in ln["spans"])
+    if not rest or first in rest or len(head_text) > 80 or not (first[1] or first[0] > max(r[0] for r in rest)):
+        return [block]
+
+    def part(ls):
+        x0 = min(ln["bbox"][0] for ln in ls); y0 = min(ln["bbox"][1] for ln in ls)
+        x1 = max(ln["bbox"][2] for ln in ls); y1 = max(ln["bbox"][3] for ln in ls)
+        return {"type": 0, "bbox": (x0, y0, x1, y1), "lines": ls}
+    return [part(lines[:n]), part(lines[n:])]
+
+
 def _text_blocks(page: fitz.Page) -> list[TextBlock]:
     blocks: list[TextBlock] = []
     data = page.get_text("dict")
-    for block in data.get("blocks", []):
-        if block.get("type") != 0:  # 0 = text
-            continue
+    raw = [b for b in data.get("blocks", []) if b.get("type") == 0]  # 0 = text
+    for block in (part for b in raw for part in _split_heading_lines(b)):
         spans = [s for line in block.get("lines", []) for s in line.get("spans", [])]
         text = " ".join(s["text"].strip() for s in spans if s["text"].strip())
         if not text:
             continue
         sizes = [s["size"] for s in spans]
-        bold = any("bold" in s.get("font", "").lower() or (s.get("flags", 0) & 16) for s in spans)
+        is_b = [_is_bold(s) for s in spans]
+        chars: dict[float, int] = {}
+        for s in spans:
+            chars[round(s["size"], 1)] = chars.get(round(s["size"], 1), 0) + len(s["text"].strip())
+        n = sum(len(s["text"].strip()) for s in spans) or 1
         x0, y0, x1, y1 = block["bbox"]
         blocks.append(TextBlock(
             text=text,
             bbox=BBox(x0=x0, y0=y0, x1=x1, y1=y1),
             font_size=max(sizes) if sizes else None,
-            is_bold=bool(bold),
+            is_bold=any(is_b),
+            main_size=max(chars, key=chars.get) if chars else None,
+            bold_share=round(sum(len(s["text"].strip()) for s, b in zip(spans, is_b) if b) / n, 3),
         ))
     return blocks
 

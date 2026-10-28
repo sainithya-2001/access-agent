@@ -28,8 +28,10 @@ class BBox(BaseModel):
 class TextBlock(BaseModel):
     text: str
     bbox: BBox
-    font_size: float | None = None
-    is_bold: bool = False
+    font_size: float | None = None  # largest span size
+    is_bold: bool = False  # any span bold
+    main_size: float | None = None  # size of most characters (headings vs body)
+    bold_share: float = 0.0  # fraction of characters in bold (1.0 = a bold label/heading line)
 
 
 class EmbeddedImage(BaseModel):
