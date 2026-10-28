@@ -31,7 +31,7 @@ Code controls the overall order (reliable, cheap). The model decides **per figur
 | Model | Role |
 |---|---|
 | Muse Spark (`SPARK_MODEL` in .env) | classify, describe, extract values, verify, orchestrate |
-| SAM 3.1 | figure segmentation (confirm API availability; fallback above) |
+| SAM 3.1 (`sam-3.1`, Responses API, see app/sam.py) | scanned-page figure detection; refines boxes from the Muse Spark page check |
 | Muse Voice Transcribe | only for the optional lecture add-on |
 
 ### Agent tools (app/agent/tools.py)
@@ -80,5 +80,7 @@ Blindfold mode (hear the page before/after via browser TTS) · Reading profiles 
 ```bash
 pip install -r requirements.txt
 python scripts/test_api.py                 # M0
-python scripts/run_ingest.py data/samples/<file>.pdf --pages 1-3   # M1
+python scripts/run_ingest.py --pages 95-97          # M1 (uses the PDF in data/samples)
+python scripts/run_detect.py --pages 95-97 --free-only   # M2, no API calls
+python scripts/run_detect.py --pages 95-97          # M2 with SAM 3.1 + Muse Spark page check
 ```

@@ -71,10 +71,14 @@ class RegionType(str, Enum):
 class Region(BaseModel):
     id: str
     page: int
-    bbox: BBox
+    kind: str = "figure"  # "figure" | "table"
+    bbox: BBox  # PDF points
     crop_path: str
-    source: str  # "embedded" | "sam" | "spark_bbox"
+    source: str  # "embedded" | "vector" | "table" | "sam" | "spark_check"
+    confidence: float | None = None  # detector confidence when available (SAM)
+    caption: str | None = None  # e.g. "Figure 2.10" found near the region
     nearby_text: str = ""
+    table_rows: list[list[str | None]] | None = None  # text tables: header row first
 
 
 class Classification(BaseModel):
