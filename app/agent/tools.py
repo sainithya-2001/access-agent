@@ -171,4 +171,27 @@ def code_checks(desc: Description, ex: ExtractedValues) -> list[Issue]:
             if not close and not (1 <= n <= 12 and n == int(n)):  # ignore small counts ("3 bars")
                 issues.append(Issue(kind="invented_detail", source="code",
                                     detail=f"The number {n:g} is in the description but not in the figure."))
+
+    # Title and axis labels must be mentioned. Loose match: most of the label's words appear,
+    # so "Annual CPI" wording differences don't fail but a dropped axis title does.
+    have = _words(desc.long_description)
+    for what, label in (("title", ex.title), ("x-axis label", ex.x_axis_label),
+                        ("y-axis label", ex.y_axis_label)):
+        words = _words(label or "")
+        if words and len(words & have) / len(words) < LABEL_MATCH:
+            issues.append(Issue(kind="missing_label", source="code",
+                                detail=f"The {what} '{label}' is not mentioned in the long description."))
     return issues
+
+
+LABEL_MATCH = 0.6  # share of a label's words that must appear in the description
+_STOP = {"a", "an", "the", "of", "in", "on", "for", "and", "or", "to", "by", "per", "vs"}
+
+
+def _words(text: str) -> set[str]:
+    """Lowercase content words, with a plural 's' stripped ("Years" matches "year")."""
+    out = set()
+    for w in re.findall(r"[a-z0-9]+", text.lower()):
+        if w not in _STOP:
+            out.add(w[:-1] if len(w) > 3 and w.endswith("s") else w)
+    return out

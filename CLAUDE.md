@@ -47,7 +47,7 @@ Decision rules: mismatch → rewrite (max 2 retries); cut-off labels → recrop;
 
 ## Verifier design
 - `describe` and `extract_values` never see each other's output (independent readings; otherwise errors agree).
-- `verify` = model check against the image + free deterministic checks in code (`code_checks`: data table vs extracted values, numbers not in the figure, alt text length). Code issues force a fail.
+- `verify` = model check against the image + free deterministic checks in code (`code_checks`: data table vs extracted values, numbers not in the figure, alt text length, title/axis labels mentioned in the long description). Code issues force a fail.
 - PASS_THRESHOLD = 0.8 in app/agent/tools.py.
 
 ## Agent loop (app/agent/orchestrator.py)
