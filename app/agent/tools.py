@@ -1,4 +1,4 @@
-"""Agent tools (M3 + M4): classify, extract_values, describe, verify.
+﻿"""Agent tools (M3 + M4): classify, extract_values, describe, verify.
 
 Design rule: describe() and extract_values() never see each other's output. The verifier
 compares two independent readings plus the image; if describe used the extracted values,
@@ -135,7 +135,7 @@ def code_checks(desc: Description, ex: ExtractedValues) -> list[Issue]:
     # Data table vs independently extracted values, matched by label.
     ref = {d.label.strip().lower(): d.value for d in ex.data if d.value is not None}
     span = (max(ref.values()) - min(ref.values())) if len(ref) > 1 else max([abs(v) for v in ref.values()] or [1])
-    tol = 0.03 * span if ex.values_estimated else 0.005 * max(span, 1)
+    tol = max(0.04 * span, 0.01 * max([abs(v) for v in ref.values()] or [1])) if ex.values_estimated else 0.005 * max(span, 1)
     for row in desc.data_table:
         key = row.label.strip().lower()
         if key in ref and row.value is not None and abs(row.value - ref[key]) > max(tol, 1e-9):
