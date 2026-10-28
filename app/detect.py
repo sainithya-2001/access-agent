@@ -141,6 +141,17 @@ def _rows_from_text(pdf_page: fitz.Page, r: fitz.Rect) -> list[list[str | None]]
 
 # ---------- layer 3: vector charts ----------
 
+def _pull_in_labels(box: fitz.Rect, text_blocks) -> fitz.Rect:
+    """Grow box to take in short text labels (axis titles, ticks, legend) sitting at its edges."""
+    box = fitz.Rect(box)
+    zone = fitz.Rect(box.x0 - 40, box.y0 - 25, box.x1 + 25, box.y1 + 35)
+    for b in text_blocks:
+        br = _rect(b.bbox)
+        if len(b.text) <= 60 and zone.contains(br) and not CAPTION_RE.match(b.text):
+            box |= br
+    return box
+
+
 def _vector_figures(page: fitz.Page, avoid: list[fitz.Rect], text_blocks) -> list[fitz.Rect]:
     page_area = page.rect.width * page.rect.height
     drawings = [d for d in page.get_drawings() if d.get("rect") is not None]
@@ -182,13 +193,7 @@ def _vector_figures(page: fitz.Page, avoid: list[fitz.Rect], text_blocks) -> lis
             box |= x
         if box.width < MIN_FIG_PT[0] or box.height < MIN_FIG_PT[1]:
             continue
-        # Pull in short text labels (axis labels, ticks, legend) that sit at the edges.
-        zone = fitz.Rect(box.x0 - 40, box.y0 - 25, box.x1 + 25, box.y1 + 35)
-        for b in text_blocks:
-            br = _rect(b.bbox)
-            if len(b.text) <= 60 and zone.contains(br) and not CAPTION_RE.match(b.text):
-                box |= br
-        figs.append(box)
+        figs.append(_pull_in_labels(box, text_blocks))
     return figs
 
 
@@ -260,6 +265,27 @@ def _spark_check(page: Page, regions: list[Region]) -> _Check:
 
 
 CAPTION_NEAR_PT = 60
+# SAM boxes hug the plot area and leave out axis titles. How to widen them:
+#   labels: pull in short text labels from the text layer (digital pages)
+#   union:  union with Muse Spark's box      pad: 10% on each side      none: as SAM returned it
+# Scanned pages have no text layer, so they use SAM_EXTEND_SCANNED (chosen with --test-check).
+SAM_EXTEND_SCANNED = "union"
+SAM_PAD = 0.10
+
+
+def _extend_sam_box(r: fitz.Rect, spark: fitz.Rect, page: Page, mode: str) -> tuple[fitz.Rect, str]:
+    if mode == "auto":
+        mode = SAM_EXTEND_SCANNED if page.is_scanned else "labels"
+    if mode == "labels":
+        out = _pull_in_labels(r, page.text_blocks)
+    elif mode == "union":
+        out = r | spark
+    elif mode == "pad":
+        out = fitz.Rect(r.x0 - SAM_PAD * r.width, r.y0 - SAM_PAD * r.height,
+                        r.x1 + SAM_PAD * r.width, r.y1 + SAM_PAD * r.height)
+    else:
+        return r, "none"
+    return out & fitz.Rect(0, 0, page.width, page.height), mode
 
 
 def _next_to_caption(r: fitz.Rect, page: Page, caption: str | None) -> bool:
@@ -342,9 +368,11 @@ def _nearby_text(r: fitz.Rect, page: Page, limit: int = 600) -> str:
 # ---------- main ----------
 
 def detect_page(pdf: fitz.Document, page: Page, out_dir: Path, use_sam: bool = True,
-                use_check: bool = True, free_figures: bool = True) -> tuple[list[Region], list[str]]:
+                use_check: bool = True, free_figures: bool = True,
+                sam_extend: str = "auto") -> tuple[list[Region], list[str]]:
     """Return (regions, notes). Notes are human-readable detection decisions for the trace.
-    free_figures=False skips the embedded-image and vector layers (to test the page check alone)."""
+    free_figures=False skips the embedded-image and vector layers (to test the page check alone).
+    sam_extend: how to widen SAM's tight boxes ("auto", "labels", "union", "pad", "none")."""
     pdf_page = pdf[page.number - 1]
     crops = out_dir / "crops"
     crops.mkdir(parents=True, exist_ok=True)
@@ -395,8 +423,9 @@ def detect_page(pdf: fitz.Document, page: Page, out_dir: Path, use_sam: bool = T
                     notes.append(f"SAM 3.1 failed ({e.__class__.__name__}) for {what}")
                 if hit:
                     r, conf, why = hit
+                    r, how = _extend_sam_box(r, spark, page, sam_extend)
                     source = "spark_check+sam"
-                    notes.append(f"Page check: SAM 3.1 placed {what} {why}")
+                    notes.append(f"Page check: SAM 3.1 placed {what} {why}; box widened by {how}")
                 else:
                     notes.append(f"Page check: SAM 3.1 found no {what}; kept Muse Spark's box → human review")
             if all(_iou(r, f[0]) < 0.5 for f in found):
@@ -471,14 +500,15 @@ def draw_overlay(page: Page, regions: list[Region], path: Path) -> None:
 
 
 def detect(doc: Document, use_sam: bool = True, use_check: bool = True,
-           out_root: str | Path = "output", free_figures: bool = True) -> tuple[list[Region], list[str]]:
+           out_root: str | Path = "output", free_figures: bool = True,
+           sam_extend: str = "auto") -> tuple[list[Region], list[str]]:
     out_dir = Path(out_root) / doc.id
     overlays = out_dir / "overlays"
     overlays.mkdir(parents=True, exist_ok=True)
     pdf = fitz.open(doc.source_path)
     all_regions, all_notes = [], []
     for page in doc.pages:
-        regions, notes = detect_page(pdf, page, out_dir, use_sam, use_check, free_figures)
+        regions, notes = detect_page(pdf, page, out_dir, use_sam, use_check, free_figures, sam_extend)
         draw_overlay(page, regions, overlays / f"page_{page.number:03d}.png")
         all_regions += regions
         all_notes += notes
