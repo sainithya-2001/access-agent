@@ -80,6 +80,64 @@ def _tables(page: fitz.Page) -> list[tuple[fitz.Rect, list[list[str | None]]]]:
     return out
 
 
+TABLE_CAPTION_RE = re.compile(r"^\s*Table\s*\d", re.IGNORECASE)
+CELL_GAP_PT = 6  # words further apart than this on a line are in different cells
+
+
+def _rows_from_text(pdf_page: fitz.Page, r: fitz.Rect) -> list[list[str | None]] | None:
+    """Rebuild table rows from the words inside r, for tables drawn as vectors that
+    find_tables missed. Columns come from where text sits across all lines; a line that is one
+    unbroken run across several columns (a title, a "Key: 8|0 means 80." row) stays one cell."""
+    lines: list[list[tuple]] = []
+    words = [w for w in pdf_page.get_text("words")
+             if fitz.Rect(w[:4]).intersects(r) and r.y0 <= (w[1] + w[3]) / 2 <= r.y1]
+    for w in sorted(words, key=lambda w: (w[1], w[0])):
+        if lines and abs(lines[-1][0][1] - w[1]) < 3:
+            lines[-1].append(w)
+        else:
+            lines.append([w])
+    runs_per_line = []
+    for line in lines:
+        if min(w[0] for w in line) < r.x0 - 2 or max(w[2] for w in line) > r.x1 + 2:
+            continue  # a line running past the box sideways is body text, not a table row
+        line.sort(key=lambda w: w[0])
+        runs = [[line[0]]]
+        for w in line[1:]:
+            if w[0] - runs[-1][-1][2] > CELL_GAP_PT:
+                runs.append([w])
+            else:
+                runs[-1].append(w)
+        text = " ".join(w[4] for w in line)
+        if not TABLE_CAPTION_RE.match(text):  # the caption line is not a row
+            runs_per_line.append([(run[0][0], run[-1][2], " ".join(w[4] for w in run)) for run in runs])
+    if not runs_per_line:
+        return None
+
+    cols: list[list[float]] = []
+    for x0, x1, _ in sorted((run for runs in runs_per_line if len(runs) > 1 for run in runs)):
+        if cols and x0 <= cols[-1][1] + 2:
+            cols[-1][1] = max(cols[-1][1], x1)
+        else:
+            cols.append([x0, x1])
+    if not cols:
+        return [[runs[0][2]] for runs in runs_per_line]
+
+    def col_of(x0: float, x1: float) -> list[int]:
+        return [i for i, (c0, c1) in enumerate(cols) if min(x1, c1) - max(x0, c0) > 0]
+
+    rows = []
+    for runs in runs_per_line:
+        if len(runs) == 1 and len(col_of(runs[0][0], runs[0][1])) > 1:
+            rows.append([runs[0][2]])
+            continue
+        row = [""] * len(cols)
+        for x0, x1, text in runs:
+            hit = col_of(x0, x1) or [min(range(len(cols)), key=lambda i: abs(cols[i][0] - x0))]
+            row[hit[0]] = (row[hit[0]] + " " + text).strip()
+        rows.append(row)
+    return rows
+
+
 # ---------- layer 3: vector charts ----------
 
 def _vector_figures(page: fitz.Page, avoid: list[fitz.Rect], text_blocks) -> list[fitz.Rect]:
@@ -259,6 +317,7 @@ def detect_page(pdf: fitz.Document, page: Page, out_dir: Path,
                     found.append((r, "figure", "sam", b.get("c"), None))
                     notes.append(f"SAM 3.1 found a '{concept}' on scanned page {page.number}")
 
+    found = _retag_tables(pdf_page, page, found, notes)
     regions = _to_regions(pdf_page, page, found, crops)
 
     if use_check:
@@ -295,6 +354,29 @@ def detect_page(pdf: fitz.Document, page: Page, out_dir: Path,
             notes.append(f"Caption '{b.text.strip()[:30]}' on page {page.number} has no detected figure")
 
     return regions, notes
+
+
+def _retag_tables(pdf_page, page: Page, found, notes: list[str]):
+    """A 'figure' whose nearest caption is 'Table N' is a table drawn with vector lines
+    (find_tables missed it): make it a table and read its rows from the text in the box."""
+    found = list(found)
+    merged: set[int] = set()  # find_tables boxes absorbed into a retagged table
+    for i, (rect, kind, source, conf, rows) in enumerate(found):
+        cap = _caption_for(rect, page)
+        if not (kind == "figure" and cap and TABLE_CAPTION_RE.match(cap)):
+            continue
+        # find_tables may have caught part of the same table: merge them into one region.
+        twin = next((j for j, f in enumerate(found) if f[1] == "table" and j not in merged
+                     and f[0].intersects(rect)), None)
+        if twin is not None:
+            merged.add(twin)
+            rect = rect | found[twin][0]
+        rows = _rows_from_text(pdf_page, rect)
+        found[i] = (rect, "table", source, conf, rows)
+        notes.append(f"{source} region near '{cap[:24]}' on page {page.number} is a table → kind=table, "
+                     + ("merged with the overlapping find_tables box, " if twin is not None else "")
+                     + (f"{len(rows)} rows read from its text" if rows else "no text inside"))
+    return [f for j, f in enumerate(found) if j not in merged]
 
 
 def _to_regions(pdf_page, page: Page, found, crops: Path) -> list[Region]:
