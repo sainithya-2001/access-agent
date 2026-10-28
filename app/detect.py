@@ -24,6 +24,7 @@ import pymupdf as fitz
 from PIL import Image, ImageDraw
 from pydantic import BaseModel, ValidationError
 
+from app import stemplot
 from app.ingest import RENDER_DPI
 from app.models import BBox, Document, Page, Region
 
@@ -383,13 +384,15 @@ def _to_regions(pdf_page, page: Page, found, crops: Path) -> list[Region]:
     regions = []
     for i, (rect, kind, source, conf, rows) in enumerate(found):
         rid = f"p{page.number}_{kind[0]}{i}"
+        caption = _caption_for(rect, page)
         regions.append(Region(
             id=rid, page=page.number, kind=kind, bbox=_bbox(rect),
             crop_path=_crop(pdf_page, rect, crops / f"{rid}.png"),
             source=source, confidence=conf,
-            caption=_caption_for(rect, page),
+            caption=caption,
             nearby_text=_nearby_text(rect, page),
             table_rows=rows,
+            stem_leaf=stemplot.parse(rows, caption, pdf_page.get_text()) if kind == "table" else None,
         ))
     return regions
 

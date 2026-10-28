@@ -68,6 +68,13 @@ class RegionType(str, Enum):
     other = "other"
 
 
+class StemLeaf(BaseModel):
+    series: dict[str, list[float]]  # series name → every data value, sorted
+    leaf_unit: float = 1.0  # value = (stem * 10 + leaf) * leaf_unit
+    key: str | None = None  # e.g. "Key: 8|0 means 80."
+    unit_source: str = "assumed"  # "key" | "text" (values found in the page text) | "assumed"
+
+
 class Region(BaseModel):
     id: str
     page: int
@@ -79,6 +86,7 @@ class Region(BaseModel):
     caption: str | None = None  # e.g. "Figure 2.10" found near the region
     nearby_text: str = ""
     table_rows: list[list[str | None]] | None = None  # text tables: header row first
+    stem_leaf: StemLeaf | None = None  # stemplot tables, expanded to exact values in code
 
 
 class Classification(BaseModel):
