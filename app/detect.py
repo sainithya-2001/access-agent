@@ -341,5 +341,5 @@ def detect(doc: Document, use_sam: bool = True, use_check: bool = True,
         all_regions += regions
         all_notes += notes
     (out_dir / "regions.json").write_text(json.dumps(
-        {"regions": [r.model_dump() for r in all_regions], "notes": all_notes}, indent=2))
+        {"regions": [r.model_dump() for r in all_regions], "notes": all_notes}, indent=2), encoding="utf-8")
     return all_regions, all_notes

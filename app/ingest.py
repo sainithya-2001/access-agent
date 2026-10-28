@@ -121,5 +121,5 @@ def ingest(pdf_path: str | Path, pages: str | None = None, out_root: str | Path 
             is_scanned=_looks_scanned(page, blocks),
         ))
 
-    (out_dir / "document.json").write_text(result.model_dump_json(indent=2))
+    (out_dir / "document.json").write_text(result.model_dump_json(indent=2), encoding="utf-8")
     return result

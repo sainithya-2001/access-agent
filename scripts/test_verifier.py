@@ -70,7 +70,7 @@ def main() -> None:
     files = sorted(Path("output").glob("*/figures.json"), key=lambda f: f.stat().st_mtime)
     if not files:
         sys.exit("No figures.json found. Run scripts/run_figures.py first.")
-    figures = [FigureResult.model_validate(x) for x in json.loads(files[-1].read_text())]
+    figures = [FigureResult.model_validate(x) for x in json.loads(files[-1].read_text(encoding="utf-8"))]
     figures = [f for f in figures if f.description and f.extracted]
     print(f"Testing the verifier on {len(figures)} figure(s) from {files[-1]}\n")
 

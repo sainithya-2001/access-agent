@@ -24,10 +24,10 @@ def make_key(model: str, step: str, messages, extra: bytes | None = None) -> str
 def get(key: str) -> str | None:
     path = CACHE_DIR / f"{key}.json"
     if path.exists():
-        return json.loads(path.read_text())["response"]
+        return json.loads(path.read_text(encoding="utf-8"))["response"]
     return None
 
 
 def put(key: str, response: str) -> None:
     CACHE_DIR.mkdir(parents=True, exist_ok=True)
-    (CACHE_DIR / f"{key}.json").write_text(json.dumps({"response": response}))
+    (CACHE_DIR / f"{key}.json").write_text(json.dumps({"response": response}), encoding="utf-8")

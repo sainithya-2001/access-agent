@@ -65,7 +65,7 @@ def main() -> None:
         results.append(res)
 
     out = Path("output") / doc.id / "figures.json"
-    out.write_text(json.dumps([x.model_dump(mode="json") for x in results], indent=2))
+    out.write_text(json.dumps([x.model_dump(mode="json") for x in results], indent=2), encoding="utf-8")
     print(f"Saved {out}")
 
 

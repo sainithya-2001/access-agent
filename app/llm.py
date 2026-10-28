@@ -77,5 +77,5 @@ def chat(messages, backend: str | None = None, step: str = "", use_cache: bool =
 def _log(entry: dict) -> None:
     LOG_PATH.parent.mkdir(parents=True, exist_ok=True)
     entry = {"time": time.strftime("%Y-%m-%dT%H:%M:%S"), **entry}
-    with LOG_PATH.open("a") as f:
+    with LOG_PATH.open("a", encoding="utf-8") as f:
         f.write(json.dumps(entry) + "\n")
