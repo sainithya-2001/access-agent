@@ -5,3 +5,4 @@ __pycache__/
 cache/
 data/raw/
 output/
+data/samples/*.pdf
