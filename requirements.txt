@@ -4,6 +4,7 @@ pymupdf>=1.24
 pillow>=10.0
 fastapi>=0.110
 uvicorn>=0.29
+python-multipart>=0.0.9  # PDF upload in app/api.py
 pydantic>=2.6
 latex2mathml>=3.77
 playwright>=1.44   # scripts/check_a11y.py; then: python -m playwright install chromium

@@ -7,3 +7,4 @@ data/raw/
 output/
 data/samples/*.pdf
 node_modules/
+data/uploads/

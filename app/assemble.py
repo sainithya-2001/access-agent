@@ -60,6 +60,11 @@ def _furniture(doc: Document) -> tuple[set[tuple[int, int]], dict[int, str]]:
     return drop, printed
 
 
+
+def printed_page_numbers(doc: Document) -> dict[int, str]:
+    """Printed (book) page number by PDF page, read from the running header/footer."""
+    return _furniture(doc)[1]
+
 # ---------- 2. headings ----------
 
 def _body_size(doc: Document, drop) -> float:

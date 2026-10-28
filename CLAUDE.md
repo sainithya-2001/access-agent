@@ -99,4 +99,7 @@ python scripts/run_agent.py --pages 96              # M5: agent loop with traces
 python scripts/run_agent.py --pages 96 --inject wrong_number   # M5 demo: agent fixes a planted error
 python scripts/run_export.py --pages 84-91,95-97   # M6: accessible.html (agent on every figure, cached)
 python scripts/check_a11y.py                       # M6: axe-core on the newest accessible.html (npm install first)
+python scripts/run_review.py --pages 84-97,109,124,130   # M7: pipeline into the review store (SQLite)
+uvicorn app.api:app --port 8000                    # M7: review screen at http://localhost:8000
+python scripts/check_a11y.py --review              # M7: axe-core + keyboard walk on the review screen
 ```

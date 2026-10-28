@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Review queue · Access Agent</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%231f5f5b'/%3E%3Cpath d='M9 16.5l4.5 4.5L23 11.5' stroke='white' stroke-width='3' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="app.css">
+</head>
+<body>
+<a class="skip-link" href="#detail">Skip to the selected figure</a>
+
+<header class="topbar">
+  <div class="brand">
+    <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true" focusable="false">
+      <rect width="32" height="32" rx="8"></rect>
+      <path d="M9 16.5l4.5 4.5L23 11.5"></path>
+    </svg>
+    <h1 class="brand-name">Access Agent <span class="brand-sub">Figure review</span></h1>
+  </div>
+
+  <div class="doc-picker">
+    <label for="doc-select">Document</label>
+    <select id="doc-select"></select>
+  </div>
+
+  <p class="summary" id="summary" aria-live="polite"></p>
+
+  <div class="topbar-actions">
+    <label class="switch">
+      <input type="checkbox" id="filter-review">
+      <span class="switch-track" aria-hidden="true"><span class="switch-thumb"></span></span>
+      <span>Needs review only</span>
+    </label>
+    <div class="reviewer">
+      <label for="reviewer">Reviewer</label>
+      <input id="reviewer" type="text" autocomplete="name" placeholder="Your name" size="12">
+    </div>
+    <button type="button" class="btn btn-quiet" id="upload-open">Upload PDF</button>
+    <a class="btn btn-quiet" id="preview-link" href="#" target="_blank" rel="noopener">Preview<span class="visually-hidden"> exported HTML (opens in a new tab)</span></a>
+    <a class="btn btn-primary" id="export-link" href="#">Export HTML</a>
+  </div>
+</header>
+
+<div class="banner" id="banner" role="status" hidden></div>
+
+<main class="workspace" id="workspace">
+  <nav class="queue" aria-labelledby="queue-heading">
+    <div class="pane-head">
+      <h2 id="queue-heading">Queue</h2>
+      <span class="pane-count" id="queue-count"></span>
+    </div>
+    <ul class="queue-list" id="queue-list"></ul>
+    <p class="queue-empty" id="queue-empty" hidden>Nothing left to review. Every figure is approved.</p>
+  </nav>
+
+  <section class="page-view" aria-labelledby="page-heading">
+    <div class="pane-head">
+      <h2 id="page-heading">Page</h2>
+      <div class="legend" aria-hidden="true">
+        <span><i class="dot needs_review"></i>Needs review</span>
+        <span><i class="dot auto_approved"></i>Auto-approved</span>
+        <span><i class="dot approved"></i>Staff approved</span>
+        <span><i class="dot rejected"></i>Rejected</span>
+      </div>
+    </div>
+    <div class="page-scroll" id="page-scroll" tabindex="0" role="group" aria-labelledby="page-heading">
+      <div class="page-frame" id="page-frame">
+        <img id="page-image" alt="">
+        <div class="boxes" id="boxes" aria-hidden="true"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="detail" id="detail" tabindex="-1" aria-labelledby="detail-heading">
+    <div class="detail-scroll" id="detail-body">
+      <div class="placeholder">
+        <h2 id="detail-heading">No figure selected</h2>
+        <p>Choose a figure from the queue.</p>
+      </div>
+    </div>
+    <div class="actionbar" id="actionbar" hidden>
+      <div class="reject-box" id="reject-box" hidden>
+        <label for="reject-note">Why is this description wrong? <span class="hint">(optional)</span></label>
+        <textarea id="reject-note" rows="2"></textarea>
+        <div class="reject-actions">
+          <button type="button" class="btn btn-quiet" id="reject-cancel">Cancel</button>
+          <button type="button" class="btn btn-danger" id="reject-confirm">Reject figure</button>
+        </div>
+      </div>
+      <div class="actions" id="actions">
+        <button type="button" class="btn btn-quiet" id="discard-btn" hidden>Discard edits</button>
+        <button type="button" class="btn btn-outline-danger" id="reject-btn">Reject <kbd>R</kbd></button>
+        <button type="button" class="btn btn-primary" id="approve-btn">Approve <kbd>A</kbd></button>
+      </div>
+      <p class="shortcut-hint"><kbd>J</kbd> next · <kbd>K</kbd> previous · <kbd>A</kbd> approve ·
+        <button type="button" class="linklike" id="shortcuts-open">All shortcuts</button></p>
+    </div>
+  </section>
+</main>
+
+<div class="visually-hidden" id="announcer" role="status" aria-live="polite"></div>
+
+<dialog id="upload-dialog" aria-labelledby="upload-title">
+  <form id="upload-form" method="dialog">
+    <h2 id="upload-title">Upload course material</h2>
+    <p class="dialog-lede">The agent finds every figure, describes it, checks its own description, and sends only uncertain ones here.</p>
+    <div class="field">
+      <label for="upload-file">PDF file</label>
+      <input id="upload-file" name="file" type="file" accept="application/pdf,.pdf" required>
+    </div>
+    <div class="field">
+      <label for="upload-pages">Pages</label>
+      <input id="upload-pages" name="pages" type="text" inputmode="numeric" placeholder="e.g. 84-97" aria-describedby="upload-pages-hint">
+      <p class="hint" id="upload-pages-hint">PDF page numbers. Leave empty for the whole file.</p>
+    </div>
+    <label class="check">
+      <input type="checkbox" name="page_check" value="true">
+      <span>Also look for missed figures with Muse Spark and SAM 3.1 <span class="hint">(uses API credits)</span></span>
+    </label>
+    <p class="form-error" id="upload-error" role="alert"></p>
+    <div class="dialog-actions">
+      <button type="button" class="btn btn-quiet" id="upload-cancel">Cancel</button>
+      <button type="submit" class="btn btn-primary" id="upload-submit">Upload and process</button>
+    </div>
+  </form>
+</dialog>
+
+<dialog id="shortcuts-dialog" aria-labelledby="shortcuts-title">
+  <h2 id="shortcuts-title">Keyboard shortcuts</h2>
+  <table class="shortcuts">
+    <caption class="visually-hidden">Shortcut keys and what they do</caption>
+    <thead><tr><th scope="col">Key</th><th scope="col">Action</th></tr></thead>
+    <tbody>
+      <tr><td><kbd>J</kbd></td><td>Next figure in the queue</td></tr>
+      <tr><td><kbd>K</kbd></td><td>Previous figure</td></tr>
+      <tr><td><kbd>A</kbd></td><td>Approve (with your edits, if any)</td></tr>
+      <tr><td><kbd>R</kbd></td><td>Reject</td></tr>
+      <tr><td><kbd>E</kbd></td><td>Edit the alt text</td></tr>
+      <tr><td><kbd>Ctrl</kbd> + <kbd>Enter</kbd></td><td>Approve while typing in a text box</td></tr>
+      <tr><td><kbd>Esc</kbd></td><td>Leave a text box</td></tr>
+      <tr><td><kbd>?</kbd></td><td>Show this list</td></tr>
+    </tbody>
+  </table>
+  <label class="check">
+    <input type="checkbox" id="shortcuts-enabled" checked>
+    <span>Single-key shortcuts (turn off if they clash with your screen reader or voice control)</span>
+  </label>
+  <div class="dialog-actions">
+    <button type="button" class="btn btn-primary" id="shortcuts-close">Close</button>
+  </div>
+</dialog>
+
+<script src="app.js"></script>
+</body>
+</html>
