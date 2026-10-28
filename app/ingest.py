@@ -6,6 +6,7 @@ No model calls here, so this step is free.
 from __future__ import annotations
 
 import hashlib
+import re
 from pathlib import Path
 
 import pymupdf as fitz
@@ -13,7 +14,9 @@ import pymupdf as fitz
 from app.models import BBox, Document, EmbeddedImage, Page, TextBlock
 
 RENDER_DPI = 150          # page images for detection/UI
-MIN_IMAGE_PT = 40         # ignore embedded images smaller than this (icons, bullets)
+MIN_IMAGE_PT = 40         # ignore embedded images smaller than this (icons, bullets)...
+CAPTION_NEAR_PT = 60      # ...unless a "Figure N" caption is within this distance
+FIGURE_CAPTION_RE = re.compile(r"^\s*(Figure|Fig\.)\s*\d", re.IGNORECASE)
 SCANNED_TEXT_CHARS = 30   # fewer text-layer chars than this on an image-heavy page → scanned
 
 
@@ -58,13 +61,29 @@ def _text_blocks(page: fitz.Page) -> list[TextBlock]:
     return blocks
 
 
-def _embedded_images(doc: fitz.Document, page: fitz.Page, out_dir: Path) -> list[EmbeddedImage]:
+def _has_figure_caption(rect: fitz.Rect, text_blocks: list[TextBlock]) -> bool:
+    """A 'Figure N' caption just above or below the image, overlapping it horizontally."""
+    for b in text_blocks:
+        if not FIGURE_CAPTION_RE.match(b.text):
+            continue
+        if b.bbox.x1 < rect.x0 - 40 or b.bbox.x0 > rect.x1 + 40:
+            continue
+        if min(abs(b.bbox.y0 - rect.y1), abs(rect.y0 - b.bbox.y1)) <= CAPTION_NEAR_PT:
+            return True
+    return False
+
+
+def _embedded_images(doc: fitz.Document, page: fitz.Page, out_dir: Path,
+                     text_blocks: list[TextBlock]) -> list[EmbeddedImage]:
     images: list[EmbeddedImage] = []
     for info in page.get_images(full=True):
         xref = info[0]
         for rect in page.get_image_rects(xref):
             if rect.width < MIN_IMAGE_PT or rect.height < MIN_IMAGE_PT:
-                continue
+                # Thin figures (number lines) are under the limit in one direction; keep them
+                # only when a figure caption sits right next to them. Icons have no caption.
+                if max(rect.width, rect.height) < MIN_IMAGE_PT or not _has_figure_caption(rect, text_blocks):
+                    continue
             # A page-sized image is a scan of the whole page, not a figure.
             # Figures on scanned pages are found later by detect.py.
             if rect.width * rect.height > 0.5 * page.rect.width * page.rect.height:
@@ -117,7 +136,7 @@ def ingest(pdf_path: str | Path, pages: str | None = None, out_root: str | Path 
             height=page.rect.height,
             image_path=str(page_img),
             text_blocks=blocks,
-            embedded_images=_embedded_images(pdf, page, images_dir),
+            embedded_images=_embedded_images(pdf, page, images_dir, blocks),
             is_scanned=_looks_scanned(page, blocks),
         ))
 
