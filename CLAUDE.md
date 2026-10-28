@@ -31,7 +31,7 @@ Code controls the overall order (reliable, cheap). The model decides **per figur
 | Model | Role |
 |---|---|
 | Muse Spark (`SPARK_MODEL` in .env) | classify, describe, extract values, verify, orchestrate |
-| SAM 3.1 (`sam-3.1`, Responses API, see app/sam.py) | scanned-page figure detection; refines boxes from the Muse Spark page check |
+| SAM 3.1 (`sam-3.1`, Responses API, see app/sam.py) | scanned-page figure detection; locates figures the Muse Spark page check reports (its noun phrase as a concept prompt; match next to the right caption, else nearest Spark's 0–1000 box; no match → Spark's box + human review) |
 | Muse Voice Transcribe | only for the optional lecture add-on |
 
 ### Agent tools (app/agent/tools.py)

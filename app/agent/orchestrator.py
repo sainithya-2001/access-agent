@@ -147,6 +147,8 @@ class FigureAgent:
                           why="invalid agent output")
 
     def _finish(self, status: Status, reason: str | None = None) -> FigureResult:
+        if status == Status.auto_approved and self.res.region.review_reason:
+            status, reason = Status.needs_review, self.res.region.review_reason
         self.res.status = status
         self.res.escalation_reason = reason
         label = {Status.auto_approved: "Auto-approved", Status.needs_review: "Sent to human review",

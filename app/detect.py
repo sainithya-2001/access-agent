@@ -195,11 +195,13 @@ def _vector_figures(page: fitz.Page, avoid: list[fitz.Rect], text_blocks) -> lis
 # ---------- layer 5: Muse Spark page check ----------
 
 class _Missed(BaseModel):
-    x0: float
+    x0: float  # normalized 0-1000, top-left origin
     y0: float
     x1: float
     y1: float
     kind: str = "figure"
+    label: str = "chart"  # short noun phrase for SAM 3.1, e.g. "bar chart", "number line"
+    caption: str | None = None  # e.g. "Figure 2.3" if printed next to it
     note: str = ""
 
 
@@ -214,9 +216,14 @@ A "figure" is any chart, graph, plot, diagram, photo, map, or equation image tha
 reader would need described. Plain paragraphs, headings, and page decorations are not figures.
 
 Return ONLY JSON:
-{"missed": [{"x0": int, "y0": int, "x1": int, "y1": int, "kind": "figure"|"table", "note": str}],
+{"missed": [{"x0": int, "y0": int, "x1": int, "y1": int, "kind": "figure"|"table",
+             "label": str, "caption": str|null, "note": str}],
  "not_figures": [box numbers that are not figures or tables]}
-Coordinates are pixels in this image ({w}x{h}), top-left origin. Use empty lists if nothing is wrong."""
+Coordinates are normalized to 0-1000 on each axis (0,0 = top-left corner of the page,
+1000,1000 = bottom-right), whatever the image size.
+"label" is a short noun phrase (1-3 words) naming what the figure is, e.g. "bar chart",
+"box plot", "number line", "photograph". "caption" is the figure label printed next to it,
+e.g. "Figure 2.3", or null. Use empty lists if nothing is wrong."""
 
 
 def _extract_json(text: str) -> dict:
@@ -240,7 +247,7 @@ def _spark_check(page: Page, regions: list[Region]) -> _Check:
     img.save(buf, format="PNG")
     url = "data:image/png;base64," + base64.b64encode(buf.getvalue()).decode()
     messages = [{"role": "user", "content": [
-        {"type": "text", "text": CHECK_PROMPT.replace("{w}", str(img.width)).replace("{h}", str(img.height))},
+        {"type": "text", "text": CHECK_PROMPT},
         {"type": "image_url", "image_url": {"url": url}},
     ]}]
     for attempt in range(2):
@@ -252,6 +259,48 @@ def _spark_check(page: Page, regions: list[Region]) -> _Check:
     return _Check()
 
 
+CAPTION_NEAR_PT = 60
+
+
+def _next_to_caption(r: fitz.Rect, page: Page, caption: str | None) -> bool:
+    """True if the text layer has this caption ("Figure 2.3", not "Figure 2.30") just above/below r."""
+    if not caption or not (m := re.match(r"\s*(?:Figure|Fig\.)\s*(\d+(?:\.\d+)*)", caption, re.IGNORECASE)):
+        return False
+    label = re.compile(r"^\s*(?:Figure|Fig\.)\s*" + re.escape(m.group(1)) + r"(?![\d.]*\d)", re.IGNORECASE)
+    for b in page.text_blocks:
+        br = _rect(b.bbox)
+        if label.match(b.text) and not (br.x1 < r.x0 - 40 or br.x0 > r.x1 + 40) \
+                and min(abs(br.y0 - r.y1), abs(r.y0 - br.y1)) <= CAPTION_NEAR_PT:
+            return True
+    return False
+
+
+def _locate_with_sam(page: Page, m: _Missed, spark: fitz.Rect, taken: list[fitz.Rect]):
+    """Run SAM 3.1 with Spark's noun phrase; pick the match next to the right caption, else the one
+    nearest Spark's box. Returns (rect, confidence, reason) or None if SAM finds nothing usable."""
+    from app import sam
+
+    img = Image.open(page.image_path)
+    phrase = " ".join(m.label.split()[:4]) or "chart"
+    cands = []
+    for b in sam.segment_concept(page.image_path, phrase):
+        r = fitz.Rect(_px_to_pt(b["x1"], page.width, img.width), _px_to_pt(b["y1"], page.height, img.height),
+                      _px_to_pt(b["x2"], page.width, img.width), _px_to_pt(b["y2"], page.height, img.height))
+        if max(r.width, r.height) >= MIN_FIG_PT[0] and all(_iou(r, t) < 0.5 for t in taken):
+            cands.append((r, b.get("c")))
+    if not cands:
+        return None
+
+    def dist(r: fitz.Rect) -> float:
+        return abs((r.x0 + r.x1 - spark.x0 - spark.x1) / 2) + abs((r.y0 + r.y1 - spark.y0 - spark.y1) / 2)
+
+    captioned = [c for c in cands if _next_to_caption(c[0], page, m.caption)]
+    r, conf = min(captioned or cands, key=lambda c: dist(c[0]))
+    why = (f"next to its caption {m.caption}" if captioned else "nearest Muse Spark's box") \
+        + f" ({len(cands)} SAM match{'es' if len(cands) != 1 else ''})"
+    return r, conf, why
+
+
 # ---------- crops and captions ----------
 
 def _crop(pdf_page: fitz.Page, r: fitz.Rect, path: Path) -> str:
@@ -261,18 +310,22 @@ def _crop(pdf_page: fitz.Page, r: fitz.Rect, path: Path) -> str:
 
 
 def _caption_for(r: fitz.Rect, page: Page) -> str | None:
-    """Nearest 'Figure N' / 'Table N' caption just below (or above) the region."""
-    best, best_dist = None, 60.0
+    """Nearest 'Figure N' / 'Table N' caption just below the region (OpenStax puts captions
+    below), else the nearest one above. Preferring below matters for tight boxes, where the
+    previous figure's caption above can be closer than the figure's own caption."""
+    below, above = (None, 60.0), (None, 60.0)
     for b in page.text_blocks:
         if not (CAPTION_RE.match(b.text) or re.match(r"^\s*Table\s*\d", b.text)):
             continue
         br = _rect(b.bbox)
         if br.x1 < r.x0 - 40 or br.x0 > r.x1 + 40:
             continue
+        if br.y0 >= r.y1 - 10 and abs(br.y0 - r.y1) < below[1]:
+            below = (b.text.strip(), abs(br.y0 - r.y1))
         dist = min(abs(br.y0 - r.y1), abs(r.y0 - br.y1))
-        if dist < best_dist:
-            best, best_dist = b.text.strip(), dist
-    return best
+        if dist < above[1]:
+            above = (b.text.strip(), dist)
+    return below[0] or above[0]
 
 
 def _nearby_text(r: fitz.Rect, page: Page, limit: int = 600) -> str:
@@ -288,23 +341,24 @@ def _nearby_text(r: fitz.Rect, page: Page, limit: int = 600) -> str:
 
 # ---------- main ----------
 
-def detect_page(pdf: fitz.Document, page: Page, out_dir: Path,
-                use_sam: bool = True, use_check: bool = True) -> tuple[list[Region], list[str]]:
-    """Return (regions, notes). Notes are human-readable detection decisions for the trace."""
+def detect_page(pdf: fitz.Document, page: Page, out_dir: Path, use_sam: bool = True,
+                use_check: bool = True, free_figures: bool = True) -> tuple[list[Region], list[str]]:
+    """Return (regions, notes). Notes are human-readable detection decisions for the trace.
+    free_figures=False skips the embedded-image and vector layers (to test the page check alone)."""
     pdf_page = pdf[page.number - 1]
     crops = out_dir / "crops"
     crops.mkdir(parents=True, exist_ok=True)
     found: list[tuple[fitz.Rect, str, str, float | None, list | None]] = []  # rect, kind, source, conf, rows
     notes: list[str] = []
 
-    for img in page.embedded_images:
+    for img in page.embedded_images if free_figures else []:
         found.append((_rect(img.bbox), "figure", "embedded", None, None))
 
     for rect, rows in _tables(pdf_page):
         found.append((rect, "table", "table", None, rows))
 
     avoid = [f[0] for f in found]
-    for rect in _vector_figures(pdf_page, avoid, page.text_blocks):
+    for rect in _vector_figures(pdf_page, avoid, page.text_blocks) if free_figures else []:
         found.append((rect, "figure", "vector", None, None))
 
     if use_sam and page.is_scanned:
@@ -328,25 +382,26 @@ def detect_page(pdf: fitz.Document, page: Page, out_dir: Path,
             for i in sorted(drop):
                 notes.append(f"Page check: box {i + 1} ({regions[i].source}) is not a figure → removed")
             found = [f for i, f in enumerate(found) if i not in drop]
-        if check.missed:
-            img = Image.open(page.image_path)
-            for m in check.missed:
-                box = (m.x0, m.y0, m.x1, m.y1)
-                source = "spark_check"
-                if use_sam:
-                    try:
-                        from app import sam
-                        refined = sam.refine_box(page.image_path, *box, img.width, img.height)
-                        if refined:
-                            box = (refined["x1"], refined["y1"], refined["x2"], refined["y2"])
-                            source = "spark_check+sam"
-                    except Exception as e:  # SAM box prompts are optional; keep Spark's box
-                        notes.append(f"SAM refine failed ({e.__class__.__name__}); using Muse Spark's box")
-                r = fitz.Rect(_px_to_pt(box[0], page.width, img.width), _px_to_pt(box[1], page.height, img.height),
-                              _px_to_pt(box[2], page.width, img.width), _px_to_pt(box[3], page.height, img.height))
-                if all(_iou(r, f[0]) < 0.5 for f in found):
-                    found.append((r, m.kind if m.kind in ("figure", "table") else "figure", source, None, None))
-                    notes.append(f"Page check: missed {m.kind} on page {page.number} ({m.note or 'no note'}) → added")
+        for m in check.missed:
+            spark = fitz.Rect(*(min(max(v, 0), 1000) / 1000 * s for v, s in
+                                zip((m.x0, m.y0, m.x1, m.y1), (page.width, page.height) * 2))).normalize()
+            r, source, conf = spark, "spark_check", None
+            what = f"'{m.label}'" + (f" ({m.caption})" if m.caption else "")
+            if use_sam:
+                try:
+                    hit = _locate_with_sam(page, m, spark, [f[0] for f in found])
+                except Exception as e:  # SAM is optional; keep Spark's box and send it to review
+                    hit = None
+                    notes.append(f"SAM 3.1 failed ({e.__class__.__name__}) for {what}")
+                if hit:
+                    r, conf, why = hit
+                    source = "spark_check+sam"
+                    notes.append(f"Page check: SAM 3.1 placed {what} {why}")
+                else:
+                    notes.append(f"Page check: SAM 3.1 found no {what}; kept Muse Spark's box → human review")
+            if all(_iou(r, f[0]) < 0.5 for f in found):
+                found.append((r, m.kind if m.kind in ("figure", "table") else "figure", source, conf, None))
+                notes.append(f"Page check: missed {m.kind} on page {page.number} ({m.note or 'no note'}) → added")
         regions = _to_regions(pdf_page, page, found, crops)
 
     # Free signal: captions with no region near them.
@@ -393,6 +448,8 @@ def _to_regions(pdf_page, page: Page, found, crops: Path) -> list[Region]:
             nearby_text=_nearby_text(rect, page),
             table_rows=rows,
             stem_leaf=stemplot.parse(rows, caption, pdf_page.get_text()) if kind == "table" else None,
+            review_reason=("Box from the Muse Spark page check that SAM 3.1 could not confirm; "
+                           "check the crop") if source == "spark_check" else None,
         ))
     return regions
 
@@ -414,14 +471,14 @@ def draw_overlay(page: Page, regions: list[Region], path: Path) -> None:
 
 
 def detect(doc: Document, use_sam: bool = True, use_check: bool = True,
-           out_root: str | Path = "output") -> tuple[list[Region], list[str]]:
+           out_root: str | Path = "output", free_figures: bool = True) -> tuple[list[Region], list[str]]:
     out_dir = Path(out_root) / doc.id
     overlays = out_dir / "overlays"
     overlays.mkdir(parents=True, exist_ok=True)
     pdf = fitz.open(doc.source_path)
     all_regions, all_notes = [], []
     for page in doc.pages:
-        regions, notes = detect_page(pdf, page, out_dir, use_sam, use_check)
+        regions, notes = detect_page(pdf, page, out_dir, use_sam, use_check, free_figures)
         draw_overlay(page, regions, overlays / f"page_{page.number:03d}.png")
         all_regions += regions
         all_notes += notes

@@ -87,6 +87,7 @@ class Region(BaseModel):
     nearby_text: str = ""
     table_rows: list[list[str | None]] | None = None  # text tables: header row first
     stem_leaf: StemLeaf | None = None  # stemplot tables, expanded to exact values in code
+    review_reason: str | None = None  # detection is unsure (e.g. unconfirmed box): never auto-approve
 
 
 class Classification(BaseModel):
