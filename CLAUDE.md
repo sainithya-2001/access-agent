@@ -45,6 +45,11 @@ Code controls the overall order (reliable, cheap). The model decides **per figur
 
 Decision rules: mismatch → rewrite (max 2 retries); cut-off labels → recrop; decorative image getting a long description → mark_decorative; still failing or confidence < threshold → escalate.
 
+## Verifier design
+- `describe` and `extract_values` never see each other's output (independent readings; otherwise errors agree).
+- `verify` = model check against the image + free deterministic checks in code (`code_checks`: data table vs extracted values, numbers not in the figure, alt text length). Code issues force a fail.
+- PASS_THRESHOLD = 0.8 in app/agent/tools.py.
+
 ## Code rules
 1. **All model calls go through `app/llm.py` `chat()`**, which logs backend/model/request id to `output/llm_calls.jsonl`.
 2. **Cache every model response** with `app/cache.py` (key = model + prompt + image hash). Re-running a page must cost $0.
@@ -83,4 +88,6 @@ python scripts/test_api.py                 # M0
 python scripts/run_ingest.py --pages 95-97          # M1 (uses the PDF in data/samples)
 python scripts/run_detect.py --pages 95-97 --free-only   # M2, no API calls
 python scripts/run_detect.py --pages 95-97          # M2 with SAM 3.1 + Muse Spark page check
+python scripts/run_figures.py --pages 96            # M3: classify, extract, describe, verify
+python scripts/test_verifier.py                     # M4: planted-error test of the verifier
 ```

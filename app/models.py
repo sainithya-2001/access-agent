@@ -100,6 +100,8 @@ class ExtractedValues(BaseModel):
     y_axis_label: str | None = None
     labels: list[str] = []  # every visible text label
     data: list[DataPoint] = []  # charts only
+    values_estimated: bool = False  # True if values were read off the axis (not printed)
+    trend: str | None = None  # one sentence, e.g. "rises from 184 to 230 with a dip at year 7"
     labels_cut_off: bool = False  # crop missed axes/legend → recrop
 
 
@@ -111,8 +113,9 @@ class Description(BaseModel):
 
 
 class Issue(BaseModel):
-    kind: str  # e.g. "wrong_number", "missing_label", "invented_detail", "too_long_for_decorative"
+    kind: str  # e.g. "wrong_number", "missing_label", "invented_detail", "wrong_trend"
     detail: str
+    source: str = "model"  # "model" (verifier LLM) or "code" (deterministic check)
 
 
 class Verification(BaseModel):
