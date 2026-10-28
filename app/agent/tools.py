@@ -1,4 +1,4 @@
-﻿"""Agent tools (M3 + M4): classify, extract_values, describe, verify.
+"""Agent tools (M3 + M4): classify, extract_values, describe, verify.
 
 Design rule: describe() and extract_values() never see each other's output. The verifier
 compares two independent readings plus the image; if describe used the extracted values,
@@ -110,6 +110,21 @@ def verify(region: Region, desc: Description, extracted: ExtractedValues,
     return result
 
 
+class Reread(BaseModel):
+    value: float
+    printed: bool = False
+    confidence: float = 0.5
+    how: str = ""
+
+
+def reread_value(region: Region, label: str, a, b, series: str | None = None,
+                 backend: str | None = None, zoom_path: str | None = None) -> Reread:
+    """Re-read one data point from an enlarged crop (zoom_path) when two readings disagree."""
+    p = _prompt("reread", label=label, a=a, b=b,
+                series=f' (series "{series}")' if series else "")
+    return _ask(Reread, p, zoom_path or region.crop_path, f"reread:{label}", backend)
+
+
 # ---------- deterministic checks (free, reliable, explainable) ----------
 
 _NUM = re.compile(r"(?<![\w.])-?\d[\d,]*\.?\d*")
@@ -135,7 +150,11 @@ def code_checks(desc: Description, ex: ExtractedValues) -> list[Issue]:
     # Data table vs independently extracted values, matched by label.
     ref = {d.label.strip().lower(): d.value for d in ex.data if d.value is not None}
     span = (max(ref.values()) - min(ref.values())) if len(ref) > 1 else max([abs(v) for v in ref.values()] or [1])
-    tol = max(0.04 * span, 0.01 * max([abs(v) for v in ref.values()] or [1])) if ex.values_estimated else 0.005 * max(span, 1)
+    biggest = max([abs(v) for v in ref.values()] or [1])
+    # Values read off an axis carry reading error; printed values should match almost exactly.
+    # (Tuned on Figure 2.10: a true 201.6 vs an axis reading of 200 must not fail;
+    #  a planted 232 vs 207 must.)
+    tol = max(0.04 * span, 0.01 * biggest) if ex.values_estimated else 0.005 * max(span, 1)
     for row in desc.data_table:
         key = row.label.strip().lower()
         if key in ref and row.value is not None and abs(row.value - ref[key]) > max(tol, 1e-9):

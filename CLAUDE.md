@@ -50,6 +50,11 @@ Decision rules: mismatch → rewrite (max 2 retries); cut-off labels → recrop;
 - `verify` = model check against the image + free deterministic checks in code (`code_checks`: data table vs extracted values, numbers not in the figure, alt text length). Code issues force a fail.
 - PASS_THRESHOLD = 0.8 in app/agent/tools.py.
 
+## Agent loop (app/agent/orchestrator.py)
+- First pass by code: classify → extract → describe → verify. Pass → auto-approved, no agent call.
+- Fail → Muse Spark picks JSON actions (reread_value, rewrite, recrop, verify, mark_decorative, approve, escalate), each with a one-line `why`.
+- Code enforces: approve refused unless last verify passed; auto-verify after reread/rewrite/recrop; MAX_ACTIONS=8, MAX_REWRITES=2; any exception → needs_review (run never crashes).
+
 ## Code rules
 1. **All model calls go through `app/llm.py` `chat()`**, which logs backend/model/request id to `output/llm_calls.jsonl`.
 2. **Cache every model response** with `app/cache.py` (key = model + prompt + image hash). Re-running a page must cost $0.
@@ -90,4 +95,6 @@ python scripts/run_detect.py --pages 95-97 --free-only   # M2, no API calls
 python scripts/run_detect.py --pages 95-97          # M2 with SAM 3.1 + Muse Spark page check
 python scripts/run_figures.py --pages 96            # M3: classify, extract, describe, verify
 python scripts/test_verifier.py                     # M4: planted-error test of the verifier
+python scripts/run_agent.py --pages 96              # M5: agent loop with traces
+python scripts/run_agent.py --pages 96 --inject wrong_number   # M5 demo: agent fixes a planted error
 ```
