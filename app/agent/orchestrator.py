@@ -29,6 +29,8 @@ MAX_ACTIONS = 8
 MAX_REWRITES = 2
 ZOOM_DPI = 300
 RECROP_PT = 30
+COLOR_ONLY_REASON = ("Series are distinguished by colour only (no legend or labels): check which "
+                     "series is which, e.g. from the text or tables nearby, and name them in the description")
 
 
 class Action(BaseModel):
@@ -137,6 +139,11 @@ class FigureAgent:
             pairs = asked or pairs
         return max(pairs, key=lambda p: abs(p[1].value - p[0].value) if p[1] and p[1].value is not None else -1)
 
+    def _color_only(self) -> bool:
+        ex = self.res.extracted
+        series = {(d.series or "").strip().lower() for d in ex.data}
+        return ex.series_identified_by == "color_only" and len(series) >= 2
+
     # ---------- agent ----------
     def _decide(self) -> Action:
         d, ex, v = self.res.description, self.res.extracted, self.res.verification
@@ -193,6 +200,11 @@ class FigureAgent:
             self._extract()
         self._describe()
         self._verify()
+        if self._color_only():
+            # A person must say which series is which; more agent steps can't fix that.
+            self.log("escalate", "Two or more series are told apart only by colour, with no legend or "
+                     "labels naming them → a person must say which series is which")
+            return self._finish(Status.needs_review, COLOR_ONLY_REASON)
         if self.res.verification.passed:
             return self._finish(Status.auto_approved)
 

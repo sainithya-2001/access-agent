@@ -14,7 +14,11 @@ Report:
 - values_estimated: true if any value was read off the axis rather than printed
 - trend: one sentence on the overall pattern, with the key numbers (e.g. "rises from about 184 to about 230, with a small dip at year 7")
 - labels_cut_off: true if axis labels, a legend, or part of the figure appear cut off at the edge of the image
+- series_identified_by: how a reader can tell the data series apart:
+  "single_series" (only one series), "legend" (a legend names each series), "direct_labels"
+  (series names written on or next to the lines/bars), "color_only" (two or more series that differ
+  only by colour, with no legend or labels naming them), or "other"
 
 Return ONLY JSON with exactly these keys:
 {"title": ..., "x_axis_label": ..., "y_axis_label": ..., "labels": [...], "data": [...],
- "values_estimated": ..., "trend": ..., "labels_cut_off": ...}
+ "values_estimated": ..., "trend": ..., "labels_cut_off": ..., "series_identified_by": ...}

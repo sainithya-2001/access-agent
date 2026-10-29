@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from enum import Enum
+from typing import Literal
 
 from pydantic import BaseModel, Field
 
@@ -114,6 +115,10 @@ class ExtractedValues(BaseModel):
     values_estimated: bool = False  # True if values were read off the axis (not printed)
     trend: str | None = None  # one sentence, e.g. "rises from 184 to 230 with a dip at year 7"
     labels_cut_off: bool = False  # crop missed axes/legend → recrop
+    # How a reader tells the data series apart. "color_only" with 2+ series → human review:
+    # a blind student can't use colour, and without a legend nobody can say which line is which.
+    series_identified_by: Literal["single_series", "legend", "direct_labels", "color_only",
+                                  "other"] | None = None
 
 
 class Description(BaseModel):
