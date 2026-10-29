@@ -141,8 +141,7 @@ class FigureAgent:
 
     def _color_only(self) -> bool:
         ex = self.res.extracted
-        series = {(d.series or "").strip().lower() for d in ex.data}
-        return ex.series_identified_by == "color_only" and len(series) >= 2
+        return ex.series_identified_by == "color_only" and tools.series_count(ex) >= 2
 
     # ---------- agent ----------
     def _decide(self) -> Action:

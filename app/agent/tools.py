@@ -17,6 +17,7 @@ import hashlib
 import itertools
 import json
 import re
+from collections import defaultdict
 from pathlib import Path
 from typing import TypeVar
 
@@ -217,12 +218,19 @@ def _series_map(desc_pts, ref_pts, tol: float | None = None) -> dict:
     return dict(zip(d_names, best))
 
 
+def series_count(ex: ExtractedValues) -> int:
+    """Number of data series: distinct names, or the most points at one label when unnamed."""
+    per_label: dict[str, int] = defaultdict(int)
+    for d in ex.data:
+        per_label[_key(d.label)] += 1
+    return max(len({d.series for d in ex.data}), max(per_label.values(), default=0))
+
+
 def _compare_values(desc: Description, ex: ExtractedValues, tol: float) -> list[Issue]:
     ref_pts = [d for d in ex.data if d.value is not None]
     desc_pts = [d for d in desc.data_table if d.value is not None]
-    multi = len({d.series for d in ref_pts}) > 1
     issues = []
-    if not multi:
+    if series_count(ex) < 2:
         ref = {_key(d.label): d.value for d in ref_pts}
         for row in desc_pts:
             k = _key(row.label)
@@ -230,6 +238,36 @@ def _compare_values(desc: Description, ex: ExtractedValues, tol: float) -> list[
                 issues.append(Issue(kind="wrong_number", source="code",
                                     detail=f"'{row.label}': description says {row.value:g}, "
                                            f"independent reading says {ref[k]:g}."))
+        return issues
+
+    # Several values per label but no series names in the independent reading: which value belongs
+    # to which series can't be checked here, so compare each label's values as a set, paired so
+    # that the most values agree (one wrong value must not make its correct neighbour look wrong).
+    names_usable = len({(_key(d.label), d.series) for d in ref_pts}) == len(ref_pts)
+    if not names_usable:
+        by_label: dict[str, list[float]] = defaultdict(list)
+        for d in ref_pts:
+            by_label[_key(d.label)].append(d.value)
+        mine: dict[str, list] = defaultdict(list)
+        for d in desc_pts:
+            mine[_key(d.label)].append(d)
+        for k, rows in mine.items():
+            if k not in by_label:
+                continue
+            ref_vals = by_label[k]
+            if len(rows) == len(ref_vals) <= 6:
+                pairs = list(zip(rows, min(
+                    itertools.permutations(ref_vals),
+                    key=lambda perm: (-sum(abs(d.value - v) <= tol for d, v in zip(rows, perm)),
+                                      sum(abs(d.value - v) for d, v in zip(rows, perm))))))
+            else:  # different counts: each value must be near one of the readings
+                pairs = [(d, min(ref_vals, key=lambda v: abs(v - d.value))) for d in rows]
+            for d, v in pairs:
+                if abs(d.value - v) > tol:
+                    issues.append(Issue(kind="wrong_number", source="code",
+                                        detail=f"'{d.label}'{f' ({d.series})' if d.series else ''}: description "
+                                               f"says {d.value:g}, but the independent reading has "
+                                               f"{', '.join(f'{x:g}' for x in by_label[k])} at this label."))
         return issues
 
     # Several series share each label (overlaid lines, grouped bars): compare series to series.
