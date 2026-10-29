@@ -11,13 +11,23 @@ Where the drawing differs from the book's numbers, **the book is the truth** (se
 - **Detection:** free layers only (no Muse Spark page check, no SAM), so every backend describes
   exactly the same regions. All 19 benchmark regions are found this way.
 - **Agent:** the normal pipeline (`FigureAgent`), on the backend under test.
-- **Judge:** `muse-wonder-1.0` on the Meta API, the same for every backend under test.
+- **Judge:** `muse-wonder-1.0` on the Meta API at temperature 0, the same for every backend under test.
+- **Repeats:** `--rep N` gives run N its own cache namespace (so no run reuses another's or an
+  earlier run's answers), crop folder and results file (`<set>_<backend>_rN.json`). Runs in parallel
+  share the call log; each counts only lines with its own process id.
+  `scripts/summarize_repeats.py` reports mean and range per metric.
 
 ## Metrics
 
 **Unsafe approval** (headline, target 0): an auto-approved figure whose description is not accurate.
-*Accurate* means no wrong value, no invented number, no invented data label (code-scored items), or no
-factual error found by the judge (judged items), or an exact stemplot match.
+*Accurate* means:
+- items with true values: the code checks pass (no wrong value, no conflicting data-table row, no
+  invented number or data label) **and** the judge finds no factual error in the prose (change 9);
+- items without true values: the judge finds no factual error;
+- the stemplot: an exact match.
+
+Unsafe approvals are reported by what caught them: code checks, the judge on a code-scored item, or
+the judge on a judged-only item.
 
 **Correct outcome**
 - `auto_approve` items: correct only if auto-approved.
@@ -25,11 +35,17 @@ factual error found by the judge (judged items), or an exact stemplot match.
 
 **Value accuracy** (items with true values)
 - Every true value is matched to the description's data table, by series and by label.
-  - Labels match as equal numbers, as ranges with endpoints within 1% of the axis range, or by
-    shared words (abbreviations count, see change 2).
-  - Box plots are matched by statistic: min, q1, median, q3, max.
+  - Labels match as equal numbers, as ranges with endpoints within 1% of the axis range, as a range
+    and its midpoint ("0.5 to 1.5" is the bar labelled "1"), or by shared words (abbreviations count,
+    change 2). Labels that both contain numbers must contain the same numbers (change 7).
+  - Box plots are matched by statistic: min, q1, median, q3, max, by name or by the drawn part
+    ("left whisker end", "right edge of box", change 4).
 - **Series:** the book and the description name series differently ("Final grades" vs "light blue
-  line"). The scorer picks the one-to-one mapping under which the most values are correct.
+  line"). A description series named like a true series is that series; the others get the
+  one-to-one mapping under which the most values are correct (change 6).
+- **Every row counts:** a data-table row with a true label that is left over after matching (a second
+  row for one label, a series mapped to nothing) must agree with a true value at that label, or it
+  is a *conflicting row* and the item is not accurate (change 8).
 - **Tolerance:**
   - Values printed on the figure: within 0.5% of the true value (only Figure 2.5 is printed, per its notes).
   - Values read off the axis: within 3% of the axis range. The range is the smallest "from X to Y" in
@@ -46,14 +62,19 @@ factual error found by the judge (judged items), or an exact stemplot match.
     plus the step itself.
   - "Figure 2.9" or "Table 2.17" are not counted.
   - Counts of points, series or boxes are allowed.
+  - A number in the page text the agent was given (caption plus nearby text, stored with each result)
+    is allowed, exactly (change 5).
 - *Data labels* in the description's data table that match no true label.
 
-**Judged by model** (items without true values: 2.1, 2.26, 2.30, 2.44, 2.47)
+**Judge** (every dev item since change 9; the only check for 2.1, 2.26, 2.30, 2.44, 2.47)
 - `muse-wonder-1.0` compares the description with the checked reference and the notes, and lists
   factual errors and missing points (prompt: `app/agent/prompts/judge.md`).
 - It also sees the figure image, used only to confirm details the reference leaves out; where the
   image and the reference disagree, the reference wins.
-- These items are reported separately from code-scored ones.
+- It sees the page text the agent was given: a correct statement from it is not an error.
+- Its tolerance matches the code: a value read off an axis is wrong only if more than about 3% of the
+  axis range off; printed values must be exact; comparisons must be right.
+- Judged-only items are reported separately from code-scored ones.
 
 **Stemplot** (table 2.1): expanded in code by `app/stemplot.py`, compared exactly with the true values.
 
@@ -99,11 +120,66 @@ Fixed in a 6-item trial before the first full run:
   Figure 2.14's day box is drawn at about 53 against the book's 56, and its tolerance is 2.4.
 - **Missing values aren't penalised:** a description that omits values is not marked inaccurate,
   only reported as missing.
-- **Page text is not truth:** a number the description takes from the page text, not the figure,
-  counts as invented unless the reference or caption has it. Figure 2.25's "the text says the y-axis
-  goes from –2.4 to 15" is scored as two invented numbers (seen after the no-numeric-scale rule).
-- **Box plots labelled by drawing part:** STATS maps "min", "Q1", "median" etc., not "left whisker
-  end" or "left edge of box". Meta's Figure 2.11 (all five values right) scored 0/5 and five invented
-  labels after the leak-fix rerun.
+- **Temperature 0 isn't deterministic on Baseten:** the API accepts it, but the same prompt still
+  gave different answers (2 of 3 the same in a test on Oct 29). Muse Spark and Muse Wonder on the
+  Meta API gave the same answer 3 of 3. Hence the repeated runs.
 - **The judge is a model:** its verdicts are reused by `--rescore`. Changing `judge.md` requires a
   new run.
+- **Dot plots tabulated one row per dot:** Meta's Figure 2.19 data table lists each X as its own row
+  ("3: 3" four times) rather than a count per value. The counts are all right, and the judge passes
+  the prose, but the scorer reads each row as a count, so the item scores as wrong with conflicting
+  rows. For a reader the table is confusing too, so the item stays counted as unsafe.
+
+## Scorer changes on Oct 29 (dev runs only; before any held-out run)
+Changes 4 and 5 fix the two limits seen after the no-numeric-scale rerun. Changes 6–9 come from an
+audit for leniency: places where an item could score as accurate when it isn't. Each was checked on
+the saved dev results and on a constructed case.
+
+4. **Box-plot part names.** A data table may name the drawn part instead of the statistic. Meta's
+   Figure 2.11 gave all five values right as "left whisker end", "left edge of box", "dashed line
+   inside box" and so on, and scored 0/5 with five invented labels. Part names now map to statistics
+   (box edges before whisker ends). The mapping is written in the scorer, not imported from the agent,
+   so an agent bug can't hide itself in the score.
+5. **Numbers from the page text.** The agent may quote the text around the figure. Figure 2.25's
+   "the page text says the y-axis goes from –2.4 to 15" was scored as two invented numbers. Numbers
+   in the page text the agent was given are now allowed, exact matches only.
+6. **Leniency: swapped series names.** The agreement mapping let a description that swaps two series
+   (calls the day class the night class) score as fully correct, because it picked whichever mapping
+   made the most values right. A description series named like a true series is now held to it.
+   Constructed case: the same values with the names swapped went from 10/10 correct to 2 correct, 8 wrong.
+7. **Leniency: labels matched by stray words.** Word matching split numbers into words, so "1.5 to
+   2.5" matched the bar labelled "1", and "BMW 3 series" matched "BMW 5 series" (2 of 3 words).
+   Labels that both contain numbers must now contain the same numbers, compared whole; a range
+   matches the number at its midpoint. Figure 2.6's bins ("0.5 to 1.5" for bar 1) still match.
+8. **Leniency: unchecked data-table rows.** Only the first row per label was compared; a second row
+   for the same label, or the rows of a description series mapped to nothing, were ignored even if
+   wrong. Such rows must now agree with a true value at their label (*conflicting rows*).
+9. **Leniency: the prose was barely checked on code-scored items.** A number in a sentence only had
+   to be near *some* allowed number (with 63 true values almost anything is), and comparisons ("the
+   tallest bar", "about twice as tall") weren't checked at all, which matters now that charts with no
+   numeric scale are described by comparison. The judge now grades every dev item, and an item with
+   true values is accurate only if the code checks and the judge both pass. The judge also sees the
+   page text (change 5), has the code's tolerance, and runs at temperature 0.
+
+## Repeated dev runs, Oct 29: hand check of the unsafe approvals
+Three runs per backend (`--rep 1..3`, each in its own cache namespace), summarised in
+`results/dev_repeats.md`. Each unsafe approval was checked against the figure image:
+
+| Cause | Meta (runs out of 3) | Baseten (runs out of 3) |
+|---|---|---|
+| Matches the drawing, not the book: 2.14 day Q1 drawn at about 53, book 56 | 3 | 3 |
+| Wording: 2.59 says "eight states"; it is 7 states and Washington DC | 3 | 3 |
+| Real reading error: 2.25 box edges (59.7 and 86.9; drawn about 64 and 90) | 2 | 0 |
+| Real reading error: 2.19 X's miscounted (3 at 2, 5 at 3) | 0 | 1 |
+| Real reading error: 2.44 China line 0 to 4.5 (drawn 0 to 5) | 0 | 1 |
+| Wrong comparison: 2.16 bar 6 "about twice" the shortest (3x), bar 7 "four to five times" (6x) | 1 | 0 |
+| Invented detail: 2.47 minor ticks; 2.1 "many rolls with white bands" (one roll) | 0 | 2 |
+| Table format: 2.19 one row per dot (see Known limits) | 2 | 0 |
+
+Without 2.14 (drawing vs book), real errors that got through: Meta 3, 2, 3 per run (2.59 every run);
+Baseten 2, 3, 2 (2.59 every run). These runs used the crops from before the neighbouring-caption fix
+(commit 38cef0e), which changes the agent's recrops of 2.3, 2.4, 2.7, 2.9 and 2.10.
+
+Dev items share PDF pages with the held-out set only on page 173 (dev 2.59 and one held-out figure).
+The runner runs the agent on dev regions only; the free detection layer (no model calls) crops every
+region on the page.

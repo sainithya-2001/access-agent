@@ -24,7 +24,7 @@ from typing import TypeVar
 from pydantic import BaseModel, ValidationError
 
 from app.llm import chat
-from app.models import (Classification, Description, ExtractedValues, Issue, Region,
+from app.models import (Classification, DataPoint, Description, ExtractedValues, Issue, Region,
                         Verification)
 
 PROMPTS = Path(__file__).parent / "prompts"
@@ -53,9 +53,10 @@ def _json(text: str) -> dict:
     return json.loads(text[start:end + 1])
 
 
-def _ask(model: type[T], prompt: str, image: str, step: str, backend: str | None) -> T:
+def _ask(model: type[T], prompt: str, image: str, step: str, backend: str | None, **kw) -> T:
+    """kw: sampling options for chat(), e.g. temperature."""
     messages = [{"role": "user", "content": [{"type": "text", "text": prompt}, _image_part(image)]}]
-    text = chat(messages, backend=backend, step=step)
+    text = chat(messages, backend=backend, step=step, **kw)
     try:
         return model.model_validate(_json(text))
     except (ValueError, ValidationError) as e:
@@ -63,7 +64,7 @@ def _ask(model: type[T], prompt: str, image: str, step: str, backend: str | None
         messages += [{"role": "assistant", "content": text},
                      {"role": "user", "content": f"That was not valid JSON for the schema ({e}). "
                                                  "Reply again with ONLY the corrected JSON."}]
-        text = chat(messages, backend=backend, step=step + "_repair")
+        text = chat(messages, backend=backend, step=step + "_repair", **kw)
         return model.model_validate(_json(text))
 
 
@@ -76,7 +77,12 @@ def classify_region(region: Region, backend: str | None = None) -> Classificatio
 
 def extract_values(region: Region, kind: str, backend: str | None = None) -> ExtractedValues:
     p = _prompt("extract_values", type=kind)
-    return _ask(ExtractedValues, p, region.crop_path, "extract_values", backend)
+    ex = _ask(ExtractedValues, p, region.crop_path, "extract_values", backend, temperature=0)
+    if ex.boxes:  # box numbers become data points (label = statistic, series = box), checked like any value
+        pts = [DataPoint(label=stat, value=getattr(b, stat), series=b.name or f"box {i + 1}")
+               for i, b in enumerate(ex.boxes) for stat in BOX_STATS if getattr(b, stat) is not None]
+        ex.data = [d for d in ex.data if box_stat(d.label) is None] + pts
+    return ex
 
 
 def describe(region: Region, kind: str, backend: str | None = None,
@@ -101,7 +107,7 @@ def verify(region: Region, desc: Description, extracted: ExtractedValues,
                 alt_text=desc.alt_text,
                 long_description=desc.long_description,
                 data_table=json.dumps([d.model_dump() for d in desc.data_table]))
-    result = _ask(Verification, p, region.crop_path, "verify", backend)
+    result = _ask(Verification, p, region.crop_path, "verify", backend, temperature=0)
     for issue in result.issues:
         issue.source = "model"
 
@@ -147,6 +153,68 @@ def _numbers(text: str) -> list[float]:
     return out
 
 
+# Box-plot statistics, by name first, then by the drawn part a description may name instead
+# ("left whisker end", "right edge of box", "dashed line"). Box parts before whisker ends.
+BOX_STATS = ("min", "q1", "median", "q3", "max")
+_STAT_NAMES = [("min", r"\b(min|minimum|lowest|smallest)\b"), ("q1", r"\b(q1|first quartile|lower quartile|25th)\b"),
+               ("median", r"\b(median|q2)\b"), ("q3", r"\b(q3|third quartile|upper quartile|75th)\b"),
+               ("max", r"\b(max|maximum|highest|largest)\b")]
+_STAT_PARTS = [("median", r"\b(middle line|dashed line|line inside)\b"),
+               ("q1", r"\b(left|lower|bottom)\b.*\b(edge|side)\b|\bbox\b.*\b(left|lower|bottom|start)\b"),
+               ("q3", r"\b(right|upper|top)\b.*\b(edge|side)\b|\bbox\b.*\b(right|upper|top|end)\b"),
+               ("min", r"\b(left|lower|bottom)\b.*\b(whisker|end|tip)\b|\bwhisker\b.*\b(left|lower|bottom)\b"),
+               ("max", r"\b(right|upper|top)\b.*\b(whisker|end|tip)\b|\bwhisker\b.*\b(right|upper|top)\b")]
+
+
+def box_stat(label: str) -> tuple[str, str] | None:
+    """(statistic, rest of the label) for a box-plot data label, else None."""
+    low = label.lower()
+    for stat, pat in _STAT_NAMES + _STAT_PARTS:
+        if re.search(pat, low):
+            rest = [w for w in re.sub(pat, " ", low).split() if w not in _PART_WORDS]
+            return stat, " ".join(rest).strip(" -:,()")
+    return None
+
+
+_PART_WORDS = {"of", "the", "box", "edge", "side", "whisker", "end", "tip", "line", "inside", "dashed",
+               "left", "right", "upper", "lower", "top", "bottom", "-", ":"}
+
+
+def _box_rows(desc: Description, ex: ExtractedValues) -> Description:
+    """The description's data table with box-plot labels normalized to the extracted points
+    (label = statistic; series from the row, else the rest of the label, e.g. 'China max')."""
+    rows = []
+    for d in desc.data_table:
+        s = box_stat(d.label)
+        rows.append(DataPoint(label=s[0], value=d.value, series=d.series or s[1] or None) if s else d)
+    return desc.model_copy(update={"data_table": rows})
+
+
+_NO_MEDIAN = re.compile(r"\bno\b[^.]{0,60}\bmedian\b|\bmedian\b[^.]{0,40}\bnot\b[^.]{0,20}\b(visible|drawn|shown)\b",
+                        re.IGNORECASE)
+
+
+def _median_checks(desc: Description, ex: ExtractedValues) -> list[Issue]:
+    """Whether a median line is drawn must match: no median given for a box without one,
+    no 'no median line' for a box that has one."""
+    issues = []
+    drawn = [b for b in ex.boxes if b.median_drawn and b.median is not None]
+    given = [d for d in desc.data_table if (box_stat(d.label) or ("",))[0] == "median" and d.value is not None]
+    if len(given) > len(drawn):
+        issues.append(Issue(kind="wrong_number", source="code",
+                            detail=f"The data table gives {len(given)} median(s), but only {len(drawn)} "
+                                   "box(es) have a median line drawn."))
+    for sent in re.split(r"(?<=[.;])\s+", desc.long_description):
+        if not _NO_MEDIAN.search(sent):
+            continue
+        named = [b for b in ex.boxes if b.name and _words(b.name) and _words(b.name) <= _words(sent)]
+        if any(b in drawn for b in named) or (not named and len(drawn) == len(ex.boxes) > 0):
+            issues.append(Issue(kind="invented_detail", source="code",
+                                detail=f"The description says no median line is drawn ('{sent.strip()[:80]}'), "
+                                       "but the independent reading has one."))
+    return issues
+
+
 def no_numeric_scale(ex: ExtractedValues) -> bool:
     """Values were read off an axis that has no numbers: any exact value is a guess
     (e.g. bar heights against unlabeled gridlines)."""
@@ -169,14 +237,27 @@ def code_checks(desc: Description, ex: ExtractedValues, page_text: str = "") -> 
         issues.append(Issue(kind="alt_text_problem", source="code",
                             detail=f"Alt text is {len(desc.alt_text)} characters (max {ALT_MAX})."))
 
+    # Box plots: statistics compared box by box like any value; the median line must match too.
+    if ex.boxes:
+        issues += _median_checks(desc, ex)
+        desc = _box_rows(desc, ex)
+    box_pts = [d for d in ex.data if d.label in BOX_STATS and d.value is not None] if ex.boxes else []
+
     if no_numeric_scale(ex):
         # Both readings are guesses, so comparing them proves nothing. Every number must come from
         # the page text, the figure's own labels (e.g. the other axis), or be a count of its parts.
+        # Boxes drawn over such a chart sit on the other axis, which has numbers: checked as usual.
         allowed = _numbers(" ".join([page_text, ex.title or ""] + ex.labels))
-        allowed += [len(ex.data), series_count(ex)]
-        said = [d.value for d in desc.data_table if d.value is not None] + _numbers(
+        allowed += [len(ex.data) - len(box_pts), series_count(ex), len(ex.boxes)]
+        btol = 0.0
+        if box_pts:
+            bv = [d.value for d in box_pts]
+            btol = max(0.04 * (max(bv) - min(bv)), 0.01 * max(abs(v) for v in bv), 1e-9)
+            issues += _compare_values(desc, ex.model_copy(update={"data": box_pts}), btol)
+        said = [d.value for d in desc.data_table if d.value is not None and d.label not in BOX_STATS] + _numbers(
             f"{desc.alt_text} {desc.long_description}")
-        unsupported = sorted({n for n in said if not any(abs(n - a) <= 1e-6 * max(abs(a), 1) for a in allowed)})
+        unsupported = sorted({n for n in said if not any(abs(n - a) <= 1e-6 * max(abs(a), 1) for a in allowed)
+                              and not any(abs(n - d.value) <= btol for d in box_pts)})
         if unsupported:
             issues.append(Issue(kind="no_numeric_scale", source="code",
                                 detail="The value axis has no numbers, but the description gives values "

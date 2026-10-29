@@ -105,6 +105,18 @@ class DataPoint(BaseModel):
     series: str | None = None
 
 
+class BoxStats(BaseModel):
+    """One box of a box plot, read off the number line. A part that isn't drawn is None
+    (e.g. a plain line with no box has only min and max)."""
+    name: str | None = None
+    min: float | None = None
+    q1: float | None = None
+    median: float | None = None
+    q3: float | None = None
+    max: float | None = None
+    median_drawn: bool | None = None  # a median line is drawn inside (or on the edge of) the box
+
+
 class ExtractedValues(BaseModel):
     """Read from the image independently of the description; used to check it."""
     title: str | None = None
@@ -124,6 +136,7 @@ class ExtractedValues(BaseModel):
     x_axis_numeric_scale: bool | None = None
     y_axis_numeric_scale: bool | None = None
     value_axis: Literal["x", "y"] | None = None
+    boxes: list[BoxStats] = []  # box plots only
 
     @field_validator("value_axis", mode="before")
     @classmethod

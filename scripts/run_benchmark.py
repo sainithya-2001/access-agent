@@ -26,6 +26,7 @@ from __future__ import annotations
 
 import argparse
 import itertools
+import os
 import json
 import re
 import sys
@@ -45,6 +46,7 @@ from app.agent import tools  # noqa: E402
 from app.agent.orchestrator import FigureAgent  # noqa: E402
 from app.detect import detect  # noqa: E402
 from app.ingest import ingest  # noqa: E402
+from app import llm  # noqa: E402
 from app.llm import LOG_PATH, chat, get_client  # noqa: E402
 from app.models import DataPoint, Description  # noqa: E402
 
@@ -63,12 +65,35 @@ PRINTED = {"fig-2.5"}
 STATS = [("min", r"\b(min|minimum|lowest|smallest)\b"), ("q1", r"\b(q1|first quartile|lower quartile|25th)\b"),
          ("median", r"\b(median|q2|middle)\b"), ("q3", r"\b(q3|third quartile|upper quartile|75th)\b"),
          ("max", r"\b(max|maximum|highest|largest)\b")]
+# A description may name the drawn part instead ("left whisker end", "right edge of box"). Tried after
+# STATS, box edges before whisker ends. Written here, not imported from the agent, so a mapping bug in
+# the agent can't hide itself in the score.
+PARTS = [("median", r"\b(dashed line|line inside)\b"),
+         ("q1", r"\b(left|lower|bottom)\b.*\b(edge|side)\b|\bbox\b.*\b(left|lower|bottom|start)\b"),
+         ("q3", r"\b(right|upper|top)\b.*\b(edge|side)\b|\bbox\b.*\b(right|upper|top|end)\b"),
+         ("min", r"\b(left|lower|bottom)\b.*\b(whisker|end|tip)\b|\bwhisker\b.*\b(left|lower|bottom)\b"),
+         ("max", r"\b(right|upper|top)\b.*\b(whisker|end|tip)\b|\bwhisker\b.*\b(right|upper|top)\b")]
+PART_WORDS = {"of", "the", "box", "edge", "side", "whisker", "end", "tip", "line", "inside", "dashed",
+              "left", "right", "upper", "lower", "top", "bottom"}
 
 
 # ---------- running ----------
 
+def own_calls(lines: list[dict]) -> list[dict]:
+    """This process's calls only: parallel runs append to the same log."""
+    return [c for c in lines if c.get("pid") == os.getpid()]
+
+
 def log_lines() -> list[dict]:
-    return [json.loads(x) for x in open(LOG_PATH, encoding="utf-8")] if LOG_PATH.exists() else []
+    if not LOG_PATH.exists():
+        return []
+    out = []
+    for x in open(LOG_PATH, encoding="utf-8"):
+        try:
+            out.append(json.loads(x))
+        except ValueError:  # a damaged line (e.g. from before log writes were locked): skip it
+            continue
+    return out
 
 
 _STEP_AVG: dict = {}
@@ -143,28 +168,29 @@ class Judgement(BaseModel):
     accurate: bool
 
 
-def judge(item: dict, res) -> Judgement:
-    """Compare with the checked reference and the figure image; always on the Meta API."""
+def judge(item: dict, res, page_text: str = "") -> Judgement:
+    """Compare with the checked reference, the figure image and the page text; always on the Meta API,
+    at temperature 0."""
     d = res.description
     ref = item.get("reference") or {}
     prompt = (ROOT / "app" / "agent" / "prompts" / "judge.md").read_text(encoding="utf-8")
     fields = {"caption": item["caption"], "type": item["type"], "notes": item.get("notes") or "none",
               "ref_alt": ref.get("alt_text") or "(none)", "ref_long": ref.get("long_description") or "(none)",
               "alt": (d.alt_text if d else "") or "(empty: marked decorative)",
-              "long": (d.long_description if d else "") or "(none)"}
+              "long": (d.long_description if d else "") or "(none)", "page_text": page_text or "(none)"}
     for k, v in fields.items():
         prompt = prompt.replace("{" + k + "}", str(v))
     # With the image, so a true detail the reference leaves out is not counted as an error.
     messages = [{"role": "user", "content": [{"type": "text", "text": prompt},
                                              tools._image_part(res.region.crop_path)]}]
-    text = chat(messages, backend="meta", step="judge", model=JUDGE_MODEL)
+    text = chat(messages, backend="meta", step="judge", model=JUDGE_MODEL, temperature=0)
     try:
         return Judgement.model_validate(tools._json(text))
     except (ValueError, ValidationError) as e:
         messages += [{"role": "assistant", "content": text},
                      {"role": "user", "content": f"That was not valid JSON for the schema ({e}). Reply with ONLY the JSON."}]
         return Judgement.model_validate(tools._json(chat(messages, backend="meta", step="judge_repair",
-                                                         model=JUDGE_MODEL)))
+                                                         model=JUDGE_MODEL, temperature=0)))
 
 
 # ---------- scoring helpers ----------
@@ -189,6 +215,15 @@ def labels_match(a: str, b: str, tol: float) -> bool:
     ra, rb = rng(a), rng(b)
     if ra and rb and None not in ra + rb:
         return abs(ra[0] - rb[0]) <= tol and abs(ra[1] - rb[1]) <= tol
+    # A histogram bin given as its range ("0.5 to 1.5") is the bar labelled by its midpoint ("1").
+    for r, n in ((ra, nb), (rb, na)):
+        if r and None not in r and n is not None:
+            return abs((r[0] + r[1]) / 2 - n) <= max(tol, 0.1 * abs(r[1] - r[0]))
+    # "BMW 3 series" is not "BMW 5 series": numbers in both labels must be the same numbers
+    # (compared whole: word-splitting would turn "0.5 to 1.5" into 0, 5 and 1 and match "1").
+    da, db = set(tools._numbers(a)), set(tools._numbers(b))
+    if da and db and da != db:
+        return False
     wa, wb = tools._words(a), tools._words(b)
     if not (wa and wb):
         return False
@@ -240,10 +275,10 @@ def desc_points(res, boxes: bool) -> list[dict]:
         label, series = p.label, p.series
         if boxes:
             low = p.label.lower()
-            stat = next((s for s, pat in STATS if re.search(pat, low)), None)
-            if stat:
-                rest = re.sub(next(pat for s, pat in STATS if s == stat), "", low).strip(" -:,")
-                label, series = stat, series or rest or None
+            hit = next(((s, pat) for s, pat in STATS + PARTS if re.search(pat, low)), None)
+            if hit:
+                rest = " ".join(w for w in re.sub(hit[1], " ", low).split() if w not in PART_WORDS).strip(" -:,")
+                label, series = hit[0], series or rest or None
         out.append({"series": series, "label": label, "value": float(p.value), "raw_label": p.label})
     return out
 
@@ -288,8 +323,19 @@ def score_values(item: dict, res) -> dict:
         best = {tkeys[0]: merged}
     else:
         NONE = object()  # "this truth group gets no description series" (desc series may be named None)
+        # A description series named like a truth series must be that series: the agreement mapping is
+        # only for names the book doesn't use ("light blue line"), never to excuse swapped names.
+        locked = {}
+        for tk in tkeys:
+            name = tk[1].split(":", 1)[1] if tk[1].startswith("box:") else tk[1]
+            hits = [mk for mk in mkeys if mk is not None and labels_match(str(mk), name, 0)]
+            if len(hits) == 1:
+                locked[tk] = hits[0]
         perms = itertools.permutations(mkeys + [NONE] * len(tkeys), len(tkeys)) if len(mkeys) <= 6 else []
+        taken = set(locked.values())
         for perm in perms:
+            if any(locked[tk] != mk if tk in locked else mk in taken for tk, mk in zip(tkeys, perm)):
+                continue
             mapping = {tk: (m_groups[mk] if mk is not NONE else []) for tk, mk in zip(tkeys, perm)}
             ps = [(tk, p) for tk in tkeys for p in pairs_for(t_groups[tk], mapping[tk])]
             sc = (sum(abs(m["value"] - t["value"]) <= tol_for(tk)(t["value"]) for tk, (t, m) in ps), len(ps))
@@ -312,7 +358,18 @@ def score_values(item: dict, res) -> dict:
                          "result": "correct" if ok else "wrong"})
     unmatched = [m["raw_label"] for m in mine if id(m) not in matched_desc
                  and not any(labels_match(m["label"], t["label"], label_tol) for t in truth)]
-    return {"true_values": len(truth), "correct": correct, "wrong": wrong,
+    # Rows left over with a true label (a second row for one label, or a series that was mapped to
+    # nothing) must still agree with some true value at that label.
+    tk_of = {id(t): tk for tk in tkeys for t in t_groups[tk]}
+    conflicting = []
+    for m in mine:
+        if id(m) in matched_desc or m["raw_label"] in unmatched:
+            continue
+        if not any(labels_match(m["label"], t["label"], label_tol)
+                   and abs(m["value"] - t["value"]) <= tol_for(tk_of[id(t)])(t["value"]) for t in truth):
+            conflicting.append(f"{m['raw_label']} ({m['series']}): {m['value']:g}" if m["series"]
+                               else f"{m['raw_label']}: {m['value']:g}")
+    return {"true_values": len(truth), "correct": correct, "wrong": wrong, "conflicting_rows": conflicting,
             "missing": len(truth) - correct - wrong, "tolerance": "printed (0.5%)" if printed else
             "; ".join(f"{tk[1]}: 3% of {sp:g} ({src})" for tk, (sp, src) in spans.items()),
             "values": rows, "invented_labels": unmatched}
@@ -339,8 +396,9 @@ def nice_ticks(a: float, b: float) -> set[float]:
     return out
 
 
-def score_invented(item: dict, res, values: dict) -> list[str]:
-    """Numbers in the description that are nowhere in the truth, its labels and ticks, or the reference."""
+def score_invented(item: dict, res, values: dict, page_text: str = "") -> list[str]:
+    """Numbers in the description that are nowhere in the truth, its labels and ticks, the reference,
+    or (exactly) the page text the agent was given."""
     d = res.description
     if not d:
         return []
@@ -365,8 +423,11 @@ def score_invented(item: dict, res, values: dict) -> list[str]:
     for t in truth:
         groups[t["series"]].append(t["value"])
     span = min(axis_range(item, v)[0] for v in groups.values()) if truth else None
+    quoted = set(tools._numbers(page_text))
     out = []
     for n in sorted(set(tools._numbers(text))):
+        if n in quoted:  # exact only: a number near a page number is not supported by it
+            continue
         tol = (PRINTED_TOL * abs(n) if item["id"] in PRINTED else AXIS_TOL * span) if span else 0.005 * abs(n)
         if not any(abs(n - a) <= max(tol, 1e-9) for a in allowed):
             out.append(f"{n:g}")
@@ -395,8 +456,14 @@ def score_record(item: dict, rec: dict, which: str) -> None:
         vals = score_values(item, res)
         rec["values"] = vals
         rec["mentions"] = score_mentions(item, res)
-        rec["invented_numbers"] = score_invented(item, res, vals)
-        accurate = vals["wrong"] == 0 and not vals["invented_labels"] and not rec["invented_numbers"]
+        rec["invented_numbers"] = score_invented(item, res, vals, rec.get("page_text") or "")
+        rec["code_accurate"] = (vals["wrong"] == 0 and not vals["invented_labels"] and not vals.get("conflicting_rows")
+                                and not rec["invented_numbers"])
+        # The code checks the data table and stray numbers; the judge checks what the prose claims
+        # (a wrong value in a sentence, a wrong comparison). Both must pass.
+        j = rec.get("judge")
+        rec["judge_accurate"] = None if j is None else bool(j["accurate"] and not j["factual_errors"])
+        accurate = rec["code_accurate"] and rec["judge_accurate"] is not False
     elif which == "dev" and rec.get("judge"):
         judged = True
         accurate = rec["judge"]["accurate"] and not rec["judge"]["factual_errors"]
@@ -409,18 +476,22 @@ def score_record(item: dict, rec: dict, which: str) -> None:
     else:
         rec["correct_outcome"] = auto if rec["expected_outcome"] == "auto_approve" else (not auto or accurate)
         rec["unsafe"] = auto and not accurate
-    rec["scored_by"] = "judged by model" if judged else "code"
+    rec["scored_by"] = "judged by model" if judged else "code + judge" if rec.get("judge_accurate") is not None         else "code"
 
 
-def rescore(which: str, backend: str) -> None:
+def results_path(which: str, backend: str, rep: int | None) -> Path:
+    return ROOT / "eval" / "results" / (f"{which}_{backend}.json" if rep is None else f"{which}_{backend}_r{rep}.json")
+
+
+def rescore(which: str, backend: str, rep: int | None = None) -> None:
     """Re-score saved results with the current scorer; no model calls (judge verdicts are reused)."""
-    path = ROOT / "eval" / "results" / f"{which}_{backend}.json"
+    path = results_path(which, backend, rep)
     data = json.loads(path.read_text(encoding="utf-8"))
     bench = json.loads((ROOT / "eval" / ("benchmark.json" if which == "dev" else "heldout.json")).read_text(encoding="utf-8"))
     items = {f["id"]: f for f in bench["figures"]}
     for rec in data["items"]:
         if rec.get("status") != "not_detected":
-            for k in ("values", "mentions", "invented_numbers"):
+            for k in ("values", "mentions", "invented_numbers", "code_accurate", "judge_accurate"):
                 rec.pop(k, None)
             score_record(items[rec["id"]], rec, which)
     data["summary"] = summarize(data["items"])
@@ -437,9 +508,15 @@ def main() -> None:
     p.add_argument("--set", choices=["dev", "heldout"], default="dev", dest="which")
     p.add_argument("--only", default=None, help="comma-separated item ids (development aid)")
     p.add_argument("--rescore", action="store_true", help="re-score saved results; no model calls")
+    p.add_argument("--rep", type=int, default=None,
+                   help="repeat number: own cache namespace, crop folder and results file (_rN)")
     args = p.parse_args()
     if args.rescore:
-        return rescore(args.which, args.backend)
+        return rescore(args.which, args.backend, args.rep)
+    if args.rep:  # every repeat, the first included: never reuse answers from earlier runs
+        llm.RUN_TAG = f"rep{args.rep}"
+    # Own crop folder per backend and repeat, so runs can go in parallel (recrops overwrite files).
+    out_root = ROOT / "output" / "bench" / f"{args.which}_{args.backend}_r{args.rep}" if args.rep else ROOT / "output"
 
     path = ROOT / "eval" / ("benchmark.json" if args.which == "dev" else "heldout.json")
     bench = json.loads(path.read_text(encoding="utf-8"))
@@ -447,8 +524,8 @@ def main() -> None:
     pdf = ROOT / bench.get("source_pdf", "data/samples/introductory-statistics-2e_-_WEB.pdf")
     model = get_client(args.backend)[1]
 
-    doc = ingest(pdf, ",".join(str(p) for p in sorted({f["page"] for f in items})))
-    regions, _ = detect(doc, use_sam=False, use_check=False)  # free layers: same regions for every backend
+    doc = ingest(pdf, ",".join(str(p) for p in sorted({f["page"] for f in items})), out_root=out_root)
+    regions, _ = detect(doc, use_sam=False, use_check=False, out_root=out_root)  # free layers: same regions for every backend
 
     results = []
     for n, item in enumerate(items, 1):
@@ -475,10 +552,11 @@ def main() -> None:
                                  "issues": [i.model_dump() for i in res.verification.issues]}
                        if res.verification else None,
                        escalation_reason=res.escalation_reason, trace=[t.model_dump() for t in res.trace])
-            if args.which == "dev" and not true_points(item):
-                rec["judge"] = judge(item, res).model_dump()
+            rec["page_text"] = f"{region.caption or ''} {region.nearby_text}"
+            if args.which == "dev":
+                rec["judge"] = judge(item, res, rec["page_text"]).model_dump()
         score_record(item, rec, args.which)
-        rec["usage"] = cost_of(log_lines()[start:])
+        rec["usage"] = cost_of(own_calls(log_lines()[start:]))
         rec["seconds"] = round(time.time() - t0, 1)
         results.append(rec)
         flag = "UNSAFE " if rec["unsafe"] else ""
@@ -487,10 +565,10 @@ def main() -> None:
               f"  ({rec['scored_by']}, {rec['usage']['uncached']} uncached calls, {rec['seconds']}s)")
 
     summary = summarize(results)
-    out = ROOT / "eval" / "results" / f"{args.which}_{args.backend}.json"
+    out = results_path(args.which, args.backend, args.rep)
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(json.dumps({"set": args.which, "backend": args.backend, "model": model,
-                               "judge_model": JUDGE_MODEL, "prices_usd_per_million": PRICES,
+                               "judge_model": JUDGE_MODEL, "rep": args.rep, "prices_usd_per_million": PRICES,
                                "summary": summary, "items": results}, indent=2, ensure_ascii=False) + "\n",
                    encoding="utf-8")
     print_table(results, summary, args)
@@ -499,7 +577,7 @@ def main() -> None:
 
 def summarize(results: list[dict]) -> dict:
     n = len(results)
-    code = [r for r in results if r.get("scored_by") == "code"]
+    code = [r for r in results if r.get("scored_by") in ("code", "code + judge")]
     judged = [r for r in results if r.get("scored_by") == "judged by model"]
     vals = [r["values"] for r in results if r.get("values")]
     usage = defaultdict(float)
@@ -511,7 +589,9 @@ def summarize(results: list[dict]) -> dict:
         "items": n,
         "correct_outcome": sum(1 for r in results if r.get("correct_outcome")),
         "unsafe_approvals": sum(1 for r in results if r.get("unsafe")),
-        "unsafe_approvals_code_scored": sum(1 for r in code if r.get("unsafe")),
+        # Items with true values: caught by the code checks, or passed them and caught by the judge.
+        "unsafe_approvals_code_scored": sum(1 for r in code if r.get("unsafe") and not r.get("code_accurate")),
+        "unsafe_approvals_judge_on_code_scored": sum(1 for r in code if r.get("unsafe") and r.get("code_accurate")),
         "unsafe_approvals_judged_by_model": sum(1 for r in judged if r.get("unsafe")),
         "auto_approved": sum(1 for r in results if r.get("status") == "auto_approved"),
         "sent_to_review": sent,
@@ -523,6 +603,7 @@ def summarize(results: list[dict]) -> dict:
         "values_missing": sum(v["missing"] for v in vals),
         "items_with_invented_content": sum(1 for r in results if r.get("invented_numbers") or
                                            (r.get("values") or {}).get("invented_labels")),
+        "items_with_conflicting_rows": sum(1 for r in results if (r.get("values") or {}).get("conflicting_rows")),
         "judged_by_model": {"items": len(judged), "accurate": sum(1 for r in judged if r.get("accurate"))},
         "calls": int(usage["calls"]), "uncached_calls": int(usage["uncached"]),
         "input_tokens": int(usage["input_tokens"]), "output_tokens": int(usage["output_tokens"]),
@@ -544,15 +625,18 @@ def print_table(results: list[dict], s: dict, args) -> None:
         inv = ",".join((r.get("invented_numbers") or []) + (v or {}).get("invented_labels", []))[:15] or "—"
         m = r.get("mentions") or {}
         mt = f"{sum(m.values())}/{len(m)}" if m else "—"
-        if r.get("judge"):
+        if r.get("judge") and not v:
             vtxt = f"{len(r['judge']['factual_errors'])} errors"
+        elif r.get("judge") and r["judge"]["factual_errors"]:
+            vtxt += f" j{len(r['judge']['factual_errors'])}"
         out = "ok" if r.get("correct_outcome") else "WRONG" if r.get("correct_outcome") is False else "?"
         u = r.get("usage") or {}
         print(f"{r['id']:11}{r.get('expected_outcome') or '':16}{r['status']:15}{out:9}{vtxt:12}{inv:16}{mt:8}"
               f"{r.get('scored_by', ''):17}{u.get('uncached', 0):>6}{u.get('usd', 0):>8.3f}{r.get('seconds', 0):>7.0f}"
               + ("  UNSAFE" if r.get("unsafe") else ""))
     print(f"\n{args.which} set on {args.backend}: {s['items']} items")
-    print(f"  Unsafe approvals:   {s['unsafe_approvals']}  (code-scored {s['unsafe_approvals_code_scored']}, "
+    print(f"  Unsafe approvals:   {s['unsafe_approvals']}  (code checks {s['unsafe_approvals_code_scored']}, "
+          f"judge on code-scored {s.get('unsafe_approvals_judge_on_code_scored', 0)}, "
           f"judged by model {s['unsafe_approvals_judged_by_model']})   target 0")
     print(f"  Correct outcome:    {s['correct_outcome']}/{s['items']}")
     if s["true_values"]:

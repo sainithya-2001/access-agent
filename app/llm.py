@@ -29,6 +29,9 @@ BACKENDS = {
 }
 
 LOG_PATH = Path("output/llm_calls.jsonl")
+# Set for repeated benchmark runs ("rep1", "rep2", ...): a cache namespace per repeat, so each repeat
+# makes its own model calls (and is itself cached). Empty for normal runs.
+RUN_TAG = ""
 
 
 def get_client(backend: str | None = None):
@@ -52,7 +55,7 @@ def chat(messages, backend: str | None = None, step: str = "", use_cache: bool =
     """
     client, default_model, backend = get_client(backend)
     model = model or default_model
-    key = cache.make_key(model, step, [messages, kwargs])
+    key = cache.make_key(model, step, [messages, kwargs] + ([RUN_TAG] if RUN_TAG else []))
     if use_cache and (hit := cache.get(key)) is not None:
         _log({"step": step, "backend": backend, "model": model, "cached": True, "key": key,
               "original": cache.usage(key)})  # tokens of the call that filled the cache, if known
@@ -81,6 +84,35 @@ def chat(messages, backend: str | None = None, step: str = "", use_cache: bool =
 
 def _log(entry: dict) -> None:
     LOG_PATH.parent.mkdir(parents=True, exist_ok=True)
-    entry = {"time": time.strftime("%Y-%m-%dT%H:%M:%S"), **entry}
-    with LOG_PATH.open("a", encoding="utf-8") as f:
-        f.write(json.dumps(entry) + "\n")
+    # pid and run tag: runs in parallel share this log, so each run counts only its own lines.
+    entry = {"time": time.strftime("%Y-%m-%dT%H:%M:%S"), "pid": os.getpid(),
+             **({"run_tag": RUN_TAG} if RUN_TAG else {}), **entry}
+    line = (json.dumps(entry) + "\n").encode("utf-8")
+    # Parallel runs append to the same file; without a lock their writes can interleave mid-line.
+    with open(LOG_PATH.with_suffix(".lock"), "a+b") as lock:
+        _lock(lock)
+        try:
+            with LOG_PATH.open("ab") as f:
+                f.write(line)
+        finally:
+            _unlock(lock)
+
+
+if os.name == "nt":
+    import msvcrt
+
+    def _lock(f):
+        f.seek(0)
+        msvcrt.locking(f.fileno(), msvcrt.LK_LOCK, 1)  # retries for ~10 s, then raises
+
+    def _unlock(f):
+        f.seek(0)
+        msvcrt.locking(f.fileno(), msvcrt.LK_UNLCK, 1)
+else:
+    import fcntl
+
+    def _lock(f):
+        fcntl.flock(f, fcntl.LOCK_EX)
+
+    def _unlock(f):
+        fcntl.flock(f, fcntl.LOCK_UN)

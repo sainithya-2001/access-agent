@@ -37,8 +37,8 @@ Code controls the order; the model decides **per figure** inside a capped loop.
 - **First pass, by code:** classify → extract_values → (labels cut off → recrop 30pt, re-extract) → describe → verify. Pass → auto-approved, no agent call.
 - **On fail**, Muse Spark picks JSON actions with a one-line `why`: reread_value, rewrite, recrop, verify, mark_decorative, approve, escalate.
 - **Limits enforced in code:** `MAX_ACTIONS = 8`, `MAX_REWRITES = 2`; approve refused unless the last verify passed; auto-verify after reread/rewrite/recrop; any exception → needs_review (a run never crashes); a region with `review_reason` is never auto-approved.
-- **Verifier:** `describe` and `extract_values` never see each other's output. `verify` = model check against the image + `code_checks` (data table vs extracted values, matched by label and by series for multi-series charts; numbers not in the figure; alt text ≤ 150; title/axis labels mentioned). Code issues force a fail (confidence capped at 0.6). `PASS_THRESHOLD = 0.8` (tools.py).
-- **General rules, straight to review:** colour-only series (2+ series, no legend/labels); no numeric scale on the value axis (`tools.no_numeric_scale`) → describe compares instead of estimating, any number not in the page text/labels → review "values can't be read: no numeric scale", and the export omits the data table; leaked checking-process words fail verify.
+- **Verifier:** `describe` and `extract_values` never see each other's output. `verify` = model check against the image + `code_checks` (data table vs extracted values, matched by label and by series for multi-series charts; box plots box by box from the extracted five numbers, plus whether a median line is drawn; numbers not in the figure; alt text ≤ 150; title/axis labels mentioned). Code issues force a fail (confidence capped at 0.6). `PASS_THRESHOLD = 0.8` (tools.py). Extract and verify run at temperature 0 (deterministic on the Meta API, not on Baseten).
+- **General rules, straight to review:** color-only series (2+ series, no legend/labels); no numeric scale on the value axis (`tools.no_numeric_scale`) → describe compares instead of estimating, any number not in the page text/labels → review "values can't be read: no numeric scale", and the export omits the data table; leaked checking-process words fail verify.
 
 ## Code rules
 1. **All model calls go through `app/llm.py` `chat()`** (SAM through `app/sam.py`); both log backend/model to `output/llm_calls.jsonl`.
@@ -63,7 +63,7 @@ Code controls the order; the model decides **per figure** inside a capped loop.
 | M5 | Agent loop | ✅ |
 | M6 | HTML export | ✅ axe-core 0 violations; manual screen-reader pass still to do |
 | M7 | Review queue | ✅ SQLite store, FastAPI, queue UI; axe 0 violations + keyboard walk |
-| M8 | Benchmark | 🟡 dev set done on both backends (`eval/results/`, scoring in `eval/SCORING.md`): unsafe approvals Meta 2, Baseten 3 (target 0); held-out run still to do |
+| M8 | Benchmark | 🟡 dev set, 3 runs per backend (`eval/results/dev_repeats.md`, scoring and hand check in `eval/SCORING.md`): unsafe approvals Meta 3.7 (3–4), Baseten 3.3 (3–4), target 0; held-out run still to do |
 
 ## Add-ons (only after M8; decided later)
 Blindfold mode (browser TTS) · Reading profiles · Hear the chart (sonification of verified values) · Lecture → verified notes · Accessible exam conversion · Muse Image diagram redraws.
@@ -92,4 +92,6 @@ python scripts/check_a11y.py --review                          # M7: axe-core + 
 python eval/make_benchmark.py                                  # M8: draft benchmark → eval/benchmark_draft.json
 python scripts/run_benchmark.py --backend meta --set dev       # M8: run + score → eval/results/dev_meta.json
 python scripts/run_benchmark.py --backend meta --set dev --rescore  # M8: re-score saved results, no model calls
+python scripts/run_benchmark.py --backend meta --set dev --rep 2    # M8: repeat N: own cache namespace, crops, _rN results
+python scripts/summarize_repeats.py --set dev --reps 3            # M8: mean and range over repeats → eval/results/dev_repeats.md
 ```

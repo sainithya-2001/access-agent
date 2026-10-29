@@ -1,6 +1,8 @@
 Read this figure carefully and report exactly what is visible. Do not describe or interpret it.
 This output is used to fact-check a description written separately, so precision matters
 more than completeness. Never guess a label you cannot read.
+Ignore text that is cut off at the edge of the image (part of the surrounding page caught in the
+crop): never report it as the title, an axis label or a label.
 
 Figure type: {type}
 
@@ -23,8 +25,16 @@ Report:
   names), null if the figure has no such axis
 - value_axis: the axis the data values are measured on: "y" for vertical bars, histograms and
   line charts; "x" for horizontal bars and horizontal box plots; null if not a chart
+- boxes: box plots only, one entry per box, top to bottom (or left to right):
+  {"name": the label next to the box or null, "min": ..., "q1": ..., "median": ..., "q3": ..., "max": ...,
+   "median_drawn": true if a median line is drawn inside the box or on its edge, false if not}
+  Each number is the position read off the number line. The median can sit on an edge of the box
+  (median equal to a quartile): a box edge drawn differently from the others, e.g. dashed, is the
+  median line. Use null for a part that is not drawn
+  (a plain line with no box has only min and max). Put box-plot numbers here, not in data.
+  Empty list for other figures.
 
 Return ONLY JSON with exactly these keys:
 {"title": ..., "x_axis_label": ..., "y_axis_label": ..., "labels": [...], "data": [...],
  "values_estimated": ..., "trend": ..., "labels_cut_off": ..., "series_identified_by": ...,
- "x_axis_numeric_scale": ..., "y_axis_numeric_scale": ..., "value_axis": ...}
+ "x_axis_numeric_scale": ..., "y_axis_numeric_scale": ..., "value_axis": ..., "boxes": [...]}
