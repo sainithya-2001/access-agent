@@ -1,5 +1,5 @@
 {
-  "description": "Benchmark figures from OpenStax Introductory Statistics 2e, Chapter 2 (CC BY 4.0). True values come from the textbook's own tables and text; null where the book gives none. Reference descriptions are drafts. Every entry needs a human check (verified: false). expected_outcome: auto_approve = the agent should approve it; needs_review_ok = sending it to human review also counts as correct.",
+  "description": "Benchmark figures from OpenStax Introductory Statistics 2e, Chapter 2 (CC BY 4.0). True values come from the textbook's own tables and text; null where the book gives none. Every item was checked against its figure image; corrections and places where the drawing differs from the book's numbers are recorded in notes. expected_outcome: auto_approve = the agent should approve it; needs_review_ok = sending it to human review also counts as correct.",
   "source_pdf": "data/samples/introductory-statistics-2e_-_WEB.pdf",
   "figures": [
     {
@@ -20,7 +20,7 @@
       },
       "expected_outcome": "auto_approve",
       "notes": "Chapter opener photo. The caption already explains it, so a short alt text and no long description is the expected outcome.",
-      "verified": false
+      "verified": true
     },
     {
       "id": "fig-2.2",
@@ -72,7 +72,7 @@
       },
       "expected_outcome": "auto_approve",
       "notes": "The x-axis runs to 6 but there is no point at 6.",
-      "verified": false
+      "verified": true
     },
     {
       "id": "fig-2.3",
@@ -120,7 +120,7 @@
       },
       "expected_outcome": "auto_approve",
       "notes": "",
-      "verified": false
+      "verified": true
     },
     {
       "id": "fig-2.5",
@@ -179,8 +179,8 @@
         "long_description": "Histogram of the heights, in inches, of 100 semiprofessional soccer players. The horizontal axis is Heights, with class boundaries every 2 inches from 59.95 to 75.95; the vertical axis is Relative Frequency, from 0 to 0.4. Each bar is labeled with its value: 59.95–61.95, 0.05; 61.95–63.95, 0.03; 63.95–65.95, 0.15; 65.95–67.95, 0.40; 67.95–69.95, 0.17; 69.95–71.95, 0.12; 71.95–73.95, 0.07; 73.95–75.95, 0.01. Most heights are between 63.95 and 71.95 inches, with a single peak at 65.95–67.95."
       },
       "expected_outcome": "auto_approve",
-      "notes": "Values are printed on the bars, so they must match exactly. The x tick labels are rotated.",
-      "verified": false
+      "notes": "Values are printed on the bars, so they must match exactly. The x tick labels are rotated. Checked against the image: the bars labeled 0.17 and 0.12 are drawn lower than their labels (about 0.157 and 0.113). The printed labels are the truth.",
+      "verified": true
     },
     {
       "id": "fig-2.6",
@@ -232,7 +232,7 @@
       },
       "expected_outcome": "auto_approve",
       "notes": "Values are not printed on the bars; read off the axis.",
-      "verified": false
+      "verified": true
     },
     {
       "id": "fig-2.9",
@@ -320,8 +320,8 @@
         "long_description": "Two frequency polygons drawn on the same axes, titled Final Test Grade v Final Grade. The horizontal axis is Grades, at class midpoints from 44.5 to 104.5; the vertical axis is Frequency, from 0 to 50. Final test scores: 44.5, 0; 54.5, 5; 64.5, 10; 74.5, 30; 84.5, 40; 94.5, 15; 104.5, 0. Final grades: 44.5, 0; 54.5, 10; 64.5, 10; 74.5, 30; 84.5, 45; 94.5, 5; 104.5, 0. Both rise to a peak at 84.5. Final grades have more values at 54.5 and 84.5 and fewer at 94.5 than test scores."
       },
       "expected_outcome": "needs_review_ok",
-      "notes": "Review is a correct outcome: The two series differ only by color and the crop has no legend, so the image alone cannot say which line is test scores and which is final grades. Two series, told apart only by color (dark and light blue), with no legend in the crop. Which line is which comes from the tables: light blue = final grades (10 at 54.5, 45 at 84.5).",
-      "verified": false
+      "notes": "Review is a correct outcome: The two series differ only by color and the crop has no legend, so the image alone cannot say which line is test scores and which is final grades. Two series, told apart only by color (dark and light blue), with no legend in the crop. Which line is which comes from the tables: light blue = final grades (10 at 54.5, 45 at 84.5). Checked against the image: the drawing is approximate. Both lines sit at about 11 at 64.5 (tables: 10), the dark line at about 16.5 at 94.5 (table: 15), the light line at about 44.5 at 84.5 (table: 45).",
+      "verified": true
     },
     {
       "id": "fig-2.10",
@@ -389,7 +389,7 @@
       },
       "expected_outcome": "auto_approve",
       "notes": "Values in the figure must be read off the axis; the textbook values have up to 3 decimals.",
-      "verified": false
+      "verified": true
     },
     {
       "id": "fig-2.11",
@@ -436,7 +436,7 @@
       },
       "expected_outcome": "auto_approve",
       "notes": "",
-      "verified": false
+      "verified": true
     },
     {
       "id": "fig-2.14",
@@ -471,11 +471,11 @@
       "values_source": "Example 2.24 solution, parts a and b (p. 109)",
       "reference": {
         "alt_text": "Two box plots of statistics test scores on one number line, day class above night class; the night class box is narrower and higher.",
-        "long_description": "Two box plots on one number line from 20 to 100. Upper plot (day class): minimum 32, first quartile 56, median 74.5, third quartile 82.5, maximum 99. Lower plot (night class): minimum 25.5, first quartile 78, median 81, third quartile 89, maximum 98. The day class has a much wider box, so the middle 50% of its scores are more spread out. The night class scores are concentrated higher, but it has a long left whisker down to 25.5."
+        "long_description": "Two box plots on one number line from 20 to 100. The figure does not label them; the text identifies the upper plot as the day class and the lower as the night class. Values from the text: upper plot (day class) minimum 32, first quartile 56, median 74.5, third quartile 82.5, maximum 99; lower plot (night class) minimum 25.5, first quartile 78, median 81, third quartile 89, maximum 98. The day class has a much wider box, so the middle 50% of its scores are more spread out. The night class scores are concentrated higher, but it has a long left whisker down to about 25."
       },
       "expected_outcome": "needs_review_ok",
-      "notes": "Review is a correct outcome: The figure does not label which box plot is the day class and which the night class; that is only knowable from the text. The figure itself does not label which plot is day and which is night; the order (day on top) comes from matching the summaries. A good description should say the labels are not shown, or use the text.",
-      "verified": false
+      "notes": "Review is a correct outcome: The figure does not label which box plot is the day class and which the night class; that is only knowable from the text. The figure itself does not label which plot is day and which is night; the order (day on top) comes from matching the summaries. A good description should say the labels are not shown, or use the text. Checked against the image: the drawing is approximate. The day box's left edge is drawn at about 53 (text 56), both upper whiskers end at about 100 (text 99 and 98), and the night box's right edge is at about 90 (text 89).",
+      "verified": true
     },
     {
       "id": "fig-2.16",
@@ -549,7 +549,7 @@
       },
       "expected_outcome": "auto_approve",
       "notes": "No axis titles and no y-axis numbers: values can only be checked against the text. A description that gives exact counts read from the image is guessing.",
-      "verified": false
+      "verified": true
     },
     {
       "id": "fig-2.19",
@@ -629,7 +629,7 @@
       },
       "expected_outcome": "auto_approve",
       "notes": "",
-      "verified": false
+      "verified": true
     },
     {
       "id": "fig-2.25",
@@ -716,11 +716,11 @@
       "values_source": "Example 2.33 data and solution (pp. 123–124); histogram counts computed from the data at the solution's interval endpoints",
       "reference": {
         "alt_text": "Box plot drawn above a histogram of 31 exam scores from 32.5 to 100.5; the highest bar is 86.9 to 100.5.",
-        "long_description": "A box plot and a histogram on the same horizontal axis, marked 32.5, 46.1, 59.7, 73.3, 73.5, 86.9 and 100.5, for 31 first-exam scores. Box plot: minimum 33, first quartile 61, median 73, third quartile 90, maximum 100. Histogram with five intervals of width 13.6: 32.5–46.1, 2 scores; 46.1–59.7, 5; 59.7–73.3, 9; 73.3–86.9, 4; 86.9–100.5, 11. The scores are skewed left: most are high, with a long tail of lower scores."
+        "long_description": "A box plot drawn above a histogram on the same horizontal axis, marked 32.5, 46.1, 59.7, 73.3, 73.5, 86.9 and 100.5, for 31 first-exam scores. Box plot as drawn: whiskers from about 32.5 to 100.5, box from about 64 to 90, dashed line at 73.5. The text gives minimum 33, first quartile 61, median 73, third quartile 90 and maximum 100, so the drawing does not match exactly. Histogram with five intervals of width 13.6; counts from the data: 32.5–46.1, 2 scores; 46.1–59.7, 5; 59.7–73.3, 9; 73.3–86.9, 4; 86.9–100.5, 11. The y-axis has gridlines but no numbers. The scores are skewed left: most are high, with a long tail of lower scores."
       },
       "expected_outcome": "needs_review_ok",
-      "notes": "Review is a correct outcome: The drawn bar heights do not scale with the counts computed from the data, the y-axis has no numbers, and the 73.3 / 73.5 ticks are ambiguous; a verifier should see the readings disagree. Check: the drawn bar heights do not scale exactly with these counts, and the y-axis has no numbers. The axis shows both 73.3 and 73.5; the text gives median 73 and mean 73.5. Confirm what the dashed line and the 73.5 tick mark.",
-      "verified": false
+      "notes": "Review is a correct outcome: The drawn bar heights do not scale with the counts computed from the data, the y-axis has no numbers, and the 73.3 / 73.5 ticks are ambiguous; a verifier should see the readings disagree. Check: the drawn bar heights do not scale exactly with these counts, and the y-axis has no numbers. The axis shows both 73.3 and 73.5; the text gives median 73 and mean 73.5. Checked against the image: the dashed line sits exactly at the 73.5 tick (the text's mean is 73.5, its median 73), and the box's left edge is drawn at about 64, not the text's first quartile of 61.",
+      "verified": true
     },
     {
       "id": "fig-2.26",
@@ -749,7 +749,7 @@
       },
       "expected_outcome": "auto_approve",
       "notes": "Text image, not a chart. Expected: transcribe the screen; no data table.",
-      "verified": false
+      "verified": true
     },
     {
       "id": "fig-2.30",
@@ -768,8 +768,8 @@
         "long_description": "Blank axes for students to draw their own histogram in the stats lab. The vertical axis is labeled Frequency and the horizontal axis Number of Pairs of Shoes. There are no scales, bars or data."
       },
       "expected_outcome": "needs_review_ok",
-      "notes": "Review is a correct outcome: Blank axes with no data: a person should confirm that an empty-graph description is right (an auto-approved description is also fine if it invents nothing). Trap figure: there are no data. Any number or trend in the description is invented.",
-      "verified": false
+      "notes": "Review is a correct outcome: Blank axes with no data: a person should confirm that an empty-graph description is right (an auto-approved description is also fine if it invents nothing). Trap figure: there are no data. Any number or trend in the description is invented. The detected crop also includes a cut-off line of instruction text above the axes; a description should not treat it as part of the graph.",
+      "verified": true
     },
     {
       "id": "fig-2.44",
@@ -789,7 +789,7 @@
       },
       "expected_outcome": "auto_approve",
       "notes": "No numbers in the text; values are null. The numbers in the draft are read by eye from the figure. China is drawn without a box, which is an unusual case worth describing as drawn.",
-      "verified": false
+      "verified": true
     },
     {
       "id": "fig-2.47",
@@ -809,7 +809,7 @@
       },
       "expected_outcome": "auto_approve",
       "notes": "No exact values in the text; values are null. The draft numbers are read by eye. The solutions (p. 176) give only estimates for the 5 series: second quarter about 3 years, third quarter about 14 years, IQR about 17 years.",
-      "verified": false
+      "verified": true
     },
     {
       "id": "fig-2.58",
@@ -1099,7 +1099,7 @@
       },
       "expected_outcome": "auto_approve",
       "notes": "Small text, 21 x-axis labels rotated, three series told apart by color and a legend at the bottom. Hardest chart in the set to read.",
-      "verified": false
+      "verified": true
     },
     {
       "id": "fig-2.59",
@@ -1154,12 +1154,12 @@
       },
       "values_source": "Solution 75a (pp. 172–173); the measure is from Exercise 75 (p. 147, Table 2.62)",
       "reference": {
-        "alt_text": "Bar graph of the percent of adults never married in 8 sampled states; Mississippi is highest at 34.0%, Washington DC lowest at 22.2%.",
-        "long_description": "Bar graph of the percent of adults who were never married, for a random sample of 8 states and Washington DC. The vertical axis is Percent (%), from 0 to 40. Arkansas 30.1; Washington DC 22.2; Idaho 26.5; Maryland 27.1; Michigan 30.9; Mississippi 34.0; Virginia 26.0; Wyoming 25.1. Values range from 22.2 to 34.0, mostly between 25 and 31."
+        "alt_text": "Bar graph of the percent of adults never married in 7 states and Washington DC; Mississippi is highest at 34.0%, DC lowest at 22.2%.",
+        "long_description": "Bar graph of the percent of adults who were never married, for 8 places: 7 states and Washington DC (labeled Wash DC). The vertical axis is Percent (%), from 0 to 40. Arkansas 30.1; Washington DC 22.2; Idaho 26.5; Maryland 27.1; Michigan 30.9; Mississippi 34.0; Virginia 26.0; Wyoming 25.1. Values range from 22.2 to 34.0, mostly between 25 and 31."
       },
       "expected_outcome": "auto_approve",
-      "notes": "The x labels are rotated and DC is written 'Wash DC'. The figure does not say what the percent measures (adults never married); that comes from Exercise 75.",
-      "verified": false
+      "notes": "The x labels are rotated and DC is written 'Wash DC'. The figure does not say what the percent measures (adults never married); that comes from Exercise 75. Corrected: the chart has 8 bars, 7 states plus Washington DC, not 8 states plus DC.",
+      "verified": true
     },
     {
       "id": "table-2.1",
@@ -1223,7 +1223,7 @@
       },
       "expected_outcome": "auto_approve",
       "notes": "Expanded in code by app/stemplot.py, no model; region.stem_leaf must equal data.values.",
-      "verified": false
+      "verified": true
     }
   ]
 }
