@@ -44,33 +44,38 @@ def get_client(backend: str | None = None):
 
 
 def chat(messages, backend: str | None = None, step: str = "", use_cache: bool = True,
-         **kwargs) -> str:
+         model: str | None = None, **kwargs) -> str:
     """Send a chat request (cached), and log which backend/model handled it.
 
     Usage is logged per call to output/llm_calls.jsonl so spend can be tracked.
+    model: use another model on the same backend (e.g. the benchmark judge, muse-wonder-1.0).
     """
-    client, model, backend = get_client(backend)
+    client, default_model, backend = get_client(backend)
+    model = model or default_model
     key = cache.make_key(model, step, [messages, kwargs])
     if use_cache and (hit := cache.get(key)) is not None:
-        _log({"step": step, "backend": backend, "model": model, "cached": True})
+        _log({"step": step, "backend": backend, "model": model, "cached": True, "key": key,
+              "original": cache.usage(key)})  # tokens of the call that filled the cache, if known
         return hit
 
     start = time.time()
     resp = client.chat.completions.create(model=model, messages=messages, **kwargs)
     text = resp.choices[0].message.content or ""
     usage = getattr(resp, "usage", None)
+    spent = {"input_tokens": getattr(usage, "prompt_tokens", None),
+             "output_tokens": getattr(usage, "completion_tokens", None),
+             "seconds": round(time.time() - start, 2)}
     _log({
         "step": step,
         "backend": backend,
         "model": model,
         "cached": False,
+        "key": key,  # lets later cached hits be traced to this call's tokens (full-cost estimates)
         "request_id": getattr(resp, "id", None),
-        "input_tokens": getattr(usage, "prompt_tokens", None),
-        "output_tokens": getattr(usage, "completion_tokens", None),
-        "seconds": round(time.time() - start, 2),
+        **spent,
     })
     if use_cache:
-        cache.put(key, text)
+        cache.put(key, text, spent)
     return text
 
 

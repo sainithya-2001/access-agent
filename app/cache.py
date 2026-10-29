@@ -21,13 +21,23 @@ def make_key(model: str, step: str, messages, extra: bytes | None = None) -> str
     return h.hexdigest()
 
 
-def get(key: str) -> str | None:
+def _entry(key: str) -> dict | None:
     path = CACHE_DIR / f"{key}.json"
-    if path.exists():
-        return json.loads(path.read_text(encoding="utf-8"))["response"]
-    return None
+    return json.loads(path.read_text(encoding="utf-8")) if path.exists() else None
 
 
-def put(key: str, response: str) -> None:
+def get(key: str) -> str | None:
+    e = _entry(key)
+    return e["response"] if e else None
+
+
+def usage(key: str) -> dict | None:
+    """Tokens and seconds of the original (uncached) call, if recorded (entries since Oct 28)."""
+    e = _entry(key)
+    return e.get("usage") if e else None
+
+
+def put(key: str, response: str, usage: dict | None = None) -> None:
     CACHE_DIR.mkdir(parents=True, exist_ok=True)
-    (CACHE_DIR / f"{key}.json").write_text(json.dumps({"response": response}), encoding="utf-8")
+    entry = {"response": response} | ({"usage": usage} if usage else {})
+    (CACHE_DIR / f"{key}.json").write_text(json.dumps(entry), encoding="utf-8")

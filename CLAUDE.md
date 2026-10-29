@@ -49,6 +49,7 @@ Code controls the order; the model decides **per figure** inside a capped loop.
 7. Never invent chart numbers. Data tables come from `extract_values` after verification.
 8. **Held-out set (`eval/heldout.json`: 8 Chapter 2 figures on PDF pages 168–175, 8 Chapter 12 figures on pages 630–670): run once, for the final report.** No prompt, threshold, or code changes may be based on held-out results. Do not run, inspect, or debug the pipeline on those pages during development; tune on `eval/benchmark.json` only.
 9. Never print `.env`.
+10. **Scorer frozen for the held-out run.** Once a held-out run starts, the scoring logic in `scripts/run_benchmark.py` and the judge prompt `app/agent/prompts/judge.md` do not change. Scoring and its post-hoc changes are documented in `eval/SCORING.md`.
 
 ## Milestones
 | # | Milestone | Status |
@@ -61,7 +62,7 @@ Code controls the order; the model decides **per figure** inside a capped loop.
 | M5 | Agent loop | ✅ |
 | M6 | HTML export | ✅ axe-core 0 violations; manual screen-reader pass still to do |
 | M7 | Review queue | ✅ SQLite store, FastAPI, queue UI; axe 0 violations + keyboard walk |
-| M8 | Benchmark | ⏳ accuracy, verifier catch rate, review effort saved, cost per page (`eval/benchmark.json`, 19 items; held-out set last) |
+| M8 | Benchmark | 🟡 dev set done on both backends (`eval/results/`, scoring in `eval/SCORING.md`): unsafe approvals Meta 2, Baseten 3 (target 0); held-out run still to do |
 
 ## Add-ons (only after M8; decided later)
 Blindfold mode (browser TTS) · Reading profiles · Hear the chart (sonification of verified values) · Lecture → verified notes · Accessible exam conversion · Muse Image diagram redraws.
@@ -88,4 +89,6 @@ python scripts/run_review.py --pages 84-97,109,124,130         # M7: pipeline in
 uvicorn app.api:app --port 8000                                # M7: review screen, http://localhost:8000
 python scripts/check_a11y.py --review                          # M7: axe-core + keyboard walk on the UI
 python eval/make_benchmark.py                                  # M8: draft benchmark → eval/benchmark_draft.json
+python scripts/run_benchmark.py --backend meta --set dev       # M8: run + score → eval/results/dev_meta.json
+python scripts/run_benchmark.py --backend meta --set dev --rescore  # M8: re-score saved results, no model calls
 ```
