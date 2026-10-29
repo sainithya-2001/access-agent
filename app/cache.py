@@ -6,6 +6,8 @@ by content, so the same crop always hits the cache even under a new file name.
 
 import hashlib
 import json
+import os
+import threading
 from pathlib import Path
 
 CACHE_DIR = Path("cache/llm")
@@ -23,7 +25,10 @@ def make_key(model: str, step: str, messages, extra: bytes | None = None) -> str
 
 def _entry(key: str) -> dict | None:
     path = CACHE_DIR / f"{key}.json"
-    return json.loads(path.read_text(encoding="utf-8")) if path.exists() else None
+    try:
+        return json.loads(path.read_text(encoding="utf-8"))
+    except (FileNotFoundError, json.JSONDecodeError, PermissionError):
+        return None  # missing, or (from before writes were atomic) half-written: a miss
 
 
 def get(key: str) -> str | None:
@@ -40,4 +45,11 @@ def usage(key: str) -> dict | None:
 def put(key: str, response: str, usage: dict | None = None) -> None:
     CACHE_DIR.mkdir(parents=True, exist_ok=True)
     entry = {"response": response} | ({"usage": usage} if usage else {})
-    (CACHE_DIR / f"{key}.json").write_text(json.dumps(entry), encoding="utf-8")
+    # Threads and parallel runs may write the same key: write a temp file, then rename it into
+    # place, so a reader never sees half an entry.
+    tmp = CACHE_DIR / f"{key}.{os.getpid()}.{threading.get_ident()}.tmp"
+    tmp.write_text(json.dumps(entry), encoding="utf-8")
+    try:
+        os.replace(tmp, CACHE_DIR / f"{key}.json")
+    except PermissionError:  # Windows: another writer has the file open; its entry is just as good
+        tmp.unlink(missing_ok=True)

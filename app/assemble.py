@@ -21,7 +21,7 @@ from pathlib import Path
 
 import pymupdf as fitz
 
-from app import stemplot
+from app import pdf, stemplot
 from app.agent import tools
 from app.models import Document, FigureResult, Region, Status, TextBlock
 
@@ -445,7 +445,8 @@ def _book_title(doc: Document) -> str:
 
 def _chapter_title(doc: Document) -> str | None:
     try:
-        toc = fitz.open(doc.source_path).get_toc()
+        with pdf.LOCK:
+            toc = fitz.open(doc.source_path).get_toc()
     except Exception:
         return None
     first = doc.pages[0].number

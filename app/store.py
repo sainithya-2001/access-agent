@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import json
 import sqlite3
+import threading
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -63,10 +64,46 @@ def now() -> str:
     return datetime.now(timezone.utc).isoformat(timespec="seconds")
 
 
+class _Rows(list):
+    def fetchall(self) -> list:
+        return self
+
+    def fetchone(self):
+        return self[0] if self else None
+
+
+class LockedConnection(sqlite3.Connection):
+    """One connection shared by the API's request threads and its background jobs. Each statement,
+    and each `with con:` transaction, holds a lock; rows are fetched before it is released, so no
+    thread reads a cursor while another runs a statement."""
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.lock = threading.RLock()
+
+    def execute(self, sql, parameters=(), /):
+        with self.lock:
+            return _Rows(super().execute(sql, parameters).fetchall())
+
+    def executescript(self, script, /):
+        with self.lock:
+            return super().executescript(script)
+
+    def __enter__(self):
+        self.lock.acquire()
+        return super().__enter__()
+
+    def __exit__(self, *exc):
+        try:
+            return super().__exit__(*exc)
+        finally:
+            self.lock.release()
+
+
 def connect(path: Path | str | None = None) -> sqlite3.Connection:
     path = path or DB_PATH  # read at call time, so tests can point DB_PATH elsewhere
     Path(path).parent.mkdir(parents=True, exist_ok=True)
-    con = sqlite3.connect(path, timeout=30, check_same_thread=False)
+    con = sqlite3.connect(path, timeout=30, check_same_thread=False, factory=LockedConnection)
     con.row_factory = sqlite3.Row
     con.execute("PRAGMA journal_mode=WAL")
     con.executescript(SCHEMA)

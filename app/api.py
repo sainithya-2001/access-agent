@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import re
 import threading
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
 from fastapi import BackgroundTasks, FastAPI, File, Form, HTTPException, UploadFile
@@ -20,7 +21,7 @@ from pydantic import BaseModel, Field
 
 import pymupdf as fitz
 
-from app import pipeline, store
+from app import pdf, pipeline, store
 from app.agent.orchestrator import NO_SCALE_REASON, FigureAgent
 from app.assemble import assemble, printed_page_numbers
 from app.detect import _crop
@@ -33,7 +34,12 @@ PAGES_RE = re.compile(r"^\s*\d+(\s*-\s*\d+)?(\s*,\s*\d+(\s*-\s*\d+)?)*\s*$")
 
 app = FastAPI(title="Access Agent review")
 con = store.connect()
-_lock = threading.Lock()  # one pipeline run at a time keeps API spend predictable
+_lock = threading.Lock()  # one upload at a time keeps API spend predictable (its figures run on a pool)
+# Re-runs after a staff recrop: a few at once, not queued behind an upload. _recrops counts each
+# figure's recrops, so a slower, older re-run doesn't overwrite a newer one.
+_reruns = ThreadPoolExecutor(max_workers=pipeline.WORKERS, thread_name_prefix="rerun")
+_recrops: dict[str, int] = {}
+_recrops_lock = threading.Lock()
 
 
 def _doc_or_404(doc_id: str):
@@ -242,18 +248,20 @@ class RecropIn(BaseModel):
     y1: float
 
 
-def _rerun(key: str, pdf_path: str, res: FigureResult) -> None:
-    with _lock:
-        try:
-            out = FigureAgent(res.region, pdf_path).run()
-        except Exception as e:  # FigureAgent.run() doesn't raise, but keep the figure out of 'pending'
-            res.status, res.escalation_reason = Status.needs_review, f"Re-run failed: {e.__class__.__name__}"
-            out = res
-        store.save_figure(con, key, out)
+def _rerun(fid: str, n: int, pdf_path: str, res: FigureResult) -> None:
+    key = fid.rsplit(":", 1)[0]
+    try:
+        out = FigureAgent(res.region, pdf_path).run()
+    except Exception as e:  # FigureAgent.run() doesn't raise, but keep the figure out of 'pending'
+        res.status, res.escalation_reason = Status.needs_review, f"Re-run failed: {e.__class__.__name__}"
+        out = res
+    with _recrops_lock:
+        if _recrops.get(fid) == n:  # else staff recropped again meanwhile; that re-run will save
+            store.save_figure(con, key, out)
 
 
 @app.post("/api/figures/{fid}/recrop", status_code=202)
-def recrop(fid: str, body: RecropIn, tasks: BackgroundTasks):
+def recrop(fid: str, body: RecropIn):
     """Staff drew a new box around the figure: crop it again and re-run the agent on it."""
     res = _fig_or_404(fid)
     key = fid.rsplit(":", 1)[0]
@@ -263,15 +271,19 @@ def recrop(fid: str, body: RecropIn, tasks: BackgroundTasks):
     y0, y1 = sorted((max(0.0, body.y0), min(page.height, body.y1)))
     if x1 - x0 < 10 or y1 - y0 < 10:
         raise HTTPException(422, "The box is too small; draw it around the whole figure")
-    pdf_page = fitz.open(row["source_path"])[res.region.page - 1]
-    path = Path(res.region.crop_path).with_name(f"{res.region.id}_staff.png")
+    with _recrops_lock:
+        n = _recrops[fid] = _recrops.get(fid, 0) + 1
+    # Numbered file: a re-run still reading the previous staff crop keeps its own image.
+    path = Path(res.region.crop_path).with_name(f"{res.region.id}_staff{'' if n == 1 else n}.png")
+    with pdf.LOCK:
+        pdf_page = fitz.open(row["source_path"])[res.region.page - 1]
+        crop_path = _crop(pdf_page, fitz.Rect(x0, y0, x1, y1), path)
     region = res.region.model_copy(update={
-        "bbox": BBox(x0=x0, y0=y0, x1=x1, y1=y1), "source": "staff",
-        "crop_path": _crop(pdf_page, fitz.Rect(x0, y0, x1, y1), path),
+        "bbox": BBox(x0=x0, y0=y0, x1=x1, y1=y1), "source": "staff", "crop_path": crop_path,
         "review_reason": None,  # a person drew this box: no longer an unconfirmed detection
     })
     res = store.start_recrop(con, fid, body.who.strip(), region)
-    tasks.add_task(_rerun, key, row["source_path"], FigureResult(region=region))
+    _reruns.submit(_rerun, fid, n, row["source_path"], FigureResult(region=region))
     return _figure_json(fid, res)
 
 

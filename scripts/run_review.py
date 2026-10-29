@@ -27,13 +27,15 @@ def main() -> None:
     p.add_argument("--pages", default=None)
     p.add_argument("--page-check", action="store_true", help="run the Muse Spark page check + SAM 3.1")
     p.add_argument("--backend", choices=["meta", "baseten"], default=None)
+    p.add_argument("--workers", type=int, default=pipeline.WORKERS, help="figures described at once")
     args = p.parse_args()
 
     pdf = pick_pdf(args.pdf)
     con = store.connect()
     key = store.document_key(_doc_id(pdf), args.pages)
     store.create_document(con, key, _doc_id(pdf), str(pdf), pdf.name, args.pages)
-    calls = pipeline.run(con, key, pdf, args.pages, args.page_check, args.backend, echo=True)
+    calls = pipeline.run(con, key, pdf, args.pages, args.page_check, args.backend, echo=True,
+                         workers=args.workers)
 
     figs = store.figures(con, key)
     counts: dict[str, int] = {}

@@ -51,6 +51,7 @@ Code controls the order; the model decides **per figure** inside a capped loop.
 8. **Held-out set (`eval/heldout.json`: 8 Chapter 2 figures on PDF pages 168–175, 8 Chapter 12 figures on pages 630–670): run once, for the final report.** No prompt, threshold, or code changes may be based on held-out results. Do not run, inspect, or debug the pipeline on those pages during development; tune on `eval/benchmark.json` only.
 9. Never print `.env`.
 10. **Scorer frozen for the held-out run.** Once a held-out run starts, the scoring logic in `scripts/run_benchmark.py` and the judge prompt `app/agent/prompts/judge.md` do not change. Scoring and its post-hoc changes are documented in `eval/SCORING.md`.
+11. **Figures run on a thread pool** (`pipeline.WORKERS = 4`, `--workers N`; the API runs recrop re-runs on its own pool). PyMuPDF outside the single-threaded ingest/detect holds `pdf.LOCK`; SQLite only through `store.connect()` (a locked connection); cache writes are atomic; the call log takes a thread lock and a file lock, and runs count their calls by pid.
 
 ## Milestones
 | # | Milestone | Status |
@@ -84,7 +85,7 @@ python scripts/run_detect.py --pages 85,89,96 --test-check     # M2: page-check 
 python scripts/run_figures.py --pages 96                       # M3
 python scripts/test_verifier.py                                # M4: planted-error test
 python scripts/run_agent.py --pages 96 [--inject wrong_number] # M5: agent loop with traces
-python scripts/run_export.py --pages 84-91,95-97 [--page-check] # M6: output/<doc>/accessible.html
+python scripts/run_export.py --pages 84-91,95-97 [--page-check] [--workers N] # M6: output/<doc>/accessible.html
 python scripts/check_a11y.py                                   # M6: axe-core on the newest export
 python scripts/run_review.py --pages 84-97,109,124,130         # M7: pipeline into output/review.db
 uvicorn app.api:app --port 8000                                # M7: review screen, http://localhost:8000

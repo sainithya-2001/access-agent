@@ -24,7 +24,7 @@ import pymupdf as fitz
 from PIL import Image, ImageDraw
 from pydantic import BaseModel, ValidationError
 
-from app import stemplot
+from app import pdf, stemplot
 from app.ingest import RENDER_DPI
 from app.models import BBox, Document, Page, Region
 
@@ -367,7 +367,8 @@ def _locate_with_sam(page: Page, m: _Missed, spark: fitz.Rect, taken: list[fitz.
 
 def _crop(pdf_page: fitz.Page, r: fitz.Rect, path: Path) -> str:
     clip = fitz.Rect(r.x0 - PAD_PT, r.y0 - PAD_PT, r.x1 + PAD_PT, r.y1 + PAD_PT) & pdf_page.rect
-    pdf_page.get_pixmap(clip=clip, dpi=CROP_DPI).save(path)
+    with pdf.LOCK:
+        pdf_page.get_pixmap(clip=clip, dpi=CROP_DPI).save(path)
     return str(path)
 
 

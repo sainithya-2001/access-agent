@@ -11,6 +11,7 @@ evidence for the open-weights prize that each step really ran on Muse Spark Open
 
 import json
 import os
+import threading
 import time
 from pathlib import Path
 
@@ -29,6 +30,7 @@ BACKENDS = {
 }
 
 LOG_PATH = Path("output/llm_calls.jsonl")
+_THREAD_LOCK = threading.Lock()  # the file lock below is per process; threads of one process need this too
 # Set for repeated benchmark runs ("rep1", "rep2", ...): a cache namespace per repeat, so each repeat
 # makes its own model calls (and is itself cached). Empty for normal runs.
 RUN_TAG = ""
@@ -89,7 +91,7 @@ def _log(entry: dict) -> None:
              **({"run_tag": RUN_TAG} if RUN_TAG else {}), **entry}
     line = (json.dumps(entry) + "\n").encode("utf-8")
     # Parallel runs append to the same file; without a lock their writes can interleave mid-line.
-    with open(LOG_PATH.with_suffix(".lock"), "a+b") as lock:
+    with _THREAD_LOCK, open(LOG_PATH.with_suffix(".lock"), "a+b") as lock:
         _lock(lock)
         try:
             with LOG_PATH.open("ab") as f:

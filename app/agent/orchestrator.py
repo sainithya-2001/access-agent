@@ -20,7 +20,7 @@ from pathlib import Path
 import pymupdf as fitz
 from pydantic import BaseModel, ValidationError
 
-from app import detect
+from app import detect, pdf
 from app.agent import tools
 from app.llm import chat
 from app.models import (BBox, Description, ExtractedValues, FigureResult, Region, Status,
@@ -103,13 +103,18 @@ class FigureAgent:
     def _zoom(self) -> str:
         r = self.res.region
         out = Path(r.crop_path).with_name(Path(r.crop_path).stem + "_zoom.png")
-        page = fitz.open(self.pdf_path)[r.page - 1]
         b = r.bbox
-        page.get_pixmap(clip=fitz.Rect(b.x0 - 6, b.y0 - 6, b.x1 + 6, b.y1 + 6) & page.rect,
-                        dpi=ZOOM_DPI).save(out)
+        with pdf.LOCK:
+            page = fitz.open(self.pdf_path)[r.page - 1]
+            page.get_pixmap(clip=fitz.Rect(b.x0 - 6, b.y0 - 6, b.x1 + 6, b.y1 + 6) & page.rect,
+                            dpi=ZOOM_DPI).save(out)
         return str(out)
 
     def _recrop(self, side: str) -> None:
+        with pdf.LOCK:
+            self._recrop_locked(side)
+
+    def _recrop_locked(self, side: str) -> None:
         r = self.res.region
         page = fitz.open(self.pdf_path)[r.page - 1]
         b = r.bbox
