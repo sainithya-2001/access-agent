@@ -18,7 +18,9 @@ const REASONS = {
       const named = s.length >= 2
         ? `${s.length === 2 ? "two" : s.length} ${marks} (${listWords(s.map((x) => `the ${x} ${marks === "lines or bars" ? "one" : marks.slice(0, -1)}`))})`
         : marks;
-      return `The chart's ${named} are told apart only by color, and nothing in the figure says which is which.`;
+      const cue = colorFreeCue(f, marks);
+      return `The chart's ${named} are told apart only by color, and nothing in the figure says which is which.`
+        + (cue ? ` Without color, from the agent's reading of the values: ${cue}.` : "");
     },
     todo: "Find out which is which from the text or tables near the figure, and name each one in the long description.",
     go: "long-desc", button: "Edit the long description",
@@ -92,6 +94,51 @@ function store(key, val) { try { if (val === undefined) return localStorage.getI
 function figName(f) {
   const m = (f.caption || "").match(/^\s*(Figure|Fig\.|Table)\s*[\d.]*\d/i);
   return m ? m[0].trim() : `${f.type === "equation" ? "Equation" : "Figure"} on page ${f.page}`;
+}
+// For two series told apart only by color: how they differ in shape, so a reader who can't see
+// color can still match the text's names to them ("the light blue line peaks higher"). Uses the
+// agent's extracted values; a difference under 4% of the value range is too small to rely on.
+function colorFreeCue(f, marks) {
+  const rows = (f.data || []).filter((d) => d.series && d.value != null);
+  const names = [...new Set(rows.map((d) => d.series))];
+  if (names.length !== 2) return "";
+  const labels = [...new Set(rows.map((d) => d.label))];
+  if (labels.every((l) => !isNaN(parseFloat(l)))) labels.sort((a, b) => parseFloat(a) - parseFloat(b));
+  const at = (name, label) => rows.find((d) => d.series === name && d.label === label)?.value;
+  const both = labels.filter((l) => at(names[0], l) != null && at(names[1], l) != null);
+  if (both.length < 2) return "";
+  const all = rows.map((d) => d.value);
+  const tol = 0.04 * (Math.max(...all) - Math.min(...all));
+  const num = (v) => `about ${Math.round(v * 10) / 10}`;
+  const one = marks === "lines" ? "line" : marks === "bars" ? "bars" : "series";
+  const who = (n) => `the ${n} ${one}`;
+  const cues = [];
+  const peak = (n) => both.reduce((b, l) => (at(n, l) > at(n, b) ? l : b), both[0]);
+  const [p0, p1] = [peak(names[0]), peak(names[1])];
+  let high = null;
+  if (Math.abs(at(names[0], p0) - at(names[1], p1)) > tol) {
+    high = at(names[0], p0) > at(names[1], p1) ? 0 : 1;
+    const [ph, pl] = high === 0 ? [p0, p1] : [p1, p0];
+    cues.push(`${who(names[high])} ${marks === "lines" ? "peaks" : "reaches"} higher, ${num(at(names[high], ph))} at ${ph}, `
+      + `against ${num(at(names[1 - high], pl))}`);
+  }
+  // Where the other one is clearly higher, or else which starts or ends higher.
+  const other = high === null ? null : 1 - high;
+  const diffs = both.map((l) => [l, at(names[other ?? 0], l) - at(names[1 - (other ?? 0)], l)]);
+  const best = other === null ? null : diffs.reduce((b, d) => (d[1] > b[1] ? d : b));
+  if (best && best[1] > tol) {
+    cues.push(`${who(names[other])} is higher at ${best[0]}, ${num(at(names[other], best[0]))} against ${num(at(names[high], best[0]))}`);
+  } else {
+    for (const [l, word] of [[both[both.length - 1], "ends"], [both[0], "starts"]]) {
+      const d = at(names[0], l) - at(names[1], l);
+      if (Math.abs(d) > tol) {
+        const h = d > 0 ? 0 : 1;
+        cues.push(`${who(names[h])} ${word} higher, ${num(at(names[h], l))} at ${l} against ${num(at(names[1 - h], l))}`);
+        break;
+      }
+    }
+  }
+  return cues.join("; ");
 }
 function listWords(xs) { return xs.length <= 2 ? xs.join(" and ") : `${xs.slice(0, -1).join(", ")}, and ${xs[xs.length - 1]}`; }
 function typeLabel(t) { return t ? t.replace("_", " ") : "not classified"; }
