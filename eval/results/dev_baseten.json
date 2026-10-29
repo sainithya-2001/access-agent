@@ -19,33 +19,33 @@
   },
   "summary": {
     "items": 19,
-    "correct_outcome": 16,
-    "unsafe_approvals": 3,
-    "unsafe_approvals_code_scored": 1,
-    "unsafe_approvals_judged_by_model": 2,
-    "auto_approved": 15,
-    "sent_to_review": 4,
-    "review_effort": 0.211,
-    "review_effort_saved": 0.789,
+    "correct_outcome": 15,
+    "unsafe_approvals": 5,
+    "unsafe_approvals_code_scored": 2,
+    "unsafe_approvals_judged_by_model": 3,
+    "auto_approved": 17,
+    "sent_to_review": 2,
+    "review_effort": 0.105,
+    "review_effort_saved": 0.895,
     "true_values": 162,
-    "values_correct": 142,
-    "values_wrong": 7,
-    "values_missing": 13,
-    "items_with_invented_content": 2,
+    "values_correct": 143,
+    "values_wrong": 2,
+    "values_missing": 17,
+    "items_with_invented_content": 1,
     "judged_by_model": {
       "items": 5,
-      "accurate": 3
+      "accurate": 1
     },
-    "calls": 150,
-    "uncached_calls": 112,
-    "input_tokens": 189749,
-    "output_tokens": 333952,
-    "cost_usd": 1.9368,
-    "cost_usd_fresh_run": 2.4372,
-    "fresh_cost_estimated_calls": 36,
-    "cost_per_figure_fresh": 0.1283,
-    "model_seconds": 1528.6,
-    "wall_seconds": 1534.7
+    "calls": 128,
+    "uncached_calls": 0,
+    "input_tokens": 0,
+    "output_tokens": 0,
+    "cost_usd": 0.0,
+    "cost_usd_fresh_run": 2.2311,
+    "fresh_cost_estimated_calls": 6,
+    "cost_per_figure_fresh": 0.1174,
+    "model_seconds": 0.0,
+    "wall_seconds": 5.3
   },
   "items": [
     {
@@ -55,12 +55,12 @@
       "region_id": "p77_f0",
       "status": "auto_approved",
       "type": "photo",
-      "alt_text": "Rolled bundles of tan election ballots stacked together, illustrating organizing large data for counting.",
-      "long_description": "Color close-up photograph of a large pile of rolled paper ballots resting on a light-colored table surface and filling most of the frame. About two to three dozen cylindrical rolls made of yellowed-tan paper are stacked haphazardly in several layers. The rolls are viewed mainly from the ends, showing hollow centers and the layered thickness of the paper; some are secured with white paper bands while others have loose, frayed and slightly crinkled edges. Faint printed lines and markings are visible on the inside of some rolls. The photograph uses shallow depth of field: the rolls in the front are in sharp focus while rolls toward the back and the background are softly blurred, showing only indistinct shapes of an indoor space and people. Across the middle of the image, centered horizontally, is the text \"DESCRIPTIVE STATISTICS\" in bold white uppercase sans-serif letters on a semi-transparent dark horizontal bar. A thin dark teal strip borders the top edge and a thin bright yellow strip borders the left edge of the image. The soft natural lighting emphasizes the texture and round forms of the bundled papers. Together the image illustrates the concept that large amounts of data must be grouped and organized, as the ballots are rolled and bundled with similar ones to prepare for counting.",
+      "alt_text": "Pile of rolled paper ballots bundled together to illustrate organizing large data sets.",
+      "long_description": "The photograph shows a close-up, eye-level view of a large pile of rolled paper ballots stacked on a light-colored table surface. The ballots are tan to yellow-brown sheets of paper rolled into hollow cylinders, each secured with a white or light paper band, with their open circular ends facing the viewer; faint printed text and markings are visible inside some rolls. About two to three dozen rolls are piled in overlapping layers filling most of the frame, sharply focused in the foreground and gradually softer toward the back. Across the middle of the image the words DESCRIPTIVE STATISTICS appear in bold white uppercase letters on a semi-transparent dark horizontal banner. A thin bright yellow vertical border runs along the left edge and a thin dark teal horizontal border runs along the top edge, and the background behind the pile is blurred and indistinct.",
       "data_table": [],
       "verifier": {
         "passed": true,
-        "confidence": 0.96,
+        "confidence": 0.97,
         "issues": []
       },
       "escalation_reason": null,
@@ -78,12 +78,12 @@
         {
           "step": 3,
           "action": "describe",
-          "summary": "Wrote description: \"Rolled bundles of tan election ballots stacked together, illustrating organizing large data for counting.\""
+          "summary": "Wrote description: \"Pile of rolled paper ballots bundled together to illustrate organizing large data sets.\""
         },
         {
           "step": 4,
           "action": "verify",
-          "summary": "PASS (0.96)"
+          "summary": "PASS (0.97)"
         },
         {
           "step": 5,
@@ -94,12 +94,8 @@
       "judge": {
         "factual_errors": [
           {
-            "claim": "The overlaid text is in bold white uppercase sans-serif letters",
-            "why": "The image shows the overlaid chapter title \"DESCRIPTIVE STATISTICS\" in a serif font, not sans-serif"
-          },
-          {
-            "claim": "The overlaid text is centered horizontally across the middle of the image",
-            "why": "The image shows the title and its dark bar positioned on the left side, extending only to about the center, not centered horizontally"
+            "claim": "each secured with a white or light paper band",
+            "why": "Reference only says rolled paper election ballots bundled together in a pile; the image shows most rolls without a white/light paper band, with only one roll clearly banded"
           }
         ],
         "missing": [],
@@ -112,15 +108,15 @@
       "scored_by": "judged by model",
       "usage": {
         "calls": 5,
-        "uncached": 5,
-        "input_tokens": 11944,
-        "output_tokens": 14679,
-        "usd": 0.1589,
-        "usd_fresh": 0.1589,
+        "uncached": 0,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "usd": 0.0,
+        "usd_fresh": 0.1414,
         "fresh_estimated_calls": 0,
-        "model_seconds": 116.9
+        "model_seconds": 0.0
       },
-      "seconds": 117.2
+      "seconds": 0.5
     },
     {
       "id": "fig-2.2",
@@ -129,8 +125,8 @@
       "region_id": "p84_f0",
       "status": "auto_approved",
       "type": "chart",
-      "alt_text": "Line graph of frequency versus number of times a teenager is reminded, peaking at 3 times with 14 occurrences.",
-      "long_description": "Figure 2.2 is a line graph with square markers connected by straight line segments. The horizontal x-axis is labeled Number of Times Teenager is Reminded and spans 0 to 6 in increments of 1. The vertical y-axis is labeled Frequency and spans 0 to 16 in increments of 2, with light horizontal grid lines at each 2-unit mark. The plotted points, read from the axes, are about: 0 times with frequency 2; 1 time with frequency 5; 2 times with frequency 8; 3 times with frequency 14; 4 times with frequency 7; and 5 times with frequency 4. There is no marker at 6. The frequency rises steadily from 0 to a sharp peak at 3, then falls steeply through 4 to 4 at 5.",
+      "alt_text": "Line graph shows how often a teenager is reminded, with frequency rising to a peak of 14 at 3 times then falling.",
+      "long_description": "The figure is a line graph labeled Figure 2.2. The horizontal axis is labeled Number of Times Teenager is Reminded and ranges from 0 to 6 in increments of 1. The vertical axis is labeled Frequency and ranges from 0 to 16 in increments of 2, with horizontal grid lines at 0, 2, 4, 6, 8, 10, 12, 14, and 16. Six data points with dark square markers are connected by straight line segments: about 2 at 0 times, about 5 at 1 time, about 8 at 2 times, about 14 at 3 times, about 7 at 4 times, and about 4 at 5 times; no point is plotted at 6 times. The overall pattern is a rise from 0 to a sharp peak at 3 times, followed by a decline through 4 and 5 times.",
       "data_table": [
         {
           "label": "0",
@@ -178,7 +174,7 @@
         {
           "step": 2,
           "action": "extract_values",
-          "summary": "Read the figure independently: 18 labels, 6 values (estimated from axis)"
+          "summary": "Read the figure independently: 14 labels, 6 values (estimated from axis)"
         },
         {
           "step": 3,
@@ -193,7 +189,7 @@
         {
           "step": 5,
           "action": "describe",
-          "summary": "Wrote description: \"Line graph of frequency versus number of times a teenager is reminded, peaking at 3 times with 14 occurrences.\""
+          "summary": "Wrote description: \"Line graph shows how often a teenager is reminded, with frequency rising to a peak of 14 at 3 times then falling.\""
         },
         {
           "step": 6,
@@ -206,22 +202,6 @@
           "summary": "Auto-approved"
         }
       ],
-      "accurate": true,
-      "sent_to_review": false,
-      "correct_outcome": true,
-      "unsafe": false,
-      "scored_by": "code",
-      "usage": {
-        "calls": 5,
-        "uncached": 0,
-        "input_tokens": 0,
-        "output_tokens": 0,
-        "usd": 0.0,
-        "usd_fresh": 0.0606,
-        "fresh_estimated_calls": 5,
-        "model_seconds": 0.0
-      },
-      "seconds": 0.2,
       "values": {
         "true_values": 6,
         "correct": 6,
@@ -284,7 +264,23 @@
         "x_axis": true,
         "y_axis": true
       },
-      "invented_numbers": []
+      "invented_numbers": [],
+      "accurate": true,
+      "sent_to_review": false,
+      "correct_outcome": true,
+      "unsafe": false,
+      "scored_by": "code",
+      "usage": {
+        "calls": 5,
+        "uncached": 0,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "usd": 0.0,
+        "usd_fresh": 0.0578,
+        "fresh_estimated_calls": 1,
+        "model_seconds": 0.0
+      },
+      "seconds": 0.2
     },
     {
       "id": "fig-2.3",
@@ -293,8 +289,8 @@
       "region_id": "p85_f0",
       "status": "auto_approved",
       "type": "chart",
-      "alt_text": "Bar chart of TikTok users by age shows proportion declines with age, highest for 10-19 and lowest for 50+.",
-      "long_description": "This is a vertical bar chart titled \"Proportion (%) of TikTok Users\" labeled Figure 2.3 below the chart. The horizontal axis at the bottom is labeled \"Age Groups\" and has five categories from left to right: 10–19, 20–29, 30–39, 40–49, and 50+. The vertical axis on the left is labeled \"Proportion (%) of TikTok Users\" and ranges from 0% to 35% in 5% increments, with horizontal grid lines at each 5%. Each age group has one solid teal/blue bar whose height is read against the vertical axis; values are not printed on the bars. About values are: 10–19 about 32% to 33%, 20–29 about 29% to 30%, 30–39 about 16% to 17%, 40–49 about 14%, and 50+ about 7%. The overall pattern shows a clear decline in proportion with increasing age. The two youngest groups are substantially higher than older groups, with 10–19 the highest, followed by 20–29, then a drop to 30–39 and lower values for 40–49 and 50+, with 50+ the lowest.",
+      "alt_text": "Bar chart shows TikTok user proportion by age group decreases with age, highest for 10-19 and lowest for 50+.",
+      "long_description": "Figure 2.3 is a vertical bar chart titled Proportion (%) of TikTok Users. The horizontal axis is Age Groups with five categories: 10-19, 20-29, 30-39, 40-49, and 50+. The vertical axis is Proportion (%) of TikTok Users from 0% to 35% in 5% increments. Each category has one teal bar whose height is read from the vertical axis: 10-19 is about 32% to 33%, 20-29 is about 29% to 30%, 30-39 is about 16% to 17%, 40-49 is about 14%, and 50+ is about 7%. Values are not labeled on the bars. The overall pattern is that the proportion decreases as age group increases, with the youngest age groups having substantially higher proportions than the older groups.",
       "data_table": [
         {
           "label": "10-19",
@@ -324,10 +320,10 @@
       ],
       "verifier": {
         "passed": true,
-        "confidence": 0.97,
+        "confidence": 0.96,
         "issues": []
       },
-      "escalation_reason": null,
+      "escalation_reason": "passed verification after rewrite",
       "trace": [
         {
           "step": 1,
@@ -337,7 +333,7 @@
         {
           "step": 2,
           "action": "extract_values",
-          "summary": "Read the figure independently: 13 labels, 5 values (estimated from axis)"
+          "summary": "Read the figure independently: 16 labels, 5 values (estimated from axis)"
         },
         {
           "step": 3,
@@ -347,40 +343,54 @@
         {
           "step": 4,
           "action": "extract_values",
-          "summary": "Read the figure independently: 19 labels, 5 values (estimated from axis)"
+          "summary": "Read the figure independently: 13 labels, 5 values (estimated from axis)"
         },
         {
           "step": 5,
           "action": "describe",
-          "summary": "Wrote description: \"Bar chart of TikTok users by age shows proportion declines with age, highest for 10-19 and lowest for 50+.\""
+          "summary": "Wrote description: \"Bar chart of TikTok users by age shows the youngest groups are largest, with share falling steadily as age increases.\""
         },
         {
           "step": 6,
           "action": "verify",
-          "summary": "PASS (0.97)"
+          "summary": "FAIL (0.60): invented_detail: The number 2.3 is in the description but not in the figure.; invented_detail: The number 60 is in the description but not in the figure."
         },
         {
           "step": 7,
+          "action": "recrop",
+          "summary": "Widened the crop (all) and re-read the figure (labels_cut_off is true and Figure 2.3 is visible but flagged as invented, so widen crop to capture all labels before fixing description)"
+        },
+        {
+          "step": 8,
+          "action": "extract_values",
+          "summary": "Read the figure independently: 20 labels, 5 values (estimated from axis)"
+        },
+        {
+          "step": 9,
+          "action": "describe",
+          "summary": "Wrote description: \"Bar chart of TikTok user share by age shows youngest groups dominate, with proportion falling as age increases.\""
+        },
+        {
+          "step": 10,
+          "action": "verify",
+          "summary": "FAIL (0.60): invented_detail: The number 60 is in the description but not in the figure."
+        },
+        {
+          "step": 11,
+          "action": "rewrite",
+          "summary": "Rewrote the description (attempt 1) (Verification failed for invented 60% figure not in chart; rewrite to remove derived total.)"
+        },
+        {
+          "step": 12,
+          "action": "verify",
+          "summary": "PASS (0.96)"
+        },
+        {
+          "step": 13,
           "action": "finish",
-          "summary": "Auto-approved"
+          "summary": "Auto-approved: passed verification after rewrite"
         }
       ],
-      "accurate": true,
-      "sent_to_review": false,
-      "correct_outcome": true,
-      "unsafe": false,
-      "scored_by": "code",
-      "usage": {
-        "calls": 5,
-        "uncached": 0,
-        "input_tokens": 0,
-        "output_tokens": 0,
-        "usd": 0.0,
-        "usd_fresh": 0.0606,
-        "fresh_estimated_calls": 5,
-        "model_seconds": 0.0
-      },
-      "seconds": 0.2,
       "values": {
         "true_values": 5,
         "correct": 5,
@@ -436,7 +446,23 @@
         "x_axis": true,
         "y_axis": true
       },
-      "invented_numbers": []
+      "invented_numbers": [],
+      "accurate": true,
+      "sent_to_review": false,
+      "correct_outcome": true,
+      "unsafe": false,
+      "scored_by": "code",
+      "usage": {
+        "calls": 12,
+        "uncached": 0,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "usd": 0.0,
+        "usd_fresh": 0.1458,
+        "fresh_estimated_calls": 1,
+        "model_seconds": 0.0
+      },
+      "seconds": 0.5
     },
     {
       "id": "fig-2.5",
@@ -445,46 +471,46 @@
       "region_id": "p89_f0",
       "status": "auto_approved",
       "type": "chart",
-      "alt_text": "Histogram of heights by relative frequency with a sharp peak at 65.95 to 67.95 with relative frequency 0.4.",
-      "long_description": "Figure 2.5 is a histogram. The title below the chart is Figure 2.5. The horizontal axis is labeled Heights and shows bin edges from 59.95 to 75.95 with marks at 59.95, 61.95, 63.95, 65.95, 67.95, 69.95, 71.95, 73.95, and 75.95. The vertical axis is labeled Relative Frequency and ranges from 0 to 0.4 with marks at 0, 0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35, and 0.4. There are eight adjacent bars, each labeled with its relative frequency value on top: 59.95 to 61.95 has 0.05, 61.95 to 63.95 has 0.03, 63.95 to 65.95 has 0.15, 65.95 to 67.95 has 0.4, 67.95 to 69.95 has 0.17, 69.95 to 71.95 has 0.12, 71.95 to 73.95 has 0.07, and 73.95 to 75.95 has 0.01. The distribution rises to a single tall peak at 65.95 to 67.95 with relative frequency 0.4 and then decreases steadily toward the higher heights, forming a roughly unimodal shape with most data centered in the middle bins.",
+      "alt_text": "Histogram of heights by relative frequency peaking at 0.4 in the 65.95 to 67.95 interval.",
+      "long_description": "Figure 2.5 is a histogram of Heights. The horizontal axis is labeled Heights and shows intervals from 59.95 to 75.95, marked at 59.95, 61.95, 63.95, 65.95, 67.95, 69.95, 71.95, 73.95, and 75.95. The vertical axis is labeled Relative Frequency and ranges from 0 to 0.4 in increments of 0.05. There are eight adjacent blue bars, each with its relative frequency value printed above the bar. From left to right: 59.95 to 61.95 has a value of 0.05; 61.95 to 63.95 has a value of 0.03; 63.95 to 65.95 has a value of 0.15; 65.95 to 67.95 has a value of 0.4; 67.95 to 69.95 has a value of 0.17; 69.95 to 71.95 has a value of 0.12; 71.95 to 73.95 has a value of 0.07; and 73.95 to 75.95 has a value of 0.01. The distribution is unimodal with a single sharp peak at 65.95 to 67.95, rising steeply from the lower heights to the peak and then decreasing gradually toward the higher heights.",
       "data_table": [
         {
-          "label": "59.95 to 61.95",
+          "label": "59.95-61.95",
           "value": 0.05,
           "series": null
         },
         {
-          "label": "61.95 to 63.95",
+          "label": "61.95-63.95",
           "value": 0.03,
           "series": null
         },
         {
-          "label": "63.95 to 65.95",
+          "label": "63.95-65.95",
           "value": 0.15,
           "series": null
         },
         {
-          "label": "65.95 to 67.95",
+          "label": "65.95-67.95",
           "value": 0.4,
           "series": null
         },
         {
-          "label": "67.95 to 69.95",
+          "label": "67.95-69.95",
           "value": 0.17,
           "series": null
         },
         {
-          "label": "69.95 to 71.95",
+          "label": "69.95-71.95",
           "value": 0.12,
           "series": null
         },
         {
-          "label": "71.95 to 73.95",
+          "label": "71.95-73.95",
           "value": 0.07,
           "series": null
         },
         {
-          "label": "73.95 to 75.95",
+          "label": "73.95-75.95",
           "value": 0.01,
           "series": null
         }
@@ -519,7 +545,7 @@
         {
           "step": 5,
           "action": "describe",
-          "summary": "Wrote description: \"Relative frequency histogram of heights showing a sharp peak at 65.95 to 67.95 with 0.40 of the data.\""
+          "summary": "Wrote description: \"Relative frequency histogram of heights with a tall peak at 65.95 to 67.95 and lower frequencies on both sides.\""
         },
         {
           "step": 6,
@@ -529,7 +555,7 @@
         {
           "step": 7,
           "action": "rewrite",
-          "summary": "Rewrote the description (attempt 1) (Verification flagged invented detail '40' - need to remove percent conversion.)"
+          "summary": "Rewrote the description (attempt 1) (Verifier flagged invented 40, so rewrite to use only printed 0.4 values.)"
         },
         {
           "step": 8,
@@ -542,22 +568,6 @@
           "summary": "Auto-approved: passed verification after rewrite"
         }
       ],
-      "accurate": true,
-      "sent_to_review": false,
-      "correct_outcome": true,
-      "unsafe": false,
-      "scored_by": "code",
-      "usage": {
-        "calls": 8,
-        "uncached": 0,
-        "input_tokens": 0,
-        "output_tokens": 0,
-        "usd": 0.0,
-        "usd_fresh": 0.1066,
-        "fresh_estimated_calls": 8,
-        "model_seconds": 0.0
-      },
-      "seconds": 0.3,
       "values": {
         "true_values": 8,
         "correct": 8,
@@ -570,7 +580,7 @@
             "label": "59.95–61.95",
             "value": 0.05,
             "described": 0.05,
-            "described_label": "59.95 to 61.95",
+            "described_label": "59.95-61.95",
             "result": "correct"
           },
           {
@@ -578,7 +588,7 @@
             "label": "61.95–63.95",
             "value": 0.03,
             "described": 0.03,
-            "described_label": "61.95 to 63.95",
+            "described_label": "61.95-63.95",
             "result": "correct"
           },
           {
@@ -586,7 +596,7 @@
             "label": "63.95–65.95",
             "value": 0.15,
             "described": 0.15,
-            "described_label": "63.95 to 65.95",
+            "described_label": "63.95-65.95",
             "result": "correct"
           },
           {
@@ -594,7 +604,7 @@
             "label": "65.95–67.95",
             "value": 0.4,
             "described": 0.4,
-            "described_label": "65.95 to 67.95",
+            "described_label": "65.95-67.95",
             "result": "correct"
           },
           {
@@ -602,7 +612,7 @@
             "label": "67.95–69.95",
             "value": 0.17,
             "described": 0.17,
-            "described_label": "67.95 to 69.95",
+            "described_label": "67.95-69.95",
             "result": "correct"
           },
           {
@@ -610,7 +620,7 @@
             "label": "69.95–71.95",
             "value": 0.12,
             "described": 0.12,
-            "described_label": "69.95 to 71.95",
+            "described_label": "69.95-71.95",
             "result": "correct"
           },
           {
@@ -618,7 +628,7 @@
             "label": "71.95–73.95",
             "value": 0.07,
             "described": 0.07,
-            "described_label": "71.95 to 73.95",
+            "described_label": "71.95-73.95",
             "result": "correct"
           },
           {
@@ -626,7 +636,7 @@
             "label": "73.95–75.95",
             "value": 0.01,
             "described": 0.01,
-            "described_label": "73.95 to 75.95",
+            "described_label": "73.95-75.95",
             "result": "correct"
           }
         ],
@@ -636,7 +646,23 @@
         "x_axis": true,
         "y_axis": true
       },
-      "invented_numbers": []
+      "invented_numbers": [],
+      "accurate": true,
+      "sent_to_review": false,
+      "correct_outcome": true,
+      "unsafe": false,
+      "scored_by": "code",
+      "usage": {
+        "calls": 8,
+        "uncached": 0,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "usd": 0.0,
+        "usd_fresh": 0.1135,
+        "fresh_estimated_calls": 1,
+        "model_seconds": 0.0
+      },
+      "seconds": 0.3
     },
     {
       "id": "fig-2.6",
@@ -645,8 +671,8 @@
       "region_id": "p90_f0",
       "status": "auto_approved",
       "type": "chart",
-      "alt_text": "Histogram of number of books versus frequency with six bars, peaking at 2.5 to 3.5 books with a frequency of 16.",
-      "long_description": "This is a histogram titled Figure 2.6. The horizontal x-axis is labeled Number of Books and ranges from 0.5 to 6.5, divided into six adjacent bars each 1 unit wide with edges labeled 0.5, 1.5, 2.5, 3.5, 4.5, 5.5, and 6.5. The vertical y-axis is labeled Frequency and ranges from 0 to 16 in increments of 2. No numeric values are printed on the bars, so heights are read from the y-axis axis. The six bars have heights of about: 0.5 to 1.5 with about 11, 1.5 to 2.5 with about 10, 2.5 to 3.5 with about 16, 3.5 to 4.5 with about 6, 4.5 to 5.5 with about 5, and 5.5 to 6.5 with about 2. The overall pattern shows moderate frequencies for the first two bins, a sharp peak in the 2.5 to 3.5 bin which is the tallest, followed by a sharp drop and then gradually declining lower frequencies for higher numbers of books, indicating a right-skewed distribution.",
+      "alt_text": "Histogram showing frequency of number of books, peaking at 16 for 2.5 to 3.5 books and declining after.",
+      "long_description": "This is a histogram titled Figure 2.6. The horizontal axis is labeled Number of Books and ranges from 0.5 to 6.5, divided into six equal intervals each 1 unit wide. The vertical axis is labeled Frequency and ranges from 0 to 16 in increments of 2. There are six adjacent bars: the bar from 0.5 to 1.5 has a frequency of about 11; the bar from 1.5 to 2.5 has a frequency of about 10; the bar from 2.5 to 3.5 has a frequency of about 16; the bar from 3.5 to 4.5 has a frequency of about 6; the bar from 4.5 to 5.5 has a frequency of about 5; and the bar from 5.5 to 6.5 has a frequency of about 2. The overall pattern shows the highest frequency in the 2.5 to 3.5 interval, with lower frequencies on both sides and a generally decreasing tail toward higher numbers of books.",
       "data_table": [
         {
           "label": "0.5 to 1.5",
@@ -681,7 +707,7 @@
       ],
       "verifier": {
         "passed": true,
-        "confidence": 0.97,
+        "confidence": 0.98,
         "issues": []
       },
       "escalation_reason": null,
@@ -709,12 +735,12 @@
         {
           "step": 5,
           "action": "describe",
-          "summary": "Wrote description: \"Histogram of number of books versus frequency with six bars, peaking at 2.5 to 3.5 books with a frequency of 16.\""
+          "summary": "Wrote description: \"Histogram showing frequency of number of books, peaking at 16 for 2.5 to 3.5 books and declining after.\""
         },
         {
           "step": 6,
           "action": "verify",
-          "summary": "PASS (0.97)"
+          "summary": "PASS (0.98)"
         },
         {
           "step": 7,
@@ -722,22 +748,6 @@
           "summary": "Auto-approved"
         }
       ],
-      "accurate": true,
-      "sent_to_review": false,
-      "correct_outcome": true,
-      "unsafe": false,
-      "scored_by": "code",
-      "usage": {
-        "calls": 5,
-        "uncached": 0,
-        "input_tokens": 0,
-        "output_tokens": 0,
-        "usd": 0.0,
-        "usd_fresh": 0.0606,
-        "fresh_estimated_calls": 5,
-        "model_seconds": 0.0
-      },
-      "seconds": 0.2,
       "values": {
         "true_values": 6,
         "correct": 6,
@@ -800,7 +810,23 @@
         "x_axis": true,
         "y_axis": true
       },
-      "invented_numbers": []
+      "invented_numbers": [],
+      "accurate": true,
+      "sent_to_review": false,
+      "correct_outcome": true,
+      "unsafe": false,
+      "scored_by": "code",
+      "usage": {
+        "calls": 5,
+        "uncached": 0,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "usd": 0.0,
+        "usd_fresh": 0.0651,
+        "fresh_estimated_calls": 1,
+        "model_seconds": 0.0
+      },
+      "seconds": 0.2
     },
     {
       "id": "fig-2.9",
@@ -809,93 +835,88 @@
       "region_id": "p94_f0",
       "status": "needs_review",
       "type": "chart",
-      "alt_text": "Overlay frequency polygon comparing Final Test Grades and Final Grades, both peaking near 84.5 with a similar distribution shape.",
-      "long_description": "Chart type is an overlay frequency polygon titled \"Final Test Grade v Final Grade\" (Figure 2.9). The horizontal axis is Grades, showing class midpoints from 44.5 to 104.5 marked at 44.5, 54.5, 64.5, 74.5, 84.5, 94.5, and 104.5. The vertical axis is Frequency from 0 to 50 in steps of 5. Two polygons with square markers are drawn, one in light cyan-blue and one in dark navy, both anchored at 0 frequency at 44.5 and at 104.5 to close the shapes. Reading the vertical axis, values are about: at 44.5 both are 0; at 54.5 the light polygon is about 10 and the dark about 5; at 64.5 both are about 10 to 11; at 74.5 both are about 30; at 84.5 the light peaks at about 44 to 45 and the dark at about 40; at 94.5 the light is about 5 and the dark about 15 to 17; at 104.5 both are 0. The two lines overlap closely at 64.5 and 74.5. Overall both distributions are unimodal and roughly bell-shaped, rising steadily to a maximum at 84.5 (the 79.5 to 89.5 score interval) then falling sharply, with most frequency concentrated between about 69.5 and 89.5. The light polygon has a slightly higher peak and lower high-grade tail than the dark polygon, but the overall shapes are very similar.",
+      "alt_text": "Overlay frequency polygon comparing final test grades and final grades, both peaking around 84.5 with nearly identical distributions.",
+      "long_description": "This is an overlay frequency polygon titled \"Final Test Grade v Final Grade\" (Figure 2.9). The horizontal axis is Grades, ranging from 44.5 to 104.5 in increments of 10, showing interval midpoints. The vertical axis is Frequency from 0 to 50 in increments of 5, counting students. Two line series with square markers are plotted and both are anchored at zero at 44.5 and at 104.5. No legend text is visible; the series are distinguished by color: a light cyan-blue line and a dark navy line.\n\nThe light cyan-blue polygon has about the following frequencies: at 44.5 about 0, at 54.5 about 10, at 64.5 about 11, at 74.5 about 31, at 84.5 about 44 to 45, at 94.5 about 5, and at 104.5 about 0.\n\nThe dark navy polygon has about the following frequencies: at 44.5 about 0, at 54.5 about 6, at 64.5 about 11, at 74.5 about 30, at 84.5 about 40, at 94.5 about 17, and at 104.5 about 0.\n\nOverall both polygons show a very similar, roughly bell-shaped distribution that rises slowly at low grades, rises steeply to a single peak at 84.5, then falls steeply. The light blue line peaks slightly higher at 84.5, while the dark line is slightly higher at 54.5 and at 94.5, but the shapes are nearly overlapping.",
       "data_table": [
+        {
+          "label": "44.5",
+          "value": 0.0,
+          "series": "light blue"
+        },
         {
           "label": "54.5",
           "value": 10.0,
-          "series": "Final Grades (light blue)"
+          "series": "light blue"
         },
         {
           "label": "64.5",
-          "value": 10.0,
-          "series": "Final Grades (light blue)"
+          "value": 11.0,
+          "series": "light blue"
         },
         {
           "label": "74.5",
-          "value": 30.0,
-          "series": "Final Grades (light blue)"
+          "value": 31.0,
+          "series": "light blue"
         },
         {
           "label": "84.5",
           "value": 45.0,
-          "series": "Final Grades (light blue)"
+          "series": "light blue"
         },
         {
           "label": "94.5",
           "value": 5.0,
-          "series": "Final Grades (light blue)"
+          "series": "light blue"
+        },
+        {
+          "label": "104.5",
+          "value": 0.0,
+          "series": "light blue"
+        },
+        {
+          "label": "44.5",
+          "value": 0.0,
+          "series": "dark navy"
         },
         {
           "label": "54.5",
-          "value": 5.0,
-          "series": "Final Test Scores (dark navy)"
+          "value": 6.0,
+          "series": "dark navy"
         },
         {
           "label": "64.5",
-          "value": 10.0,
-          "series": "Final Test Scores (dark navy)"
+          "value": 11.0,
+          "series": "dark navy"
         },
         {
           "label": "74.5",
           "value": 30.0,
-          "series": "Final Test Scores (dark navy)"
+          "series": "dark navy"
         },
         {
           "label": "84.5",
           "value": 40.0,
-          "series": "Final Test Scores (dark navy)"
+          "series": "dark navy"
         },
         {
           "label": "94.5",
-          "value": 15.0,
-          "series": "Final Test Scores (dark navy)"
+          "value": 17.0,
+          "series": "dark navy"
+        },
+        {
+          "label": "104.5",
+          "value": 0.0,
+          "series": "dark navy"
         }
       ],
       "verifier": {
         "passed": false,
-        "confidence": 0.6,
+        "confidence": 0.72,
         "issues": [
           {
-            "kind": "invented_detail",
-            "detail": "Description/table assign identities 'Final Grades (light blue/cyan)' and 'Final Test Scores (dark navy)' to the two colors, but the figure image shows no legend or text linking color to series name (series_identified_by color_only in extraction). The figure only shows two polygons with square markers in light cyan-blue and dark navy; which is which cannot be verified from the image alone.",
+            "kind": "wrong_trend",
+            "detail": "Long description states 'the dark line is slightly higher at 54.5 and at 94.5' - the image and extracted values show the opposite at 54.5. At 54.5 the light cyan-blue line is higher (~10) than the dark navy line (~6). The dark line is only higher at 94.5 (~17 vs ~5 for light). The relative comparison at 54.5 is inverted.",
             "source": "model"
-          },
-          {
-            "kind": "wrong_number",
-            "detail": "DATA TABLE lists 'Final Test Scores (dark navy)' at 94.5 as 15.0, but the figure shows the dark navy square at about 17, clearly above the 15 line (independent reading 17.0). Difference ~2 exceeds small reading tolerance of ~1.5 (about 3% of 0-50 Frequency range). Long Description hedges as '15 to 17' but table gives precise 15.0.",
-            "source": "model"
-          },
-          {
-            "kind": "wrong_number",
-            "detail": "'94.5' (Final Test Scores (dark navy)): description says 15, but the independent reading has 17, 5 at this label.",
-            "source": "code"
-          },
-          {
-            "kind": "invented_detail",
-            "detail": "The number 69.5 is in the description but not in the figure.",
-            "source": "code"
-          },
-          {
-            "kind": "invented_detail",
-            "detail": "The number 79.5 is in the description but not in the figure.",
-            "source": "code"
-          },
-          {
-            "kind": "invented_detail",
-            "detail": "The number 89.5 is in the description but not in the figure.",
-            "source": "code"
           }
         ]
       },
@@ -924,12 +945,12 @@
         {
           "step": 5,
           "action": "describe",
-          "summary": "Wrote description: \"Overlay frequency polygon comparing Final Test Grades and Final Grades, both peaking near 84.5 with a similar distribution shape.\""
+          "summary": "Wrote description: \"Overlay frequency polygon comparing final test grades and final grades, both peaking around 84.5 with nearly identical distributions.\""
         },
         {
           "step": 6,
           "action": "verify",
-          "summary": "FAIL (0.60): invented_detail: Description/table assign identities 'Final Grades (light blue/cyan)' and 'Final Test Score; wrong_number: DATA TABLE lists 'Final Test Scores (dark navy)' at 94.5 as 15.0, but the figure shows the; wrong_number: '94.5' (Final Test Scores (dark navy)): description says 15, but the independent reading h"
+          "summary": "FAIL (0.72): wrong_trend: Long description states 'the dark line is slightly higher at 54.5 and at 94.5' - the image"
         },
         {
           "step": 7,
@@ -942,41 +963,26 @@
           "summary": "Sent to human review: Series are distinguished by colour only (no legend or labels): check which series is which, e.g. from the text or tables nearby, and name them in the description"
         }
       ],
-      "accurate": true,
-      "sent_to_review": true,
-      "correct_outcome": true,
-      "unsafe": false,
-      "scored_by": "code",
-      "usage": {
-        "calls": 5,
-        "uncached": 0,
-        "input_tokens": 0,
-        "output_tokens": 0,
-        "usd": 0.0,
-        "usd_fresh": 0.0606,
-        "fresh_estimated_calls": 5,
-        "model_seconds": 0.0
-      },
-      "seconds": 0.2,
       "values": {
         "true_values": 14,
-        "correct": 10,
-        "wrong": 0,
-        "missing": 4,
+        "correct": 13,
+        "wrong": 1,
+        "missing": 0,
         "tolerance": "Final test scores: 3% of 50 (reference: from 0 to 50); Final grades: 3% of 50 (reference: from 0 to 50)",
         "values": [
           {
             "series": "Final test scores",
             "label": "44.5",
             "value": 0.0,
-            "described": null,
-            "result": "missing"
+            "described": 0.0,
+            "described_label": "44.5",
+            "result": "correct"
           },
           {
             "series": "Final test scores",
             "label": "54.5",
             "value": 5.0,
-            "described": 5.0,
+            "described": 6.0,
             "described_label": "54.5",
             "result": "correct"
           },
@@ -984,7 +990,7 @@
             "series": "Final test scores",
             "label": "64.5",
             "value": 10.0,
-            "described": 10.0,
+            "described": 11.0,
             "described_label": "64.5",
             "result": "correct"
           },
@@ -1008,23 +1014,25 @@
             "series": "Final test scores",
             "label": "94.5",
             "value": 15.0,
-            "described": 15.0,
+            "described": 17.0,
             "described_label": "94.5",
-            "result": "correct"
+            "result": "wrong"
           },
           {
             "series": "Final test scores",
             "label": "104.5",
             "value": 0.0,
-            "described": null,
-            "result": "missing"
+            "described": 0.0,
+            "described_label": "104.5",
+            "result": "correct"
           },
           {
             "series": "Final grades",
             "label": "44.5",
             "value": 0.0,
-            "described": null,
-            "result": "missing"
+            "described": 0.0,
+            "described_label": "44.5",
+            "result": "correct"
           },
           {
             "series": "Final grades",
@@ -1038,7 +1046,7 @@
             "series": "Final grades",
             "label": "64.5",
             "value": 10.0,
-            "described": 10.0,
+            "described": 11.0,
             "described_label": "64.5",
             "result": "correct"
           },
@@ -1046,7 +1054,7 @@
             "series": "Final grades",
             "label": "74.5",
             "value": 30.0,
-            "described": 30.0,
+            "described": 31.0,
             "described_label": "74.5",
             "result": "correct"
           },
@@ -1070,8 +1078,9 @@
             "series": "Final grades",
             "label": "104.5",
             "value": 0.0,
-            "described": null,
-            "result": "missing"
+            "described": 0.0,
+            "described_label": "104.5",
+            "result": "correct"
           }
         ],
         "invented_labels": []
@@ -1081,7 +1090,23 @@
         "x_axis": true,
         "y_axis": true
       },
-      "invented_numbers": []
+      "invented_numbers": [],
+      "accurate": false,
+      "sent_to_review": true,
+      "correct_outcome": true,
+      "unsafe": false,
+      "scored_by": "code",
+      "usage": {
+        "calls": 5,
+        "uncached": 0,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "usd": 0.0,
+        "usd_fresh": 0.0847,
+        "fresh_estimated_calls": 1,
+        "model_seconds": 0.0
+      },
+      "seconds": 0.2
     },
     {
       "id": "fig-2.10",
@@ -1090,66 +1115,66 @@
       "region_id": "p96_f0",
       "status": "auto_approved",
       "type": "chart",
-      "alt_text": "Line chart of Annual CPI from Year 1 to 10 showing overall increase from about 184 to about 230.",
-      "long_description": "Line chart titled Annual CPI shown as Figure 2.10. Horizontal axis labeled Year, ranging from 1 to 10 in increments of 1. Vertical axis labeled Annual Consumer Price Index, ranging from 180 to 240 with major gridlines at 180, 190, 200, 210, 220, 230, and 240. A single continuous line shows the CPI over time. The line has no point markers or printed data labels so values are estimates within ~1.8 tolerance, not exact measurements, read from the 180-240 axis. Estimated values are: Year 1 about 184; Year 2 about 189; Year 3 about 195; Year 4 about 201; Year 5 about 207; Year 6 about 216; Year 7 about 214; Year 8 about 218; Year 9 about 225; Year 10 about 230. The overall pattern is a generally rising trend across the 10 years, with a slight plateau and small dip between Year 6 and Year 7 before rising more steeply to Year 10.",
+      "alt_text": "Line chart of Annual CPI from Year 1 to 10 rising from about 184 to 230 with a small dip between Year 6 and 7.",
+      "long_description": "This is a single-line line chart titled Annual CPI. The horizontal axis is labeled Year and shows integer years 1 through 10, with a tick mark at each year. The vertical axis is labeled Annual Consumer Price Index and ranges from 180 at the bottom to 240 at the top, with labeled major ticks at 180, 190, 200, 210, 220, 230, and 240 and light horizontal grid lines at those values. A single dark line connects the annual values in year order. Estimated values read from the axis are: Year 1 about 184, Year 2 about 189, Year 3 about 195, Year 4 about 201 to 202, Year 5 about 207, Year 6 about 216, Year 7 about 214 to 215 and slightly lower than Year 6, Year 8 about 218, Year 9 about 225 to 226, and Year 10 about 230. Overall the line trends upward across the ten years, rising steadily from Year 1 to Year 6, flattening and dipping slightly between Year 6 and Year 7, then rising again through Year 10.",
       "data_table": [
         {
-          "label": "1",
+          "label": "Year 1",
           "value": 184.0,
           "series": null
         },
         {
-          "label": "2",
+          "label": "Year 2",
           "value": 189.0,
           "series": null
         },
         {
-          "label": "3",
+          "label": "Year 3",
           "value": 195.0,
           "series": null
         },
         {
-          "label": "4",
-          "value": 201.0,
+          "label": "Year 4",
+          "value": 202.0,
           "series": null
         },
         {
-          "label": "5",
+          "label": "Year 5",
           "value": 207.0,
           "series": null
         },
         {
-          "label": "6",
+          "label": "Year 6",
           "value": 216.0,
           "series": null
         },
         {
-          "label": "7",
+          "label": "Year 7",
           "value": 214.0,
           "series": null
         },
         {
-          "label": "8",
+          "label": "Year 8",
           "value": 218.0,
           "series": null
         },
         {
-          "label": "9",
-          "value": 225.0,
+          "label": "Year 9",
+          "value": 226.0,
           "series": null
         },
         {
-          "label": "10",
+          "label": "Year 10",
           "value": 230.0,
           "series": null
         }
       ],
       "verifier": {
         "passed": true,
-        "confidence": 0.94,
+        "confidence": 0.92,
         "issues": []
       },
-      "escalation_reason": "passed verification after rewrite",
+      "escalation_reason": null,
       "trace": [
         {
           "step": 1,
@@ -1169,50 +1194,24 @@
         {
           "step": 4,
           "action": "extract_values",
-          "summary": "Read the figure independently: 23 labels, 10 values (estimated from axis)"
+          "summary": "Read the figure independently: 22 labels, 10 values (estimated from axis)"
         },
         {
           "step": 5,
           "action": "describe",
-          "summary": "Wrote description: \"Line chart of Annual CPI from Year 1 to 10 showing a generally rising trend with a small dip between Year 6 and Year 7.\""
+          "summary": "Wrote description: \"Line chart of Annual CPI from Year 1 to 10 rising from about 184 to 230 with a small dip between Year 6 and 7.\""
         },
         {
           "step": 6,
           "action": "verify",
-          "summary": "FAIL (0.89): invented_detail: DATA TABLE lists values to three decimal places (e.g., 207.342, 215.303, 214.537, 218.056,"
+          "summary": "PASS (0.92)"
         },
         {
           "step": 7,
-          "action": "rewrite",
-          "summary": "Rewrote the description (attempt 1) (verification failed for invented_detail implying exact values not visible in the chart)"
-        },
-        {
-          "step": 8,
-          "action": "verify",
-          "summary": "PASS (0.94)"
-        },
-        {
-          "step": 9,
           "action": "finish",
-          "summary": "Auto-approved: passed verification after rewrite"
+          "summary": "Auto-approved"
         }
       ],
-      "accurate": true,
-      "sent_to_review": false,
-      "correct_outcome": true,
-      "unsafe": false,
-      "scored_by": "code",
-      "usage": {
-        "calls": 8,
-        "uncached": 0,
-        "input_tokens": 0,
-        "output_tokens": 0,
-        "usd": 0.0,
-        "usd_fresh": 0.1066,
-        "fresh_estimated_calls": 8,
-        "model_seconds": 0.0
-      },
-      "seconds": 0.2,
       "values": {
         "true_values": 10,
         "correct": 10,
@@ -1225,7 +1224,7 @@
             "label": "1",
             "value": 184.0,
             "described": 184.0,
-            "described_label": "1",
+            "described_label": "Year 1",
             "result": "correct"
           },
           {
@@ -1233,7 +1232,7 @@
             "label": "2",
             "value": 188.9,
             "described": 189.0,
-            "described_label": "2",
+            "described_label": "Year 2",
             "result": "correct"
           },
           {
@@ -1241,15 +1240,15 @@
             "label": "3",
             "value": 195.3,
             "described": 195.0,
-            "described_label": "3",
+            "described_label": "Year 3",
             "result": "correct"
           },
           {
             "series": "Annual CPI",
             "label": "4",
             "value": 201.6,
-            "described": 201.0,
-            "described_label": "4",
+            "described": 202.0,
+            "described_label": "Year 4",
             "result": "correct"
           },
           {
@@ -1257,7 +1256,7 @@
             "label": "5",
             "value": 207.342,
             "described": 207.0,
-            "described_label": "5",
+            "described_label": "Year 5",
             "result": "correct"
           },
           {
@@ -1265,7 +1264,7 @@
             "label": "6",
             "value": 215.303,
             "described": 216.0,
-            "described_label": "6",
+            "described_label": "Year 6",
             "result": "correct"
           },
           {
@@ -1273,7 +1272,7 @@
             "label": "7",
             "value": 214.537,
             "described": 214.0,
-            "described_label": "7",
+            "described_label": "Year 7",
             "result": "correct"
           },
           {
@@ -1281,15 +1280,15 @@
             "label": "8",
             "value": 218.056,
             "described": 218.0,
-            "described_label": "8",
+            "described_label": "Year 8",
             "result": "correct"
           },
           {
             "series": "Annual CPI",
             "label": "9",
             "value": 224.939,
-            "described": 225.0,
-            "described_label": "9",
+            "described": 226.0,
+            "described_label": "Year 9",
             "result": "correct"
           },
           {
@@ -1297,7 +1296,7 @@
             "label": "10",
             "value": 229.594,
             "described": 230.0,
-            "described_label": "10",
+            "described_label": "Year 10",
             "result": "correct"
           }
         ],
@@ -1308,7 +1307,23 @@
         "x_axis": true,
         "y_axis": true
       },
-      "invented_numbers": []
+      "invented_numbers": [],
+      "accurate": true,
+      "sent_to_review": false,
+      "correct_outcome": true,
+      "unsafe": false,
+      "scored_by": "code",
+      "usage": {
+        "calls": 5,
+        "uncached": 0,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "usd": 0.0,
+        "usd_fresh": 0.0587,
+        "fresh_estimated_calls": 1,
+        "model_seconds": 0.0
+      },
+      "seconds": 0.2
     },
     {
       "id": "fig-2.11",
@@ -1317,41 +1332,41 @@
       "region_id": "p107_f0",
       "status": "auto_approved",
       "type": "chart",
-      "alt_text": "Horizontal box plot with median at 7, box from 2 to 9, and whiskers to 1 and 11.5.",
-      "long_description": "Figure 2.11 is a horizontal box-and-whisker plot displayed above a horizontal scaled number line. The number line has arrowheads at both ends and is marked from 1 to 11.5, with tick marks and labels at 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, and 11.5. The rectangular box extends from about 2 on the left to about 9 on the right. Inside the box, a vertical dashed line at about 7 marks the median. A horizontal whisker with a short vertical cap extends left from the left edge of the box at about 2 to about 1. A horizontal whisker with a short vertical cap extends right from the right edge of the box at about 9 to about 11.5. Overall, the box spans most of the range, the median is positioned to the right of center inside the box, and the right whisker (about 2.5 units long) is longer than the left whisker (about 1 unit long).",
+      "alt_text": "Horizontal box plot from 1 to 11.5 with box from 2 to 9, median at 7, and whiskers to the extremes.",
+      "long_description": "This is a horizontal box plot labeled Figure 2.11 displayed above a scaled number line. The horizontal axis is a number line with arrows at both ends, marked from 1 to 11.5 with ticks at 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, and 11.5; there is no vertical axis and no units. The box extends from 2 on the left to 9 on the right. Inside the box a vertical dashed line marks the median at 7. A horizontal line with a short vertical cap, the left whisker, extends from the left edge of the box at 2 to the minimum value at 1. A horizontal line with a short vertical cap, the right whisker, extends from the right edge of the box at 9 to the maximum value at 11.5. The segment from 2 to 7 inside the box is longer than the segment from 7 to 9, and the right whisker from 9 to 11.5 is longer than the left whisker from 1 to 2.",
       "data_table": [
         {
-          "label": "Minimum (left whisker cap)",
+          "label": "Minimum",
           "value": 1.0,
           "series": null
         },
         {
-          "label": "First quartile (left edge of box)",
+          "label": "First quartile (Q1)",
           "value": 2.0,
           "series": null
         },
         {
-          "label": "Median (dashed line)",
+          "label": "Median",
           "value": 7.0,
           "series": null
         },
         {
-          "label": "Third quartile (right edge of box)",
+          "label": "Third quartile (Q3)",
           "value": 9.0,
           "series": null
         },
         {
-          "label": "Maximum (right whisker cap)",
+          "label": "Maximum",
           "value": 11.5,
           "series": null
         }
       ],
       "verifier": {
         "passed": true,
-        "confidence": 0.98,
+        "confidence": 0.99,
         "issues": []
       },
-      "escalation_reason": null,
+      "escalation_reason": "passed verification after recrop",
       "trace": [
         {
           "step": 1,
@@ -1371,40 +1386,44 @@
         {
           "step": 4,
           "action": "extract_values",
-          "summary": "Read the figure independently: 15 labels, 5 values (estimated from axis)"
+          "summary": "Read the figure independently: 13 labels, 5 values (estimated from axis)"
         },
         {
           "step": 5,
           "action": "describe",
-          "summary": "Wrote description: \"Horizontal box plot with median at 7, box from 2 to 9, and whiskers to 1 and 11.5.\""
+          "summary": "Wrote description: \"Horizontal box plot showing data from 1 to 11.5 with box from 2 to 9 and dashed median line at 7.\""
         },
         {
           "step": 6,
           "action": "verify",
-          "summary": "PASS (0.98)"
+          "summary": "FAIL (0.60): invented_detail: The number 50 is in the description but not in the figure."
         },
         {
           "step": 7,
+          "action": "recrop",
+          "summary": "Widened the crop (all) and re-read the figure (labels_cut_off true with bottom caption truncated, need wider crop before fixing invented 50% detail)"
+        },
+        {
+          "step": 8,
+          "action": "extract_values",
+          "summary": "Read the figure independently: 13 labels, 5 values (estimated from axis)"
+        },
+        {
+          "step": 9,
+          "action": "describe",
+          "summary": "Wrote description: \"Horizontal box plot from 1 to 11.5 with box from 2 to 9, median at 7, and whiskers to the extremes.\""
+        },
+        {
+          "step": 10,
+          "action": "verify",
+          "summary": "PASS (0.99)"
+        },
+        {
+          "step": 11,
           "action": "finish",
-          "summary": "Auto-approved"
+          "summary": "Auto-approved: passed verification after recrop"
         }
       ],
-      "accurate": true,
-      "sent_to_review": false,
-      "correct_outcome": true,
-      "unsafe": false,
-      "scored_by": "code",
-      "usage": {
-        "calls": 5,
-        "uncached": 5,
-        "input_tokens": 5155,
-        "output_tokens": 8995,
-        "usd": 0.0447,
-        "usd_fresh": 0.0447,
-        "fresh_estimated_calls": 0,
-        "model_seconds": 36.5
-      },
-      "seconds": 36.8,
       "values": {
         "true_values": 5,
         "correct": 5,
@@ -1417,7 +1436,7 @@
             "label": "min",
             "value": 1.0,
             "described": 1.0,
-            "described_label": "Minimum (left whisker cap)",
+            "described_label": "Minimum",
             "result": "correct"
           },
           {
@@ -1425,7 +1444,7 @@
             "label": "q1",
             "value": 2.0,
             "described": 2.0,
-            "described_label": "First quartile (left edge of box)",
+            "described_label": "First quartile (Q1)",
             "result": "correct"
           },
           {
@@ -1433,7 +1452,7 @@
             "label": "median",
             "value": 7.0,
             "described": 7.0,
-            "described_label": "Median (dashed line)",
+            "described_label": "Median",
             "result": "correct"
           },
           {
@@ -1441,7 +1460,7 @@
             "label": "q3",
             "value": 9.0,
             "described": 9.0,
-            "described_label": "Third quartile (right edge of box)",
+            "described_label": "Third quartile (Q3)",
             "result": "correct"
           },
           {
@@ -1449,14 +1468,30 @@
             "label": "max",
             "value": 11.5,
             "described": 11.5,
-            "described_label": "Maximum (right whisker cap)",
+            "described_label": "Maximum",
             "result": "correct"
           }
         ],
         "invented_labels": []
       },
       "mentions": {},
-      "invented_numbers": []
+      "invented_numbers": [],
+      "accurate": true,
+      "sent_to_review": false,
+      "correct_outcome": true,
+      "unsafe": false,
+      "scored_by": "code",
+      "usage": {
+        "calls": 9,
+        "uncached": 0,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "usd": 0.0,
+        "usd_fresh": 0.1001,
+        "fresh_estimated_calls": 0,
+        "model_seconds": 0.0
+      },
+      "seconds": 0.4
     },
     {
       "id": "fig-2.14",
@@ -1465,58 +1500,58 @@
       "region_id": "p109_f1",
       "status": "auto_approved",
       "type": "chart",
-      "alt_text": "Two horizontal box plots on a 20 to 100 scale comparing distributions, the upper more spread and centered lower than the lower.",
-      "long_description": "Figure 2.14 is a chart with two horizontal box-and-whisker plots stacked vertically above a single horizontal axis. The horizontal axis is a number line ranging from 20 to 100 with arrowheads at both ends, marked and labeled at 20, 30, 40, 50, 60, 70, 80, 90, and 100. There is no vertical axis, legend, or additional title. Each plot shows a rectangular box with a vertical dashed median line inside and horizontal whiskers ending in cap marks. Upper box plot: left whisker cap at about 32, whisker to the left edge of the box at about 53 for the first quartile, dashed median line inside the box at about 74.5, right edge of the box at about 82.5 for the third quartile, and right whisker to cap at about 99. Lower box plot: left whisker cap at about 25.5, whisker to the left edge of the box at about 78 for the first quartile, dashed median line inside the box at about 81, right edge of the box at about 89 for the third quartile, and right whisker to cap at about 98. Overall pattern: the upper distribution is centered lower with a wider box spanning about 53 to about 82.5 and median near 75, indicating larger spread. The lower distribution is shifted to higher values with a narrow box from about 78 to about 89 and median near 81, but has a very long left whisker from about 25.5 to the box indicating a long left tail.",
+      "alt_text": "Two horizontal boxplots on a 20-to-100 number line, the lower boxplot is shifted to higher values and has a narrower middle box.",
+      "long_description": "Figure 2.14 shows two horizontal boxplots stacked vertically above a single horizontal number line. The number line has ticks labeled 20, 30, 40, 50, 60, 70, 80, 90, and 100 in increments of 10, with arrowheads at both ends indicating continuation. There is no vertical axis and no vertical scale; the two boxplots share the same horizontal scale. The upper boxplot is near the top and the lower boxplot is near the bottom.\n\nUpper boxplot: the left whisker has a short vertical cap at about 32 and extends right to the left edge of the box at about 53 to 56. The rectangular box extends right to about 82 to 83. Inside the box a vertical dashed line marks the median at about 74 to 75, closer to the right side of the box. A right whisker extends from the right edge of the box to a cap at about 100.\n\nLower boxplot: the left whisker is much longer, with a cap at about 25 to 26 on the left and extending right to the left edge of the box at about 79 to 80. The box extends right to about 90. Inside the box a vertical dashed line marks the median very close to the left edge of the box at about 81 to 82. A short right whisker extends from the right edge of the box to a cap at about 100.\n\nOverall pattern: both distributions have an overall range from the mid-20s to about 100, but their centers and spreads differ. The upper boxplot has a wide box from the mid-50s to the low 80s and a median near 74 to 75, with roughly balanced whiskers on both sides. The lower boxplot has a narrow box from about 80 to 90 and a higher median near 81 to 82, showing its middle 50 percent is concentrated at higher values, while its long left whisker shows a long tail of lower values down to the mid-20s.",
       "data_table": [
         {
           "label": "Min",
           "value": 32.0,
-          "series": "Upper box plot"
+          "series": "Upper boxplot"
         },
         {
           "label": "Q1",
           "value": 53.0,
-          "series": "Upper box plot"
+          "series": "Upper boxplot"
         },
         {
           "label": "Median",
           "value": 74.5,
-          "series": "Upper box plot"
+          "series": "Upper boxplot"
         },
         {
           "label": "Q3",
-          "value": 82.5,
-          "series": "Upper box plot"
+          "value": 82.0,
+          "series": "Upper boxplot"
         },
         {
           "label": "Max",
-          "value": 99.0,
-          "series": "Upper box plot"
+          "value": 100.0,
+          "series": "Upper boxplot"
         },
         {
           "label": "Min",
-          "value": 25.5,
-          "series": "Lower box plot"
+          "value": 25.0,
+          "series": "Lower boxplot"
         },
         {
           "label": "Q1",
-          "value": 78.0,
-          "series": "Lower box plot"
+          "value": 80.0,
+          "series": "Lower boxplot"
         },
         {
           "label": "Median",
           "value": 81.0,
-          "series": "Lower box plot"
+          "series": "Lower boxplot"
         },
         {
           "label": "Q3",
-          "value": 89.0,
-          "series": "Lower box plot"
+          "value": 90.0,
+          "series": "Lower boxplot"
         },
         {
           "label": "Max",
-          "value": 98.0,
-          "series": "Lower box plot"
+          "value": 100.0,
+          "series": "Lower boxplot"
         }
       ],
       "verifier": {
@@ -1539,7 +1574,7 @@
         {
           "step": 3,
           "action": "describe",
-          "summary": "Wrote description: \"Two horizontal box plots on one number line show the lower distribution has a higher median near 81 and narrower middle half than the upper near 75.\""
+          "summary": "Wrote description: \"Two horizontal box plots on a 20–100 scale showing the top distribution is more spread out with a lower median than the bottom.\""
         },
         {
           "step": 4,
@@ -1549,55 +1584,19 @@
         {
           "step": 5,
           "action": "rewrite",
-          "summary": "Rewrote the description (attempt 1) (FAIL due to invented details 15 and 105, so rewrite to correct axis description.)"
+          "summary": "Rewrote the description (attempt 1) (Verification failed on invented axis endpoints, needs rewrite to remove them.)"
         },
         {
           "step": 6,
           "action": "verify",
-          "summary": "FAIL (0.72): wrong_number: Top Q1 / left edge of upper box is given as \"about 56\" (DATA TABLE 56.0) but the figure sh"
-        },
-        {
-          "step": 7,
-          "action": "reread_value",
-          "summary": "Zoomed in on 'top Q1': read 53 (was 53; description says —) (One small numeric disagreement on top Q1 exceeds tolerance, need zoomed re-read before rewrite.)"
-        },
-        {
-          "step": 8,
-          "action": "verify",
-          "summary": "FAIL (0.72): wrong_number: Top Q1 / left edge of upper box is given as \"about 56\" (DATA TABLE 56.0) but the figure sh"
-        },
-        {
-          "step": 9,
-          "action": "rewrite",
-          "summary": "Rewrote the description (attempt 2) (Single small numeric error persists after reread, so rewrite is needed to align description with verified figure.)"
-        },
-        {
-          "step": 10,
-          "action": "verify",
           "summary": "PASS (0.97)"
         },
         {
-          "step": 11,
+          "step": 7,
           "action": "finish",
           "summary": "Auto-approved: passed verification after rewrite"
         }
       ],
-      "accurate": false,
-      "sent_to_review": false,
-      "correct_outcome": false,
-      "unsafe": true,
-      "scored_by": "code",
-      "usage": {
-        "calls": 13,
-        "uncached": 12,
-        "input_tokens": 15129,
-        "output_tokens": 32051,
-        "usd": 0.1551,
-        "usd_fresh": 0.1707,
-        "fresh_estimated_calls": 0,
-        "model_seconds": 128.4
-      },
-      "seconds": 128.8,
       "values": {
         "true_values": 10,
         "correct": 9,
@@ -1633,7 +1632,7 @@
             "series": "box:Day class",
             "label": "q3",
             "value": 82.5,
-            "described": 82.5,
+            "described": 82.0,
             "described_label": "Q3",
             "result": "correct"
           },
@@ -1641,7 +1640,7 @@
             "series": "box:Day class",
             "label": "max",
             "value": 99.0,
-            "described": 99.0,
+            "described": 100.0,
             "described_label": "Max",
             "result": "correct"
           },
@@ -1649,7 +1648,7 @@
             "series": "box:Night class",
             "label": "min",
             "value": 25.5,
-            "described": 25.5,
+            "described": 25.0,
             "described_label": "Min",
             "result": "correct"
           },
@@ -1657,7 +1656,7 @@
             "series": "box:Night class",
             "label": "q1",
             "value": 78.0,
-            "described": 78.0,
+            "described": 80.0,
             "described_label": "Q1",
             "result": "correct"
           },
@@ -1673,7 +1672,7 @@
             "series": "box:Night class",
             "label": "q3",
             "value": 89.0,
-            "described": 89.0,
+            "described": 90.0,
             "described_label": "Q3",
             "result": "correct"
           },
@@ -1681,7 +1680,7 @@
             "series": "box:Night class",
             "label": "max",
             "value": 98.0,
-            "described": 98.0,
+            "described": 100.0,
             "described_label": "Max",
             "result": "correct"
           }
@@ -1689,71 +1688,76 @@
         "invented_labels": []
       },
       "mentions": {},
-      "invented_numbers": []
+      "invented_numbers": [],
+      "accurate": false,
+      "sent_to_review": false,
+      "correct_outcome": false,
+      "unsafe": true,
+      "scored_by": "code",
+      "usage": {
+        "calls": 7,
+        "uncached": 0,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "usd": 0.0,
+        "usd_fresh": 0.0963,
+        "fresh_estimated_calls": 0,
+        "model_seconds": 0.0
+      },
+      "seconds": 0.2
     },
     {
       "id": "fig-2.16",
       "page": 116,
       "expected_outcome": "auto_approve",
       "region_id": "p116_f0",
-      "status": "needs_review",
+      "status": "auto_approved",
       "type": "chart",
-      "alt_text": "Histogram of data values 4 to 10 showing a symmetrical unimodal distribution peaked at 7.",
-      "long_description": "Figure 2.16 is a histogram with seven adjacent equal-width bars. The horizontal axis shows data values labeled 4, 5, 6, 7, 8, 9, 10 at the center of each bar; each interval has width one and spans about 3.5 to 10.5. The vertical axis has no title, no zero label, and no numbered ticks; it shows frequency by bar height with faint horizontal grid lines but no printed numbers. Bar heights are approximate as no values are printed on the chart: value 4 is about 1, value 5 is about 1, value 6 is about 3, value 7 is the peak at about 8, value 8 is about 3, value 9 is about 1, and value 10 is about 1. The peak bar at 7 is about 2 to 3 times as tall as the bars at 6 and 8 and about 7 to 8 times as tall as the outer bars at 4, 5, 9 and 10. The overall pattern is symmetrical and unimodal, with the tallest bar in the center at 7 and heights mirroring and declining steadily to both sides.",
+      "alt_text": "Histogram with bars at 4 to 10 centered on 7 showing a symmetrical distribution.",
+      "long_description": "Figure 2.16 is a histogram with seven contiguous teal bars. The horizontal axis is labeled 4, 5, 6, 7, 8, 9, and 10, with each bar centered on a whole number and spanning an interval one unit wide. The label 'Figure 2.16' appears below the horizontal axis; there is no other title. The vertical axis has no printed title and no numeric tick labels, only horizontal grid lines, so bar heights can only be compared relatively. The bar centered at 7 is the tallest. The bars centered at 6 and 8 are the next tallest, about equal to each other and roughly half the height of the bar at 7. The four outer bars centered at 4, 5, 9, and 10 are the shortest, all about equal in height to each other and substantially shorter than the inner bars. Moving outward from the center, height decreases symmetrically on both sides: the heights at 6 and 8 match, and the heights at 4 and 5 on the left match the heights at 10 and 9 on the right, forming a symmetrical mound shape centered at 7.",
       "data_table": [
         {
           "label": "4",
-          "value": 1.0,
+          "value": null,
           "series": null
         },
         {
           "label": "5",
-          "value": 1.0,
+          "value": null,
           "series": null
         },
         {
           "label": "6",
-          "value": 3.0,
+          "value": null,
           "series": null
         },
         {
           "label": "7",
-          "value": 8.0,
+          "value": null,
           "series": null
         },
         {
           "label": "8",
-          "value": 3.0,
+          "value": null,
           "series": null
         },
         {
           "label": "9",
-          "value": 1.0,
+          "value": null,
           "series": null
         },
         {
           "label": "10",
-          "value": 1.0,
+          "value": null,
           "series": null
         }
       ],
       "verifier": {
-        "passed": false,
-        "confidence": 0.6,
-        "issues": [
-          {
-            "kind": "invented_detail",
-            "detail": "The number 3.5 is in the description but not in the figure.",
-            "source": "code"
-          },
-          {
-            "kind": "invented_detail",
-            "detail": "The number 10.5 is in the description but not in the figure.",
-            "source": "code"
-          }
-        ]
+        "passed": true,
+        "confidence": 0.98,
+        "issues": []
       },
-      "escalation_reason": "Verification FAIL confidence 0.60 for invented_detail: '3.5' and '10.5' interval endpoints not printed on figure. Previous rewrite explicitly targeted 3.5/10.5 and failed to remove them, so same issue survived a rewrite. 0 rewrites remain, cannot fix automatically; human must remove or confirm inferred endpoints before approval.",
+      "escalation_reason": "passed verification after rewrite",
       "trace": [
         {
           "step": 1,
@@ -1763,7 +1767,7 @@
         {
           "step": 2,
           "action": "extract_values",
-          "summary": "Read the figure independently: 7 labels, 7 values (estimated from axis)"
+          "summary": "Read the figure independently: 8 labels, 7 values (estimated from axis)"
         },
         {
           "step": 3,
@@ -1778,145 +1782,106 @@
         {
           "step": 5,
           "action": "describe",
-          "summary": "Wrote description: \"Histogram of a symmetrical distribution centered at 7, tallest bar at 7 with frequencies decreasing equally on both sides.\""
+          "summary": "Wrote description: \"Histogram of data values 4 to 10 showing a symmetrical distribution with a peak at 7.\""
         },
         {
           "step": 6,
           "action": "verify",
-          "summary": "FAIL (0.60): invented_detail: The number 0 is in the description but not in the figure.; invented_detail: The number 3.5 is in the description but not in the figure.; invented_detail: The number 10.5 is in the description but not in the figure."
+          "summary": "FAIL (0.88): invented_detail: Long description states the vertical axis shows frequency, but the image shows no y-axis t"
         },
         {
           "step": 7,
-          "action": "recrop",
-          "summary": "Widened the crop (all) and re-read the figure (Independent reading flags labels_cut_off true and top text is truncated, so widen crop before fixing invented details.)"
+          "action": "rewrite",
+          "summary": "Rewrote the description (attempt 1) (Verification failed for invented_detail: frequency label not visible, requires rewrite to describe vertical axis as unlabeled with relative heights only.)"
         },
         {
           "step": 8,
-          "action": "extract_values",
-          "summary": "Read the figure independently: 8 labels, 7 values (estimated from axis)"
+          "action": "verify",
+          "summary": "PASS (0.98)"
         },
         {
           "step": 9,
-          "action": "describe",
-          "summary": "Wrote description: \"Histogram showing a symmetrical, unimodal distribution with a single peak at 7 and equal tails down to 4 and 10.\""
-        },
-        {
-          "step": 10,
-          "action": "verify",
-          "summary": "FAIL (0.32): wrong_number: Long description and data table give bar heights as 4≈1, 5≈1, 6≈3-4 (table 4), 7≈10-12 (ta; invented_detail: Description states vertical axis shows frequency with 0 at the bottom and only horizontal ; wrong_number: '6': description says 4, independent reading says 3."
-        },
-        {
-          "step": 11,
-          "action": "rewrite",
-          "summary": "Rewrote the description (attempt 1) (Multiple invented details and wrong numbers need rewrite before verification.)"
-        },
-        {
-          "step": 12,
-          "action": "verify",
-          "summary": "FAIL (0.60): invented_detail: The number 2.5 is in the description but not in the figure."
-        },
-        {
-          "step": 13,
-          "action": "rewrite",
-          "summary": "Rewrote the description (attempt 2) (Verification fails on invented detail 2.5, which needs imprecise approximate phrasing matching independent reading.)"
-        },
-        {
-          "step": 14,
-          "action": "verify",
-          "summary": "FAIL (0.60): invented_detail: The number 3.5 is in the description but not in the figure.; invented_detail: The number 10.5 is in the description but not in the figure."
-        },
-        {
-          "step": 15,
           "action": "finish",
-          "summary": "Sent to human review: Verification FAIL confidence 0.60 for invented_detail: '3.5' and '10.5' interval endpoints not printed on figure. Previous rewrite explicitly targeted 3.5/10.5 and failed to remove them, so same issue survived a rewrite. 0 rewrites remain, cannot fix automatically; human must remove or confirm inferred endpoints before approval."
+          "summary": "Auto-approved: passed verification after rewrite"
         }
       ],
-      "accurate": false,
-      "sent_to_review": true,
-      "correct_outcome": false,
-      "unsafe": false,
-      "scored_by": "code",
-      "usage": {
-        "calls": 16,
-        "uncached": 16,
-        "input_tokens": 26365,
-        "output_tokens": 51263,
-        "usd": 0.2508,
-        "usd_fresh": 0.2508,
-        "fresh_estimated_calls": 0,
-        "model_seconds": 217.4
-      },
-      "seconds": 217.9,
       "values": {
         "true_values": 7,
-        "correct": 6,
-        "wrong": 1,
-        "missing": 0,
+        "correct": 0,
+        "wrong": 0,
+        "missing": 7,
         "tolerance": "Frequency: 3% of 6 (span of the true values)",
         "values": [
           {
             "series": "Frequency",
             "label": "4",
             "value": 1.0,
-            "described": 1.0,
-            "described_label": "4",
-            "result": "correct"
+            "described": null,
+            "result": "missing"
           },
           {
             "series": "Frequency",
             "label": "5",
             "value": 1.0,
-            "described": 1.0,
-            "described_label": "5",
-            "result": "correct"
+            "described": null,
+            "result": "missing"
           },
           {
             "series": "Frequency",
             "label": "6",
             "value": 3.0,
-            "described": 3.0,
-            "described_label": "6",
-            "result": "correct"
+            "described": null,
+            "result": "missing"
           },
           {
             "series": "Frequency",
             "label": "7",
             "value": 6.0,
-            "described": 8.0,
-            "described_label": "7",
-            "result": "wrong"
+            "described": null,
+            "result": "missing"
           },
           {
             "series": "Frequency",
             "label": "8",
             "value": 3.0,
-            "described": 3.0,
-            "described_label": "8",
-            "result": "correct"
+            "described": null,
+            "result": "missing"
           },
           {
             "series": "Frequency",
             "label": "9",
             "value": 1.0,
-            "described": 1.0,
-            "described_label": "9",
-            "result": "correct"
+            "described": null,
+            "result": "missing"
           },
           {
             "series": "Frequency",
             "label": "10",
             "value": 1.0,
-            "described": 1.0,
-            "described_label": "10",
-            "result": "correct"
+            "described": null,
+            "result": "missing"
           }
         ],
         "invented_labels": []
       },
       "mentions": {},
-      "invented_numbers": [
-        "3.5"
-      ]
+      "invented_numbers": [],
+      "accurate": true,
+      "sent_to_review": false,
+      "correct_outcome": true,
+      "unsafe": false,
+      "scored_by": "code",
+      "usage": {
+        "calls": 8,
+        "uncached": 0,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "usd": 0.0,
+        "usd_fresh": 0.1247,
+        "fresh_estimated_calls": 0,
+        "model_seconds": 0.0
+      },
+      "seconds": 0.3
     },
     {
       "id": "fig-2.19",
@@ -1925,8 +1890,8 @@
       "region_id": "p117_f1",
       "status": "auto_approved",
       "type": "chart",
-      "alt_text": "Dot plot of Terry's letter counts shows most words with 2–4 letters and a long right tail to 9, indicating right skew.",
-      "long_description": "This is a dot plot (X marks stacked on a number line) titled Terry's Letter Count centered at the top. The horizontal axis is a number line representing letter count per word, with integer ticks labeled 1 through 10 from left to right and arrowheads at both ends. There is no labeled vertical axis; frequency is shown by the number of X's stacked vertically above each tick, with one X representing one word for a total of 10 words. The plotted data are: above 1 there is 1 X; above 2 there are 2 X's stacked vertically; above 3 there are 4 X's stacked vertically; above 4 there is 1 X; above 5 there are no X's; above 6 there are no X's; above 7 there is 1 X; above 8 there is no X; above 9 there is 1 X; above 10 there is no X. The bulk of the data clusters on the left from 1 to 4 with a clear peak at 3, while gaps at 5-6 and 8 and isolated values at 7 and 9 create a long tail extending to the right. The caption below reads Figure 2.19 Terry's distribution has a right (positive) skew.",
+      "alt_text": "Dot plot of Terry's letter counts clustered at 2-3 with a right tail to 7 and 9 showing positive skew.",
+      "long_description": "Dot plot titled 'Terry's Letter Count.' The horizontal axis is letter count, shown as a number line marked 1 through 10 in ones with arrowheads at both ends. There is no labeled vertical axis; frequency is shown by vertically stacking X marks above each horizontal value. There are 10 observations total: 1 X at 1, 2 Xs stacked vertically at 2, 4 Xs stacked vertically at 3, 1 X at 4, no Xs at 5, no Xs at 6, 1 X at 7, no Xs at 8, 1 X at 9, and no Xs at 10. Most observations are clustered on the left around 2 and 3, with isolated observations farther to the right at 7 and 9 creating a long tail to the right, which indicates a right (positive) skew.",
       "data_table": [
         {
           "label": "1",
@@ -1949,13 +1914,33 @@
           "series": null
         },
         {
+          "label": "5",
+          "value": 0.0,
+          "series": null
+        },
+        {
+          "label": "6",
+          "value": 0.0,
+          "series": null
+        },
+        {
           "label": "7",
           "value": 1.0,
           "series": null
         },
         {
+          "label": "8",
+          "value": 0.0,
+          "series": null
+        },
+        {
           "label": "9",
           "value": 1.0,
+          "series": null
+        },
+        {
+          "label": "10",
+          "value": 0.0,
           "series": null
         }
       ],
@@ -1974,7 +1959,7 @@
         {
           "step": 2,
           "action": "extract_values",
-          "summary": "Read the figure independently: 10 labels, 6 values (estimated from axis)"
+          "summary": "Read the figure independently: 10 labels, 6 values (printed)"
         },
         {
           "step": 3,
@@ -1984,12 +1969,12 @@
         {
           "step": 4,
           "action": "extract_values",
-          "summary": "Read the figure independently: 13 labels, 6 values (printed)"
+          "summary": "Read the figure independently: 12 labels, 6 values (printed)"
         },
         {
           "step": 5,
           "action": "describe",
-          "summary": "Wrote description: \"Dot plot of Terry's letter counts shows most words with 2–4 letters and a long right tail to 9, indicating right skew.\""
+          "summary": "Wrote description: \"Dot plot of Terry's letter counts clustered at 2-3 with a right tail to 7 and 9 showing positive skew.\""
         },
         {
           "step": 6,
@@ -2002,27 +1987,11 @@
           "summary": "Auto-approved"
         }
       ],
-      "accurate": true,
-      "sent_to_review": false,
-      "correct_outcome": true,
-      "unsafe": false,
-      "scored_by": "code",
-      "usage": {
-        "calls": 5,
-        "uncached": 5,
-        "input_tokens": 5747,
-        "output_tokens": 17866,
-        "usd": 0.0831,
-        "usd_fresh": 0.0831,
-        "fresh_estimated_calls": 0,
-        "model_seconds": 68.7
-      },
-      "seconds": 68.9,
       "values": {
         "true_values": 10,
-        "correct": 6,
+        "correct": 10,
         "wrong": 0,
-        "missing": 4,
+        "missing": 0,
         "tolerance": "Count: 3% of 4 (span of the true values)",
         "values": [
           {
@@ -2061,15 +2030,17 @@
             "series": "Count",
             "label": "5",
             "value": 0.0,
-            "described": null,
-            "result": "missing"
+            "described": 0.0,
+            "described_label": "5",
+            "result": "correct"
           },
           {
             "series": "Count",
             "label": "6",
             "value": 0.0,
-            "described": null,
-            "result": "missing"
+            "described": 0.0,
+            "described_label": "6",
+            "result": "correct"
           },
           {
             "series": "Count",
@@ -2083,8 +2054,9 @@
             "series": "Count",
             "label": "8",
             "value": 0.0,
-            "described": null,
-            "result": "missing"
+            "described": 0.0,
+            "described_label": "8",
+            "result": "correct"
           },
           {
             "series": "Count",
@@ -2098,8 +2070,9 @@
             "series": "Count",
             "label": "10",
             "value": 0.0,
-            "described": null,
-            "result": "missing"
+            "described": 0.0,
+            "described_label": "10",
+            "result": "correct"
           }
         ],
         "invented_labels": []
@@ -2107,71 +2080,66 @@
       "mentions": {
         "title": true
       },
-      "invented_numbers": []
+      "invented_numbers": [],
+      "accurate": true,
+      "sent_to_review": false,
+      "correct_outcome": true,
+      "unsafe": false,
+      "scored_by": "code",
+      "usage": {
+        "calls": 5,
+        "uncached": 0,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "usd": 0.0,
+        "usd_fresh": 0.0563,
+        "fresh_estimated_calls": 0,
+        "model_seconds": 0.0
+      },
+      "seconds": 0.2
     },
     {
       "id": "fig-2.25",
       "page": 124,
       "expected_outcome": "needs_review_ok",
       "region_id": "p124_f0",
-      "status": "needs_review",
+      "status": "auto_approved",
       "type": "chart",
-      "alt_text": "Histogram with five intervals from 32.5 to 100.5 and an aligned boxplot showing frequencies peaking at about 8 and 10 in the upper intervals.",
-      "long_description": "Figure 2.25 shows a histogram with an aligned horizontal boxplot sharing the same x-axis. The x-axis shows data values from 32.5 to 100.5, divided into five equal-width intervals with endpoints at 32.5, 46.1, 59.7, 73.3, 86.9, and 100.5 (the image shows overlapping labels of 73.3 and 73.5 at the fourth tick). The y-axis for the histogram is frequency from -2.4 to 15 with horizontal grid lines. Bar heights (frequency) read from the y-axis are: 32.5 to 46.1 about 1; 46.1 to 59.7 about 4; 59.7 to 73.3 about 8; 73.3 to 86.9 (labeled 73.5 to 86.9 in the image) about 3; and 86.9 to 100.5 about 10. Above the histogram a horizontal boxplot is drawn to the same x-scale. The left whisker extends from about 33 to the left edge of the box at about 61, the box spans from about 61 to about 90 with a dashed vertical median line inside at about 73, and the right whisker extends from the box to about 100 to 100.5. Overall the distribution is not uniform: frequency is lowest in the first interval, rises to a peak in the 59.7 to 73.3 interval, drops in the 73.3 to 86.9 interval, and rises again to the highest peak in the 86.9 to 100.5 interval, indicating a bimodal shape with most data concentrated in the upper intervals.",
+      "alt_text": "Histogram with five intervals from 32.5 to 100.5 and a box plot above showing higher frequencies in middle and high intervals.",
+      "long_description": "Figure 2.25 is a combination chart with a vertical histogram and a horizontal box plot aligned above it sharing the same x-axis. The x-axis is horizontal at the bottom and, according to the surrounding text, runs from 32.5 to 100.5. It is marked at the interval boundaries 32.5, 46.1, 59.7, 73.3, 86.9, and 100.5. At the boundary near 73.3 the label appears doubled as 73.3 and 73.5 overlapping in the image. The y-axis is vertical on the left and, according to the surrounding text, runs from -2.4 to 15 for the histogram, but no numerical tick labels or values are printed on the figure itself; only faint horizontal grid lines are visible. The histogram has five vertical teal bars, one per interval. No exact frequency values are printed on the bars or axes. From left to right: the first bar spanning 32.5 to 46.1 is the shortest and lowest; the second bar spanning 46.1 to 59.7 is several times taller than the first and low to moderate in height; the third bar spanning 59.7 to 73.3 is about twice as tall as the second and moderately high; the fourth bar spanning 73.3 to 86.9 drops back down to about the same height as the second bar and is low to moderate; the fifth bar spanning 86.9 to 100.5 is the tallest, slightly taller than the third bar. Thus the lowest frequency is in the first interval and the highest is in the last interval, with the second and fourth bars about equal to each other and the third and fifth bars about equal to each other with the fifth slightly higher. The horizontal box plot sits directly above the histogram. Its scale aligns with the same x-axis from 32.5 to 100.5. It shows a rectangular box with a vertical dashed line inside indicating the median, and thin whiskers extending left and right to the extremes with short caps at the ends. The left whisker extends from near the left end of the x-axis to the left edge of the box near the middle of the axis, and the right whisker extends from the right edge of the box near the upper part of the axis to near the right end of the axis. The box itself spans the central to upper portion of the range. The overall pattern in the histogram is a bimodal-like distribution with two peaks in the intervals 59.7 to 73.3 and 86.9 to 100.5 and a valley in the interval 73.3 to 86.9, plus very low frequency at the lowest interval.",
       "data_table": [
         {
           "label": "32.5 to 46.1",
-          "value": 1.0,
+          "value": null,
           "series": null
         },
         {
           "label": "46.1 to 59.7",
-          "value": 4.0,
+          "value": null,
           "series": null
         },
         {
           "label": "59.7 to 73.3",
-          "value": 8.0,
+          "value": null,
           "series": null
         },
         {
           "label": "73.3 to 86.9",
-          "value": 3.0,
+          "value": null,
           "series": null
         },
         {
           "label": "86.9 to 100.5",
-          "value": 10.0,
+          "value": null,
           "series": null
         }
       ],
       "verifier": {
-        "passed": false,
-        "confidence": 0.6,
-        "issues": [
-          {
-            "kind": "invented_detail",
-            "detail": "The number 15 is in the description but not in the figure.",
-            "source": "code"
-          },
-          {
-            "kind": "invented_detail",
-            "detail": "The number 61 is in the description but not in the figure.",
-            "source": "code"
-          },
-          {
-            "kind": "invented_detail",
-            "detail": "The number 90 is in the description but not in the figure.",
-            "source": "code"
-          },
-          {
-            "kind": "invented_detail",
-            "detail": "The number -2.4 is in the description but not in the figure.",
-            "source": "code"
-          }
-        ]
+        "passed": true,
+        "confidence": 0.96,
+        "issues": []
       },
-      "escalation_reason": "Verification FAIL (0.60) flags -2.4, 15, 61, 90 as invented_details but -2.4 to 15 is visible in caption text above histogram ('y-axis goes from -2.4 to 15') which is cut off on left edge (labels_cut_off=true, y-axis not visible) and 61/90 are 'about' estimates for unlabeled boxplot edges; two prior rewrites attempted to qualify/remove precise numbers yet flags persist and 0 rewrites remain, so human must verify caption-derived y-range vs axis and decide if qualitative 'about' boxplot positions are acceptable.",
+      "escalation_reason": "passed verification after recrop",
       "trace": [
         {
           "step": 1,
@@ -2196,131 +2164,80 @@
         {
           "step": 5,
           "action": "describe",
-          "summary": "Wrote description: \"Histogram with aligned box plot from 32.5 to 100.5 in five equal intervals, showing two high-frequency peaks near 60–73 and 87–100.\""
+          "summary": "Wrote description: \"Histogram with box plot above shows data from 32.5 to 100.5 in five intervals, with the tallest bars in the middle and far-right intervals.\""
         },
         {
           "step": 6,
           "action": "verify",
-          "summary": "FAIL (0.60): invented_detail: Long description states vertical y-axis is frequency ranging from -2.4 at the bottom to 15; wrong_number: Histogram bar heights given as about 1-2, 6, 11, 5, 13 and DATA TABLE as 1.0, 6.0, 11.0, 5; wrong_number: Box-plot coordinates stated as box from about 61 to about 90 with median at 70-72 and whis"
+          "summary": "FAIL (0.62): wrong_number: Long description says the box-plot median (dashed line inside the box) is 'positioned slig; missing_label: Top of figure shows partially cut-off explanatory text: '32.5 + 13.6 = 46.1, 46.1 + 13.6 ="
         },
         {
           "step": 7,
           "action": "recrop",
-          "summary": "Widened the crop (all) and re-read the figure (y-axis and top text cut off causing invented -2.4 to 15 and inflated frequencies, need full crop)"
+          "summary": "Widened the crop (all) and re-read the figure (Top interval calculation and bottom frequency headers are cut off and must be captured before fixing median position error)"
         },
         {
           "step": 8,
           "action": "extract_values",
-          "summary": "Read the figure independently: 15 labels, 5 values (estimated from axis)"
+          "summary": "Read the figure independently: 8 labels, 5 values (estimated from axis)"
         },
         {
           "step": 9,
           "action": "describe",
-          "summary": "Wrote description: \"Histogram with boxplot above showing data spread from 32.5 to 100.5, with highest frequencies in the 59.7–73.3 and 86.9–100.5 intervals.\""
+          "summary": "Wrote description: \"Histogram with five intervals from 32.5 to 100.5 and a box plot above showing higher frequencies in middle and high intervals.\""
         },
         {
           "step": 10,
           "action": "verify",
-          "summary": "FAIL (0.60): wrong_number: LONG DESCRIPTION and DATA TABLE give ~11 (11.0 in table) for interval 86.9 to 100.5 as the; wrong_number: '86.9 to 100.5': description says 11, independent reading says 10.; invented_detail: The number 13.6 is in the description but not in the figure."
+          "summary": "PASS (0.96)"
         },
         {
           "step": 11,
-          "action": "rewrite",
-          "summary": "Rewrote the description (attempt 1) (Wrong number exceeds tolerance and invented details must be fixed by rewrite.)"
-        },
-        {
-          "step": 12,
-          "action": "verify",
-          "summary": "FAIL (0.60): wrong_number: Long description and data table give the bar for 59.7 to 73.3 as about 7 (data table value; wrong_number: '59.7 to 73.3': description says 7, independent reading says 8."
-        },
-        {
-          "step": 13,
-          "action": "reread_value",
-          "summary": "Zoomed in on '59.7 to 73.3': read 8 (was 8; description says 7.0) (Single numeric disagreement (7 vs 8) exceeds tolerance needs zoomed re-read before rewrite.)"
-        },
-        {
-          "step": 14,
-          "action": "verify",
-          "summary": "FAIL (0.60): wrong_number: Long description and data table give the bar for 59.7 to 73.3 as about 7 (data table value; wrong_number: '59.7 to 73.3': description says 7, independent reading says 8."
-        },
-        {
-          "step": 15,
-          "action": "rewrite",
-          "summary": "Rewrote the description (attempt 2) (Single numeric disagreement (7 vs 8) confirmed by zoomed re-read exceeds tolerance, requires rewrite to fix.)"
-        },
-        {
-          "step": 16,
-          "action": "verify",
-          "summary": "FAIL (0.60): invented_detail: The number 15 is in the description but not in the figure.; invented_detail: The number 61 is in the description but not in the figure.; invented_detail: The number 90 is in the description but not in the figure."
-        },
-        {
-          "step": 17,
           "action": "finish",
-          "summary": "Sent to human review: Verification FAIL (0.60) flags -2.4, 15, 61, 90 as invented_details but -2.4 to 15 is visible in caption text above histogram ('y-axis goes from -2.4 to 15') which is cut off on left edge (labels_cut_off=true, y-axis not visible) and 61/90 are 'about' estimates for unlabeled boxplot edges; two prior rewrites attempted to qualify/remove precise numbers yet flags persist and 0 rewrites remain, so human must verify caption-derived y-range vs axis and decide if qualitative 'about' boxplot positions are acceptable."
+          "summary": "Auto-approved: passed verification after recrop"
         }
       ],
-      "accurate": false,
-      "sent_to_review": true,
-      "correct_outcome": true,
-      "unsafe": false,
-      "scored_by": "code",
-      "usage": {
-        "calls": 19,
-        "uncached": 18,
-        "input_tokens": 34163,
-        "output_tokens": 70483,
-        "usd": 0.3423,
-        "usd_fresh": 0.3715,
-        "fresh_estimated_calls": 0,
-        "model_seconds": 298.9
-      },
-      "seconds": 299.9,
       "values": {
         "true_values": 10,
         "correct": 0,
-        "wrong": 5,
-        "missing": 5,
+        "wrong": 0,
+        "missing": 10,
         "tolerance": "Frequency: 3% of 11 (span of the true values); box:1: 3% of 67 (span of the true values)",
         "values": [
           {
             "series": "Frequency",
             "label": "32.5–46.1",
             "value": 2.0,
-            "described": 1.0,
-            "described_label": "32.5 to 46.1",
-            "result": "wrong"
+            "described": null,
+            "result": "missing"
           },
           {
             "series": "Frequency",
             "label": "46.1–59.7",
             "value": 5.0,
-            "described": 4.0,
-            "described_label": "46.1 to 59.7",
-            "result": "wrong"
+            "described": null,
+            "result": "missing"
           },
           {
             "series": "Frequency",
             "label": "59.7–73.3",
             "value": 9.0,
-            "described": 8.0,
-            "described_label": "59.7 to 73.3",
-            "result": "wrong"
+            "described": null,
+            "result": "missing"
           },
           {
             "series": "Frequency",
             "label": "73.3–86.9",
             "value": 4.0,
-            "described": 3.0,
-            "described_label": "73.3 to 86.9",
-            "result": "wrong"
+            "described": null,
+            "result": "missing"
           },
           {
             "series": "Frequency",
             "label": "86.9–100.5",
             "value": 11.0,
-            "described": 10.0,
-            "described_label": "86.9 to 100.5",
-            "result": "wrong"
+            "described": null,
+            "result": "missing"
           },
           {
             "series": "box:1",
@@ -2363,11 +2280,24 @@
       "mentions": {},
       "invented_numbers": [
         "-2.4",
-        "3",
-        "8",
-        "10",
         "15"
-      ]
+      ],
+      "accurate": false,
+      "sent_to_review": false,
+      "correct_outcome": false,
+      "unsafe": true,
+      "scored_by": "code",
+      "usage": {
+        "calls": 9,
+        "uncached": 0,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "usd": 0.0,
+        "usd_fresh": 0.1681,
+        "fresh_estimated_calls": 0,
+        "model_seconds": 0.0
+      },
+      "seconds": 0.3
     },
     {
       "id": "fig-2.26",
@@ -2376,15 +2306,15 @@
       "region_id": "p127_f0",
       "status": "auto_approved",
       "type": "text_image",
-      "alt_text": "Calculator screen showing STAT menu with EDIT tab and 1:Edit option highlighted in white-on-black to indicate selection.",
-      "long_description": "Figure 2.26 is a close-up, pixelated screenshot of a calculator's STAT menu screen on a muted green-gray background. At the very top is a horizontal row of three menu tabs reading 'EDIT CALC TESTS' from left to right in blocky, dot-matrix pixel font. Only the leftmost tab 'EDIT' is selected, shown as inverted colors: white text on a solid black rectangular highlight. 'CALC' and 'TESTS' are unselected and appear as dark gray-black text directly on the green-gray background. Below the tabs is a vertical numbered list of five menu options, also in the same pixel font. Only the first row '1:Edit...' is selected and highlighted the same way, with white text on a solid black background spanning the row. The remaining rows are unselected and show dark text on the green-gray background: '2:SortA(' on the second row, '3:SortD(' on the third, '4:ClrList' on the fourth, and '5:SetUpEditor' on the fifth. Labels '2:', '3:', '4:', and '5:' are dark text on the background, not highlighted. The image is tightly cropped to the screen, with no other buttons or data visible. Centered directly below the screenshot is the caption 'Figure 2.26' in dark text.",
+      "alt_text": "STAT menu on a calculator screen with EDIT highlighted, showing options 1:Edit through 5:SetUpEditor.",
+      "long_description": "The figure shows a close-up of a pixelated calculator screen on a muted green-gray background with black text. At the top is a horizontal menu bar with three labels: EDIT, CALC, and TESTS. The label EDIT is highlighted with white text on a black rectangle, indicating it is selected. Below the menu bar is a vertical numbered list of five options: 1: Edit with three dots after it, 2: SortA with an open parenthesis, 3: SortD with an open parenthesis, 4: ClrList, and 5: SetUpEditor. The number and colon for each item are on the left, followed by the option name. The image is cropped tightly to the screen, with small fragments of surrounding page text cut off at the very top and bottom edges. Centered below the screen is the caption Figure 2.26 in dark text.",
       "data_table": [],
       "verifier": {
         "passed": true,
-        "confidence": 0.98,
+        "confidence": 0.97,
         "issues": []
       },
-      "escalation_reason": "passed verification after rewrite",
+      "escalation_reason": null,
       "trace": [
         {
           "step": 1,
@@ -2409,55 +2339,43 @@
         {
           "step": 5,
           "action": "describe",
-          "summary": "Wrote description: \"TI calculator STAT EDIT menu screen with 1:Edit highlighted for entering data.\""
+          "summary": "Wrote description: \"STAT menu on a calculator screen with EDIT highlighted, showing options 1:Edit through 5:SetUpEditor.\""
         },
         {
           "step": 6,
           "action": "verify",
-          "summary": "FAIL (0.88): invented_detail: Long description states the number labels on the left (1:, 2:, etc.) appear in white text "
+          "summary": "PASS (0.97)"
         },
         {
           "step": 7,
-          "action": "rewrite",
-          "summary": "Rewrote the description (attempt 1) (Verification failed on invented detail about all number labels being white-on-black; only 1: is highlighted.)"
-        },
-        {
-          "step": 8,
-          "action": "verify",
-          "summary": "PASS (0.98)"
-        },
-        {
-          "step": 9,
           "action": "finish",
-          "summary": "Auto-approved: passed verification after rewrite"
+          "summary": "Auto-approved"
         }
       ],
       "judge": {
-        "factual_errors": [
-          {
-            "claim": "Only the first row '1:Edit...' is selected and highlighted with white text on a solid black background spanning the row",
-            "why": "The image shows only '1:' in white on black; 'Edit...' is dark text on the green-gray background. The reference only says option 1 is highlighted, not that the whole row is inverted."
-          }
+        "factual_errors": [],
+        "missing": [
+          "Option 1:Edit… is highlighted",
+          "The calculator is a TI graphing calculator"
         ],
-        "missing": [],
-        "accurate": false
+        "accurate": true
       },
-      "accurate": false,
+      "accurate": true,
       "sent_to_review": false,
       "correct_outcome": true,
-      "unsafe": true,
+      "unsafe": false,
       "scored_by": "judged by model",
       "usage": {
-        "calls": 9,
-        "uncached": 9,
-        "input_tokens": 11561,
-        "output_tokens": 21887,
-        "usd": 0.1594,
-        "usd_fresh": 0.1594,
+        "calls": 6,
+        "uncached": 0,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "usd": 0.0,
+        "usd_fresh": 0.1152,
         "fresh_estimated_calls": 0,
-        "model_seconds": 125.2
+        "model_seconds": 0.0
       },
-      "seconds": 125.6
+      "seconds": 0.2
     },
     {
       "id": "fig-2.30",
@@ -2466,15 +2384,15 @@
       "region_id": "p130_f0",
       "status": "auto_approved",
       "type": "chart",
-      "alt_text": "Blank histogram template with Number of Pairs of Shoes on the x-axis and Frequency on the y-axis for a student exercise.",
-      "long_description": "Figure 2.30 is a blank histogram template with no data plotted. The title \"Figure 2.30\" is centered below the chart. The horizontal x-axis is labeled \"Number of Pairs of Shoes\" and the vertical y-axis is labeled \"Frequency.\" Neither axis has numerical values, tick marks, scale, units, or grid lines visible; both are shown as plain blank lines with only their text labels. No bars, points, categories, or values are displayed inside the plot area. The plot area is completely empty and white. The overall pattern shows no distribution because this is an empty coordinate system intended for students to construct their own histogram by sketching bars after collecting survey data.",
+      "alt_text": "Empty histogram template with Frequency on the vertical axis and Number of Pairs of Shoes on the horizontal axis.",
+      "long_description": "Figure 2.30 is a blank histogram template. The title at the top edge, partially cut off, reads Survey Results. The chart has a vertical y-axis on the left labeled Frequency and a horizontal x-axis on the bottom labeled Number of Pairs of Shoes. Both axes are thin black lines with no tick marks, numerical scales, units, gridlines, or bars visible. The rectangular plot area between the axes is empty white space with no data plotted. The caption Figure 2.30 is centered below the x-axis label.",
       "data_table": [],
       "verifier": {
         "passed": true,
         "confidence": 0.98,
         "issues": []
       },
-      "escalation_reason": "passed verification after recrop",
+      "escalation_reason": null,
       "trace": [
         {
           "step": 1,
@@ -2499,144 +2417,113 @@
         {
           "step": 5,
           "action": "describe",
-          "summary": "Wrote description: \"Blank histogram template titled Survey Results with Number of Pairs of Shoes on the horizontal axis and Frequency on the vertical axis.\""
+          "summary": "Wrote description: \"Empty histogram template with Frequency on the vertical axis and Number of Pairs of Shoes on the horizontal axis.\""
         },
         {
           "step": 6,
           "action": "verify",
-          "summary": "FAIL (0.60): invented_detail: The number 90 is in the description but not in the figure."
-        },
-        {
-          "step": 7,
-          "action": "recrop",
-          "summary": "Widened the crop (all) and re-read the figure (Independent reading flags labels_cut_off true and title is visibly cropped at top)"
-        },
-        {
-          "step": 8,
-          "action": "extract_values",
-          "summary": "Read the figure independently: 9 labels"
-        },
-        {
-          "step": 9,
-          "action": "describe",
-          "summary": "Wrote description: \"Blank histogram template with Number of Pairs of Shoes on the x-axis and Frequency on the y-axis for a student exercise.\""
-        },
-        {
-          "step": 10,
-          "action": "verify",
           "summary": "PASS (0.98)"
         },
         {
-          "step": 11,
+          "step": 7,
           "action": "finish",
-          "summary": "Auto-approved: passed verification after recrop"
+          "summary": "Auto-approved"
         }
       ],
       "judge": {
-        "factual_errors": [],
+        "factual_errors": [
+          {
+            "claim": "The title at the top edge, partially cut off, reads Survey Results",
+            "why": "Reference gives no graph title, only blank axes labeled Frequency and Number of Pairs of Shoes; notes say cut-off text above the axes in the crop is surrounding text and not part of the graph"
+          }
+        ],
         "missing": [],
-        "accurate": true
+        "accurate": false
       },
-      "accurate": true,
+      "accurate": false,
       "sent_to_review": false,
-      "correct_outcome": true,
-      "unsafe": false,
+      "correct_outcome": false,
+      "unsafe": true,
       "scored_by": "judged by model",
       "usage": {
-        "calls": 10,
-        "uncached": 10,
-        "input_tokens": 15997,
-        "output_tokens": 16273,
-        "usd": 0.1184,
-        "usd_fresh": 0.1184,
+        "calls": 6,
+        "uncached": 0,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "usd": 0.0,
+        "usd_fresh": 0.1262,
         "fresh_estimated_calls": 0,
-        "model_seconds": 95.9
+        "model_seconds": 0.0
       },
-      "seconds": 96.3
+      "seconds": 0.3
     },
     {
       "id": "fig-2.44",
       "page": 154,
       "expected_outcome": "auto_approve",
       "region_id": "p154_f2",
-      "status": "needs_review",
+      "status": "auto_approved",
       "type": "chart",
-      "alt_text": "Three box plots compare number of foreign countries visited by 20-year-olds in China, Germany, and the U.S.; Germany shows the highest median.",
-      "long_description": "Figure 2.44 shows three horizontal box-and-whisker plots for the question: In a survey of 20-year-olds in China, Germany, and the United States, people were asked the number of foreign countries they had visited in their lifetime. The horizontal axis is number of foreign countries visited, marked from 0 to 11 with ticks at each integer 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11. The vertical categories from top to bottom are China, Germany, and United States. For China, only a horizontal line with end caps is visible, extending from about 0 to about 5; no box or median line is shown, indicating a range of about 0 to 5. For Germany, the minimum is about 0, the left whisker extends from about 0 to about 4, the box spans from about 4 to about 8, where about 4 is the first quartile and about 8 is both the third quartile and the median (shown as a dashed vertical line at the right edge of the box), and the right whisker extends from about 8 to a maximum of about 11. For the United States, the box spans from about 0 to about 5, where about 0 is both the minimum and the first quartile at the left edge of the box with no left whisker, a dashed median line is inside the box at about 2, about 5 is the third quartile at the right edge of the box, and the right whisker extends from about 5 to a maximum of about 11. Overall, German 20-year-olds show the highest typical number visited with a median of about 8, U.S. 20-year-olds show a lower median of about 2 but the same maximum of about 11 and a wide spread, and Chinese 20-year-olds show the lowest and narrowest range from about 0 to about 5.",
+      "alt_text": "Three horizontal box plots for China, Germany, and the United States on a 0 to 11 scale showing varied positions and whisker lengths.",
+      "long_description": "Figure 2.44 is a horizontal box-and-whisker chart with three categories plotted against a numeric scale. The horizontal scale at the bottom has ticks labeled 0 through 11 at each integer, with arrows at both ends, and no axis label or units are shown. The vertical dimension lists three categories from top to bottom: China, Germany, and United States.\n\nChina, the top row, appears as a single horizontal line with short vertical caps at both ends, extending from about 0 on the left to about 4.2 on the right, with no separate box or interior median line distinguishable.\n\nGermany, the middle row, has a left whisker from about 0 to about 4, a rectangular box from about 4 to about 8, and a right whisker from about 8 to about 11. The left edge of the box at about 4 is solid and the right edge at about 8 is dashed. No distinct interior median line is visible inside the box.\n\nUnited States, the bottom row, has a rectangular box from about 0 to about 5 with a vertical dashed median line inside at about 2, and a right whisker extending from about 5 to about 11. The left edge of the box aligns with 0, so no left whisker is visible beyond the box.\n\nOverall, the China line is the shortest and lies lowest on the scale ending near 4.2, the United States box occupies the lower half of the scale from 0 to about 5 with a median near 2, and the Germany box is shifted higher from about 4 to about 8; both Germany and the United States have whiskers reaching to about 11 on the right, while China does not.",
       "data_table": [
         {
-          "label": "China - Minimum",
+          "label": "China left end",
           "value": 0.0,
           "series": "China"
         },
         {
-          "label": "China - Maximum",
-          "value": 5.0,
+          "label": "China right end",
+          "value": 4.2,
           "series": "China"
         },
         {
-          "label": "Germany - Minimum",
+          "label": "Germany left whisker end",
           "value": 0.0,
           "series": "Germany"
         },
         {
-          "label": "Germany - First quartile (Q1)",
+          "label": "Germany box left edge",
           "value": 4.0,
           "series": "Germany"
         },
         {
-          "label": "Germany - Median",
+          "label": "Germany box right edge",
           "value": 8.0,
           "series": "Germany"
         },
         {
-          "label": "Germany - Third quartile (Q3)",
-          "value": 8.0,
-          "series": "Germany"
-        },
-        {
-          "label": "Germany - Maximum",
+          "label": "Germany right whisker end",
           "value": 11.0,
           "series": "Germany"
         },
         {
-          "label": "United States - Minimum",
+          "label": "United States box left edge",
           "value": 0.0,
           "series": "United States"
         },
         {
-          "label": "United States - First quartile (Q1)",
-          "value": 0.0,
-          "series": "United States"
-        },
-        {
-          "label": "United States - Median",
+          "label": "United States median",
           "value": 2.0,
           "series": "United States"
         },
         {
-          "label": "United States - Third quartile (Q3)",
+          "label": "United States box right edge",
           "value": 5.0,
           "series": "United States"
         },
         {
-          "label": "United States - Maximum",
+          "label": "United States right whisker end",
           "value": 11.0,
           "series": "United States"
         }
       ],
       "verifier": {
-        "passed": false,
-        "confidence": 0.6,
-        "issues": [
-          {
-            "kind": "invented_detail",
-            "detail": "The number 20 is in the description but not in the figure.",
-            "source": "code"
-          }
-        ]
+        "passed": true,
+        "confidence": 0.98,
+        "issues": []
       },
-      "escalation_reason": "Verification FAIL (0.60) flags '20' as invented but recropped Figure 2.44 clearly shows caption text 'In a survey of 20-year-olds in China, Germany, and the United States...' above plots. Description values match independent reading (China 0-5 no box; Germany min 0 Q1 4 Q3/median 8 max 11; US min/Q1 0 median 2 Q3 5 max 11; axis 0-11). Human should override verifier and approve accurate context.",
+      "escalation_reason": "passed verification after rewrite",
       "trace": [
         {
           "step": 1,
@@ -2646,178 +2533,174 @@
         {
           "step": 2,
           "action": "extract_values",
-          "summary": "Read the figure independently: 15 labels, 10 values (estimated from axis)"
+          "summary": "Read the figure independently: 15 labels, 11 values (estimated from axis)"
         },
         {
           "step": 3,
-          "action": "recrop",
-          "summary": "Labels look cut off at the crop edge → widening the crop"
+          "action": "describe",
+          "summary": "Wrote description: \"Three box plots show numbers of foreign countries visited by 20-year-olds, with Germany highest, China lowest, and the U.S. in between.\""
         },
         {
           "step": 4,
-          "action": "extract_values",
-          "summary": "Read the figure independently: 16 labels, 12 values (estimated from axis)"
+          "action": "verify",
+          "summary": "FAIL (0.60): wrong_number: China maximum is wrong: LONG DESCRIPTION says 'about 5' and DATA TABLE gives 5.0, but the ; invented_detail: LONG DESCRIPTION and ALT TEXT state the numeric axis measures 'number of foreign countries; invented_detail: The number 50 is in the description but not in the figure."
         },
         {
           "step": 5,
-          "action": "describe",
-          "summary": "Wrote description: \"Three horizontal box plots compare number of foreign countries visited by 20-year-olds in China, Germany and the U.S., showing Germany highest.\""
+          "action": "rewrite",
+          "summary": "Rewrote the description (attempt 1) (Multiple invented-details plus wrong_number require rewrite before verification.)"
         },
         {
           "step": 6,
           "action": "verify",
-          "summary": "FAIL (0.60): invented_detail: The number 50 is in the description but not in the figure.; invented_detail: The number 20 is in the description but not in the figure."
+          "summary": "PASS (0.98)"
         },
         {
           "step": 7,
-          "action": "recrop",
-          "summary": "Widened the crop (all) and re-read the figure (Top caption is cut off but contains '20-year-olds' context; need full crop to validate labels before fixing invented 50/20 issues.)"
-        },
-        {
-          "step": 8,
-          "action": "extract_values",
-          "summary": "Read the figure independently: 18 labels, 11 values (estimated from axis)"
-        },
-        {
-          "step": 9,
-          "action": "describe",
-          "summary": "Wrote description: \"Three box plots show 20-year-olds in Germany visited more foreign countries than those in China and the U.S.\""
-        },
-        {
-          "step": 10,
-          "action": "verify",
-          "summary": "FAIL (0.60): invented_detail: The number 20 is in the description but not in the figure."
-        },
-        {
-          "step": 11,
-          "action": "rewrite",
-          "summary": "Rewrote the description (attempt 1) (Verification incorrectly flags 20 as invented but full crop shows it in caption; rewrite to preserve valid context and align values.)"
-        },
-        {
-          "step": 12,
-          "action": "verify",
-          "summary": "FAIL (0.60): invented_detail: The number 20 is in the description but not in the figure."
-        },
-        {
-          "step": 13,
           "action": "finish",
-          "summary": "Sent to human review: Verification FAIL (0.60) flags '20' as invented but recropped Figure 2.44 clearly shows caption text 'In a survey of 20-year-olds in China, Germany, and the United States...' above plots. Description values match independent reading (China 0-5 no box; Germany min 0 Q1 4 Q3/median 8 max 11; US min/Q1 0 median 2 Q3 5 max 11; axis 0-11). Human should override verifier and approve accurate context."
+          "summary": "Auto-approved: passed verification after rewrite"
         }
       ],
       "judge": {
-        "factual_errors": [],
-        "missing": [],
-        "accurate": true
+        "factual_errors": [
+          {
+            "claim": "China extends from about 0 to about 4.2, ending near 4.2",
+            "why": "The reference says China's line is drawn from 0 to 5, with no box."
+          }
+        ],
+        "missing": [
+          "The plots show how many foreign countries 20-year-olds had visited.",
+          "Germany's median is the dashed line at the right edge of its box, about 8.",
+          "Germany has the highest median.",
+          "The United States has the most values at the low end."
+        ],
+        "accurate": false
       },
-      "accurate": true,
-      "sent_to_review": true,
-      "correct_outcome": false,
-      "unsafe": false,
+      "accurate": false,
+      "sent_to_review": false,
+      "correct_outcome": true,
+      "unsafe": true,
       "scored_by": "judged by model",
       "usage": {
-        "calls": 14,
-        "uncached": 14,
-        "input_tokens": 27968,
-        "output_tokens": 40571,
-        "usd": 0.2547,
-        "usd_fresh": 0.2547,
+        "calls": 8,
+        "uncached": 0,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "usd": 0.0,
+        "usd_fresh": 0.2204,
         "fresh_estimated_calls": 0,
-        "model_seconds": 183.2
+        "model_seconds": 0.0
       },
-      "seconds": 183.8
+      "seconds": 0.2
     },
     {
       "id": "fig-2.47",
       "page": 156,
       "expected_outcome": "auto_approve",
       "region_id": "p156_f0",
-      "status": "auto_approved",
+      "status": "needs_review",
       "type": "chart",
-      "alt_text": "Three horizontal box plots for BMW 3, 5, and 7 series on a shared numeric axis from 25 to 80, shifting to higher values down the list.",
-      "long_description": "Figure 2.47 shows three horizontal box-and-whisker plots stacked vertically that share a common horizontal numeric axis. The horizontal axis has arrows at both ends and labeled ticks at 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, and 80. The vertical dimension lists three categorical labels from top to bottom: BMW 3 series, BMW 5 series, and BMW 7 series. The caption below the axis reads Figure 2.47. Each box plot displays a five-number summary: a left whisker endpoint for the minimum, a left box edge for the first quartile, a dashed vertical line inside the box for the median, a right box edge for the third quartile, and a right whisker endpoint for the maximum. No individual outlier points are marked. Approximate positions read from the horizontal axis using the labeled ticks: BMW 3 series has minimum about 24, first quartile about 29, median about 33, third quartile about 41, and maximum about 68; BMW 5 series has minimum about 32, first quartile about 40, median about 42, third quartile about 55, and maximum about 64; BMW 7 series has minimum about 36, first quartile about 42, median about 46, third quartile about 59, and maximum about 68. Overall pattern: the boxes and medians are positioned farther to the right (higher numeric values) moving from the BMW 3 series at the top to the BMW 7 series at the bottom, with overlapping ranges. The BMW 3 series box is the leftmost and its right whisker is the longest, extending farthest relative to its box. The BMW 5 series and BMW 7 series have boxes that span a similar width and are centered higher than the 3 series, with the 7 series box and median slightly farther right than the 5 series.",
+      "alt_text": "Three horizontal box plots for BMW 3, 5, and 7 series on a 25 to 80 scale, showing distributions shifting to higher values.",
+      "long_description": "Figure 2.47 shows three horizontal box-and-whisker plots stacked vertically. The horizontal axis is a numeric scale visible from about 25 to 80, with major tick labels at 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, and 80 and minor ticks between each major label, with arrows at both ends; no axis title or units are shown. The vertical categories from top to bottom are BMW 3 series, BMW 5 series, and BMW 7 series. The title Figure 2.47 is centered below the axis. Each plot shows a rectangular box representing the middle 50 percent of values, a vertical dashed line inside the box marking the median, and horizontal whiskers with end caps extending to the minimum and maximum. Values are estimated from the scale because no numbers are printed on the plots and all values are about. For the BMW 3 series, the left whisker tip is at about 24, the left edge of the box at about 29, the median at about 33, the right edge of the box at about 42, and the right whisker tip at about 67. For the BMW 5 series, the left whisker tip is at about 32, the left edge of the box at about 39, the median at about 41, the right edge of the box at about 55, and the right whisker tip at about 64. For the BMW 7 series, the left whisker tip is at about 36, the left edge of the box at about 42, the median at about 46, the right edge of the box at about 59, and the right whisker tip at about 68. No separate outlier points are shown beyond the whiskers. In each box the median is nearer the left side of the box than the right side and the right whisker is longer than the left whisker, with the BMW 3 series having the longest right whisker of about 25 units compared with a left whisker of about 5 units. The interquartile ranges, the widths of the boxes, are about 13 for the 3 series, about 16 for the 5 series, and about 17 for the 7 series. Overall the entire distribution shifts to higher numeric values from the 3 series at the top to the 5 series in the middle to the 7 series at the bottom, with increasing medians, quartiles, and whisker ends.",
       "data_table": [
         {
-          "label": "BMW 3 series minimum",
+          "label": "minimum",
           "value": 24.0,
           "series": "BMW 3 series"
         },
         {
-          "label": "BMW 3 series first quartile",
+          "label": "first quartile",
           "value": 29.0,
           "series": "BMW 3 series"
         },
         {
-          "label": "BMW 3 series median",
+          "label": "median",
           "value": 33.0,
           "series": "BMW 3 series"
         },
         {
-          "label": "BMW 3 series third quartile",
-          "value": 41.0,
+          "label": "third quartile",
+          "value": 42.0,
           "series": "BMW 3 series"
         },
         {
-          "label": "BMW 3 series maximum",
-          "value": 68.0,
+          "label": "maximum",
+          "value": 67.0,
           "series": "BMW 3 series"
         },
         {
-          "label": "BMW 5 series minimum",
+          "label": "minimum",
           "value": 32.0,
           "series": "BMW 5 series"
         },
         {
-          "label": "BMW 5 series first quartile",
-          "value": 40.0,
+          "label": "first quartile",
+          "value": 39.0,
           "series": "BMW 5 series"
         },
         {
-          "label": "BMW 5 series median",
-          "value": 42.0,
+          "label": "median",
+          "value": 41.0,
           "series": "BMW 5 series"
         },
         {
-          "label": "BMW 5 series third quartile",
+          "label": "third quartile",
           "value": 55.0,
           "series": "BMW 5 series"
         },
         {
-          "label": "BMW 5 series maximum",
+          "label": "maximum",
           "value": 64.0,
           "series": "BMW 5 series"
         },
         {
-          "label": "BMW 7 series minimum",
+          "label": "minimum",
           "value": 36.0,
           "series": "BMW 7 series"
         },
         {
-          "label": "BMW 7 series first quartile",
+          "label": "first quartile",
           "value": 42.0,
           "series": "BMW 7 series"
         },
         {
-          "label": "BMW 7 series median",
+          "label": "median",
           "value": 46.0,
           "series": "BMW 7 series"
         },
         {
-          "label": "BMW 7 series third quartile",
+          "label": "third quartile",
           "value": 59.0,
           "series": "BMW 7 series"
         },
         {
-          "label": "BMW 7 series maximum",
+          "label": "maximum",
           "value": 68.0,
           "series": "BMW 7 series"
         }
       ],
       "verifier": {
-        "passed": true,
-        "confidence": 0.97,
-        "issues": []
+        "passed": false,
+        "confidence": 0.6,
+        "issues": [
+          {
+            "kind": "invented_detail",
+            "detail": "The number 13 is in the description but not in the figure.",
+            "source": "code"
+          },
+          {
+            "kind": "invented_detail",
+            "detail": "The number 16 is in the description but not in the figure.",
+            "source": "code"
+          },
+          {
+            "kind": "invented_detail",
+            "detail": "The number 17 is in the description but not in the figure.",
+            "source": "code"
+          }
+        ]
       },
-      "escalation_reason": "passed verification after rewrite",
+      "escalation_reason": "Verification FAIL for invented derived IQR widths (13, 16, 17) and prior invented axis labels - no rewrites left to remove computed span widths and ensure description uses only estimated five-number summary with numeric scale 25-80, requires human edit",
       "trace": [
         {
           "step": 1,
@@ -2837,58 +2720,87 @@
         {
           "step": 4,
           "action": "extract_values",
-          "summary": "Read the figure independently: 17 labels, 15 values (estimated from axis)"
+          "summary": "Read the figure independently: 16 labels, 15 values (estimated from axis)"
         },
         {
           "step": 5,
           "action": "describe",
-          "summary": "Wrote description: \"Three horizontal box plots show buyer ages for BMW 3, 5, and 7 series, with age increasing from 3 to 7 series.\""
+          "summary": "Wrote description: \"Three horizontal box plots show purchaser ages for BMW 3, 5 and 7 series, with age increasing for higher-numbered series.\""
         },
         {
           "step": 6,
           "action": "verify",
-          "summary": "FAIL (0.60): invented_detail: ALT TEXT ('show buyer ages') and LONG DESCRIPTION ('horizontal axis measures age in years'; invented_detail: The number 82 is in the description but not in the figure."
+          "summary": "FAIL (0.60): wrong_number: BMW 3 series third quartile (right edge of box) is given as about 42 years (implying box s; invented_detail: Description states the horizontal numeric scale 'represents purchaser age in years' and al; invented_detail: The number 13 is in the description but not in the figure."
         },
         {
           "step": 7,
-          "action": "rewrite",
-          "summary": "Rewrote the description (attempt 1) (Verification failed for invented age/year and 82 details not in image; must describe only visible ticks and labels.)"
+          "action": "reread_value",
+          "summary": "Zoomed in on 'BMW 3 series Q3': read 41.5 (was 39; description says —) (Q3 value disagreement (42 vs 39) exceeds tolerance; re-read before rewriting)"
         },
         {
           "step": 8,
           "action": "verify",
-          "summary": "PASS (0.97)"
+          "summary": "FAIL (0.60): invented_detail: The number 13 is in the description but not in the figure.; invented_detail: The number 14 is in the description but not in the figure.; invented_detail: The number 17 is in the description but not in the figure."
         },
         {
           "step": 9,
+          "action": "rewrite",
+          "summary": "Rewrote the description (attempt 1) (Verification failed for invented span and axis numbers that must be removed.)"
+        },
+        {
+          "step": 10,
+          "action": "verify",
+          "summary": "FAIL (0.84): invented_detail: Alt text and long description label the horizontal numeric axis as 'buyer ages' / 'older b"
+        },
+        {
+          "step": 11,
+          "action": "rewrite",
+          "summary": "Rewrote the description (attempt 2) (Verification failed for invented 'age' axis label not visible in image - must rewrite to describe only visible numeric scale.)"
+        },
+        {
+          "step": 12,
+          "action": "verify",
+          "summary": "FAIL (0.60): invented_detail: The number 13 is in the description but not in the figure.; invented_detail: The number 16 is in the description but not in the figure.; invented_detail: The number 17 is in the description but not in the figure."
+        },
+        {
+          "step": 13,
           "action": "finish",
-          "summary": "Auto-approved: passed verification after rewrite"
+          "summary": "Sent to human review: Verification FAIL for invented derived IQR widths (13, 16, 17) and prior invented axis labels - no rewrites left to remove computed span widths and ensure description uses only estimated five-number summary with numeric scale 25-80, requires human edit"
         }
       ],
       "judge": {
-        "factual_errors": [],
-        "missing": [
-          "The plots show buyers' ages for 130 buyers each of new BMW 3, 5 and 7 series cars",
-          "All three distributions are skewed to the right"
+        "factual_errors": [
+          {
+            "claim": "The axis has \"minor ticks between each major label\"",
+            "why": "The image shows only the labelled ticks at 25, 30, 35, ..., 80, with no minor ticks between them."
+          },
+          {
+            "claim": "The distribution shifts with \"increasing medians, quartiles, and whisker ends\" from the 3 series to the 5 series to the 7 series",
+            "why": "Reference whisker ends are about 66 for the 3 series, about 63 for the 5 series, and about 67 for the 7 series, so the upper whisker end does not increase monotonically; medians and quartiles rise, but the maximum falls from the 3 series to the 5 series."
+          }
         ],
-        "accurate": true
+        "missing": [
+          "The values are the ages of buyers of new BMW cars",
+          "There are 130 buyers for each of the 3, 5 and 7 series"
+        ],
+        "accurate": false
       },
-      "accurate": true,
-      "sent_to_review": false,
-      "correct_outcome": true,
+      "accurate": false,
+      "sent_to_review": true,
+      "correct_outcome": false,
       "unsafe": false,
       "scored_by": "judged by model",
       "usage": {
-        "calls": 9,
-        "uncached": 9,
-        "input_tokens": 16566,
-        "output_tokens": 29619,
-        "usd": 0.2168,
-        "usd_fresh": 0.2168,
+        "calls": 16,
+        "uncached": 0,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "usd": 0.0,
+        "usd_fresh": 0.4196,
         "fresh_estimated_calls": 0,
-        "model_seconds": 138.6
+        "model_seconds": 0.0
       },
-      "seconds": 138.9
+      "seconds": 0.6
     },
     {
       "id": "fig-2.58",
@@ -2897,8 +2809,8 @@
       "region_id": "p171_f0",
       "status": "auto_approved",
       "type": "chart",
-      "alt_text": "Line chart of births in Scotland 1855-1875 showing total, male, and female births all increasing over time.",
-      "long_description": "Line chart titled \"Births in Scotland.\" Horizontal axis labeled Year, showing each year from 1855 to 1875 inclusive (labels angled diagonally). Vertical axis labeled Number of Births, ranging from 40,000 to 130,000 in increments of 5,000 with horizontal grid lines. A legend below the plot identifies three lines: Both sexes (dark navy line at the top), Males (light blue middle line), and Females (olive-yellow bottom line). Values are not printed on the chart and are read approximately from the vertical axis. Approximate values by year are: 1855: Both sexes about 93,500, Males about 47,500, Females about 45,500; 1856: Both sexes about 101,500, Males about 52,000, Females about 49,000; 1857: Both sexes about 103,000, Males about 53,000, Females about 50,000; 1858: Both sexes about 104,000, Males about 53,500, Females about 50,200; 1859: Both sexes about 106,500, Males about 54,500, Females about 52,000; 1860: Both sexes about 105,500, Males about 54,000, Females about 51,000; 1861: Both sexes about 107,000, Males about 54,500, Females about 52,300; 1862: Both sexes about 107,000, Males about 55,000, Females about 51,800; 1863: Both sexes about 109,500, Males about 56,200, Females about 52,500; 1864: Both sexes about 112,000, Males about 57,200, Females about 54,800; 1865: Both sexes about 112,800, Males about 58,200, Females about 54,500; 1866: Both sexes about 114,000, Males about 58,700, Females about 55,300; 1867: Both sexes about 113,800, Males about 58,600, Females about 55,400; 1868: Both sexes about 115,500, Males about 59,500, Females about 56,200; 1869: Both sexes about 113,200, Males about 58,200, Females about 55,000; 1870: Both sexes about 115,200, Males about 59,000, Females about 56,200; 1871: Both sexes about 116,000, Males about 60,000, Females about 55,800; 1872: Both sexes about 118,800, Males about 61,300, Females about 57,000; 1873: Both sexes about 119,500, Males about 61,800, Females about 57,800; 1874: Both sexes about 124,000, Males about 63,800, Females about 60,200; 1875: Both sexes about 123,500, Males about 63,200, Females about 60,300. Overall pattern: All three series show a general increase over the 21-year period with small year-to-year fluctuations, including a slight dip in 1860 and 1869 and a steeper rise between 1873 and 1874. The Males line stays consistently just above the Females line each year. The Both sexes line is much higher, roughly the sum of the other two, rising from under 95,000 to about 123,500-124,000.",
+      "alt_text": "Line chart of births in Scotland 1855–1875 shows total, male, and female births all rising, with male births slightly above female each year.",
+      "long_description": "The figure is a line chart titled \"Births in Scotland.\" The horizontal axis is Year, ranging from 1855 to 1875 in one-year increments with labels angled diagonally. The vertical axis is Number of Births, ranging from 40,000 to 130,000 with horizontal grid lines every 5,000. A legend at the bottom identifies the top dark line as Both sexes, the middle light-blue line as Males, and the bottom olive line as Females. Estimated values read from the axis are about: 1855 — Both sexes about 93,500, Males about 47,800, Females about 45,500; 1856 — Both sexes about 101,500, Males about 52,000, Females about 49,000; 1857 — Both sexes about 103,000, Males about 53,000, Females about 49,800; 1858 — Both sexes about 103,800, Males about 53,600, Females about 50,200; 1859 — Both sexes about 106,500, Males about 54,600, Females about 52,000; 1860 — Both sexes about 105,500, Males about 54,100, Females about 51,100; 1861 — Both sexes about 107,000, Males about 54,500, Females about 52,200; 1862 — Both sexes about 107,000, Males about 55,000, Females about 51,700; 1863 — Both sexes about 109,500, Males about 56,200, Females about 52,500; 1864 — Both sexes about 112,000, Males about 57,200, Females about 55,000; 1865 — Both sexes about 112,800, Males about 58,000, Females about 54,500; 1866 — Both sexes about 113,800, Males about 58,500, Females about 55,400; 1867 — Both sexes about 113,800, Males about 58,600, Females about 55,500; 1868 — Both sexes about 115,500, Males about 59,500, Females about 56,200; 1869 — Both sexes about 113,300, Males about 58,100, Females about 55,000; 1870 — Both sexes about 115,200, Males about 58,900, Females about 56,300; 1871 — Both sexes about 116,000, Males about 59,500, Females about 55,900; 1872 — Both sexes about 118,600, Males about 61,200, Females about 57,000; 1873 — Both sexes about 119,500, Males about 61,600, Females about 58,000; 1874 — Both sexes about 124,000, Males about 63,700, Females about 60,200; 1875 — Both sexes about 123,500, Males about 63,300, Females about 60,300. Overall all three lines trend upward from 1855 to 1875 with small dips in 1860 and 1869 and a slight dip in 1875. The Males line is slightly above the Females line in every year, and the Both sexes line is near the sum of the other two, rising from about 93,500 to about 123,500.",
       "data_table": [
         {
           "label": "1855",
@@ -2906,8 +2818,208 @@
           "series": "Both sexes"
         },
         {
+          "label": "1856",
+          "value": 101500.0,
+          "series": "Both sexes"
+        },
+        {
+          "label": "1857",
+          "value": 103000.0,
+          "series": "Both sexes"
+        },
+        {
+          "label": "1858",
+          "value": 103800.0,
+          "series": "Both sexes"
+        },
+        {
+          "label": "1859",
+          "value": 106500.0,
+          "series": "Both sexes"
+        },
+        {
+          "label": "1860",
+          "value": 105500.0,
+          "series": "Both sexes"
+        },
+        {
+          "label": "1861",
+          "value": 107000.0,
+          "series": "Both sexes"
+        },
+        {
+          "label": "1862",
+          "value": 107000.0,
+          "series": "Both sexes"
+        },
+        {
+          "label": "1863",
+          "value": 109500.0,
+          "series": "Both sexes"
+        },
+        {
+          "label": "1864",
+          "value": 112000.0,
+          "series": "Both sexes"
+        },
+        {
+          "label": "1865",
+          "value": 112800.0,
+          "series": "Both sexes"
+        },
+        {
+          "label": "1866",
+          "value": 113800.0,
+          "series": "Both sexes"
+        },
+        {
+          "label": "1867",
+          "value": 113800.0,
+          "series": "Both sexes"
+        },
+        {
+          "label": "1868",
+          "value": 115500.0,
+          "series": "Both sexes"
+        },
+        {
+          "label": "1869",
+          "value": 113300.0,
+          "series": "Both sexes"
+        },
+        {
+          "label": "1870",
+          "value": 115200.0,
+          "series": "Both sexes"
+        },
+        {
+          "label": "1871",
+          "value": 116000.0,
+          "series": "Both sexes"
+        },
+        {
+          "label": "1872",
+          "value": 118600.0,
+          "series": "Both sexes"
+        },
+        {
+          "label": "1873",
+          "value": 119500.0,
+          "series": "Both sexes"
+        },
+        {
+          "label": "1874",
+          "value": 124000.0,
+          "series": "Both sexes"
+        },
+        {
+          "label": "1875",
+          "value": 123500.0,
+          "series": "Both sexes"
+        },
+        {
           "label": "1855",
-          "value": 47500.0,
+          "value": 47800.0,
+          "series": "Males"
+        },
+        {
+          "label": "1856",
+          "value": 52000.0,
+          "series": "Males"
+        },
+        {
+          "label": "1857",
+          "value": 53000.0,
+          "series": "Males"
+        },
+        {
+          "label": "1858",
+          "value": 53600.0,
+          "series": "Males"
+        },
+        {
+          "label": "1859",
+          "value": 54600.0,
+          "series": "Males"
+        },
+        {
+          "label": "1860",
+          "value": 54100.0,
+          "series": "Males"
+        },
+        {
+          "label": "1861",
+          "value": 54500.0,
+          "series": "Males"
+        },
+        {
+          "label": "1862",
+          "value": 55000.0,
+          "series": "Males"
+        },
+        {
+          "label": "1863",
+          "value": 56200.0,
+          "series": "Males"
+        },
+        {
+          "label": "1864",
+          "value": 57200.0,
+          "series": "Males"
+        },
+        {
+          "label": "1865",
+          "value": 58000.0,
+          "series": "Males"
+        },
+        {
+          "label": "1866",
+          "value": 58500.0,
+          "series": "Males"
+        },
+        {
+          "label": "1867",
+          "value": 58600.0,
+          "series": "Males"
+        },
+        {
+          "label": "1868",
+          "value": 59500.0,
+          "series": "Males"
+        },
+        {
+          "label": "1869",
+          "value": 58100.0,
+          "series": "Males"
+        },
+        {
+          "label": "1870",
+          "value": 58900.0,
+          "series": "Males"
+        },
+        {
+          "label": "1871",
+          "value": 59500.0,
+          "series": "Males"
+        },
+        {
+          "label": "1872",
+          "value": 61200.0,
+          "series": "Males"
+        },
+        {
+          "label": "1873",
+          "value": 61600.0,
+          "series": "Males"
+        },
+        {
+          "label": "1874",
+          "value": 63700.0,
+          "series": "Males"
+        },
+        {
+          "label": "1875",
+          "value": 63300.0,
           "series": "Males"
         },
         {
@@ -2917,43 +3029,13 @@
         },
         {
           "label": "1856",
-          "value": 101500.0,
-          "series": "Both sexes"
-        },
-        {
-          "label": "1856",
-          "value": 52000.0,
-          "series": "Males"
-        },
-        {
-          "label": "1856",
           "value": 49000.0,
           "series": "Females"
         },
         {
           "label": "1857",
-          "value": 103000.0,
-          "series": "Both sexes"
-        },
-        {
-          "label": "1857",
-          "value": 53000.0,
-          "series": "Males"
-        },
-        {
-          "label": "1857",
-          "value": 50000.0,
+          "value": 49800.0,
           "series": "Females"
-        },
-        {
-          "label": "1858",
-          "value": 104000.0,
-          "series": "Both sexes"
-        },
-        {
-          "label": "1858",
-          "value": 53500.0,
-          "series": "Males"
         },
         {
           "label": "1858",
@@ -2962,73 +3044,23 @@
         },
         {
           "label": "1859",
-          "value": 106500.0,
-          "series": "Both sexes"
-        },
-        {
-          "label": "1859",
-          "value": 54500.0,
-          "series": "Males"
-        },
-        {
-          "label": "1859",
           "value": 52000.0,
           "series": "Females"
         },
         {
           "label": "1860",
-          "value": 105500.0,
-          "series": "Both sexes"
-        },
-        {
-          "label": "1860",
-          "value": 54000.0,
-          "series": "Males"
-        },
-        {
-          "label": "1860",
-          "value": 51000.0,
+          "value": 51100.0,
           "series": "Females"
         },
         {
           "label": "1861",
-          "value": 107000.0,
-          "series": "Both sexes"
-        },
-        {
-          "label": "1861",
-          "value": 54500.0,
-          "series": "Males"
-        },
-        {
-          "label": "1861",
-          "value": 52300.0,
+          "value": 52200.0,
           "series": "Females"
         },
         {
           "label": "1862",
-          "value": 107000.0,
-          "series": "Both sexes"
-        },
-        {
-          "label": "1862",
-          "value": 55000.0,
-          "series": "Males"
-        },
-        {
-          "label": "1862",
-          "value": 51800.0,
+          "value": 51700.0,
           "series": "Females"
-        },
-        {
-          "label": "1863",
-          "value": 109500.0,
-          "series": "Both sexes"
-        },
-        {
-          "label": "1863",
-          "value": 56200.0,
-          "series": "Males"
         },
         {
           "label": "1863",
@@ -3037,28 +3069,8 @@
         },
         {
           "label": "1864",
-          "value": 112000.0,
-          "series": "Both sexes"
-        },
-        {
-          "label": "1864",
-          "value": 57200.0,
-          "series": "Males"
-        },
-        {
-          "label": "1864",
-          "value": 54800.0,
+          "value": 55000.0,
           "series": "Females"
-        },
-        {
-          "label": "1865",
-          "value": 112800.0,
-          "series": "Both sexes"
-        },
-        {
-          "label": "1865",
-          "value": 58200.0,
-          "series": "Males"
         },
         {
           "label": "1865",
@@ -3067,58 +3079,18 @@
         },
         {
           "label": "1866",
-          "value": 114000.0,
-          "series": "Both sexes"
-        },
-        {
-          "label": "1866",
-          "value": 58700.0,
-          "series": "Males"
-        },
-        {
-          "label": "1866",
-          "value": 55300.0,
-          "series": "Females"
-        },
-        {
-          "label": "1867",
-          "value": 113800.0,
-          "series": "Both sexes"
-        },
-        {
-          "label": "1867",
-          "value": 58600.0,
-          "series": "Males"
-        },
-        {
-          "label": "1867",
           "value": 55400.0,
           "series": "Females"
         },
         {
-          "label": "1868",
-          "value": 115500.0,
-          "series": "Both sexes"
-        },
-        {
-          "label": "1868",
-          "value": 59500.0,
-          "series": "Males"
+          "label": "1867",
+          "value": 55500.0,
+          "series": "Females"
         },
         {
           "label": "1868",
           "value": 56200.0,
           "series": "Females"
-        },
-        {
-          "label": "1869",
-          "value": 113200.0,
-          "series": "Both sexes"
-        },
-        {
-          "label": "1869",
-          "value": 58200.0,
-          "series": "Males"
         },
         {
           "label": "1869",
@@ -3127,43 +3099,13 @@
         },
         {
           "label": "1870",
-          "value": 115200.0,
-          "series": "Both sexes"
-        },
-        {
-          "label": "1870",
-          "value": 59000.0,
-          "series": "Males"
-        },
-        {
-          "label": "1870",
-          "value": 56200.0,
+          "value": 56300.0,
           "series": "Females"
         },
         {
           "label": "1871",
-          "value": 116000.0,
-          "series": "Both sexes"
-        },
-        {
-          "label": "1871",
-          "value": 60000.0,
-          "series": "Males"
-        },
-        {
-          "label": "1871",
-          "value": 55800.0,
+          "value": 55900.0,
           "series": "Females"
-        },
-        {
-          "label": "1872",
-          "value": 118800.0,
-          "series": "Both sexes"
-        },
-        {
-          "label": "1872",
-          "value": 61300.0,
-          "series": "Males"
         },
         {
           "label": "1872",
@@ -3172,43 +3114,13 @@
         },
         {
           "label": "1873",
-          "value": 119500.0,
-          "series": "Both sexes"
-        },
-        {
-          "label": "1873",
-          "value": 61800.0,
-          "series": "Males"
-        },
-        {
-          "label": "1873",
-          "value": 57800.0,
+          "value": 58000.0,
           "series": "Females"
-        },
-        {
-          "label": "1874",
-          "value": 124000.0,
-          "series": "Both sexes"
-        },
-        {
-          "label": "1874",
-          "value": 63800.0,
-          "series": "Males"
         },
         {
           "label": "1874",
           "value": 60200.0,
           "series": "Females"
-        },
-        {
-          "label": "1875",
-          "value": 123500.0,
-          "series": "Both sexes"
-        },
-        {
-          "label": "1875",
-          "value": 63200.0,
-          "series": "Males"
         },
         {
           "label": "1875",
@@ -3218,7 +3130,7 @@
       ],
       "verifier": {
         "passed": true,
-        "confidence": 0.97,
+        "confidence": 0.98,
         "issues": []
       },
       "escalation_reason": null,
@@ -3236,12 +3148,12 @@
         {
           "step": 3,
           "action": "describe",
-          "summary": "Wrote description: \"Line chart of births in Scotland 1855-1875 showing total, male, and female births all increasing over time.\""
+          "summary": "Wrote description: \"Line chart of births in Scotland 1855–1875 shows total, male, and female births all rising, with male births slightly above female each year.\""
         },
         {
           "step": 4,
           "action": "verify",
-          "summary": "PASS (0.97)"
+          "summary": "PASS (0.98)"
         },
         {
           "step": 5,
@@ -3249,22 +3161,6 @@
           "summary": "Auto-approved"
         }
       ],
-      "accurate": true,
-      "sent_to_review": false,
-      "correct_outcome": true,
-      "unsafe": false,
-      "scored_by": "code",
-      "usage": {
-        "calls": 4,
-        "uncached": 4,
-        "input_tokens": 12835,
-        "output_tokens": 11132,
-        "usd": 0.0634,
-        "usd_fresh": 0.0634,
-        "fresh_estimated_calls": 0,
-        "model_seconds": 45.5
-      },
-      "seconds": 45.7,
       "values": {
         "true_values": 63,
         "correct": 63,
@@ -3300,7 +3196,7 @@
             "series": "Both sexes",
             "label": "1858",
             "value": 104018.0,
-            "described": 104000.0,
+            "described": 103800.0,
             "described_label": "1858",
             "result": "correct"
           },
@@ -3364,7 +3260,7 @@
             "series": "Both sexes",
             "label": "1866",
             "value": 113667.0,
-            "described": 114000.0,
+            "described": 113800.0,
             "described_label": "1866",
             "result": "correct"
           },
@@ -3388,7 +3284,7 @@
             "series": "Both sexes",
             "label": "1869",
             "value": 113354.0,
-            "described": 113200.0,
+            "described": 113300.0,
             "described_label": "1869",
             "result": "correct"
           },
@@ -3412,7 +3308,7 @@
             "series": "Both sexes",
             "label": "1872",
             "value": 118765.0,
-            "described": 118800.0,
+            "described": 118600.0,
             "described_label": "1872",
             "result": "correct"
           },
@@ -3444,7 +3340,7 @@
             "series": "Males",
             "label": "1855",
             "value": 47804.0,
-            "described": 47500.0,
+            "described": 47800.0,
             "described_label": "1855",
             "result": "correct"
           },
@@ -3468,7 +3364,7 @@
             "series": "Males",
             "label": "1858",
             "value": 53694.0,
-            "described": 53500.0,
+            "described": 53600.0,
             "described_label": "1858",
             "result": "correct"
           },
@@ -3476,7 +3372,7 @@
             "series": "Males",
             "label": "1859",
             "value": 54628.0,
-            "described": 54500.0,
+            "described": 54600.0,
             "described_label": "1859",
             "result": "correct"
           },
@@ -3484,7 +3380,7 @@
             "series": "Males",
             "label": "1860",
             "value": 54409.0,
-            "described": 54000.0,
+            "described": 54100.0,
             "described_label": "1860",
             "result": "correct"
           },
@@ -3524,7 +3420,7 @@
             "series": "Males",
             "label": "1865",
             "value": 58220.0,
-            "described": 58200.0,
+            "described": 58000.0,
             "described_label": "1865",
             "result": "correct"
           },
@@ -3532,7 +3428,7 @@
             "series": "Males",
             "label": "1866",
             "value": 58360.0,
-            "described": 58700.0,
+            "described": 58500.0,
             "described_label": "1866",
             "result": "correct"
           },
@@ -3556,7 +3452,7 @@
             "series": "Males",
             "label": "1869",
             "value": 58321.0,
-            "described": 58200.0,
+            "described": 58100.0,
             "described_label": "1869",
             "result": "correct"
           },
@@ -3564,7 +3460,7 @@
             "series": "Males",
             "label": "1870",
             "value": 58959.0,
-            "described": 59000.0,
+            "described": 58900.0,
             "described_label": "1870",
             "result": "correct"
           },
@@ -3572,7 +3468,7 @@
             "series": "Males",
             "label": "1871",
             "value": 60029.0,
-            "described": 60000.0,
+            "described": 59500.0,
             "described_label": "1871",
             "result": "correct"
           },
@@ -3580,7 +3476,7 @@
             "series": "Males",
             "label": "1872",
             "value": 61293.0,
-            "described": 61300.0,
+            "described": 61200.0,
             "described_label": "1872",
             "result": "correct"
           },
@@ -3588,7 +3484,7 @@
             "series": "Males",
             "label": "1873",
             "value": 61467.0,
-            "described": 61800.0,
+            "described": 61600.0,
             "described_label": "1873",
             "result": "correct"
           },
@@ -3596,7 +3492,7 @@
             "series": "Males",
             "label": "1874",
             "value": 63602.0,
-            "described": 63800.0,
+            "described": 63700.0,
             "described_label": "1874",
             "result": "correct"
           },
@@ -3604,7 +3500,7 @@
             "series": "Males",
             "label": "1875",
             "value": 63432.0,
-            "described": 63200.0,
+            "described": 63300.0,
             "described_label": "1875",
             "result": "correct"
           },
@@ -3628,7 +3524,7 @@
             "series": "Females",
             "label": "1857",
             "value": 50257.0,
-            "described": 50000.0,
+            "described": 49800.0,
             "described_label": "1857",
             "result": "correct"
           },
@@ -3652,7 +3548,7 @@
             "series": "Females",
             "label": "1860",
             "value": 51220.0,
-            "described": 51000.0,
+            "described": 51100.0,
             "described_label": "1860",
             "result": "correct"
           },
@@ -3660,7 +3556,7 @@
             "series": "Females",
             "label": "1861",
             "value": 52403.0,
-            "described": 52300.0,
+            "described": 52200.0,
             "described_label": "1861",
             "result": "correct"
           },
@@ -3668,7 +3564,7 @@
             "series": "Females",
             "label": "1862",
             "value": 51812.0,
-            "described": 51800.0,
+            "described": 51700.0,
             "described_label": "1862",
             "result": "correct"
           },
@@ -3684,7 +3580,7 @@
             "series": "Females",
             "label": "1864",
             "value": 54959.0,
-            "described": 54800.0,
+            "described": 55000.0,
             "described_label": "1864",
             "result": "correct"
           },
@@ -3700,7 +3596,7 @@
             "series": "Females",
             "label": "1866",
             "value": 55307.0,
-            "described": 55300.0,
+            "described": 55400.0,
             "described_label": "1866",
             "result": "correct"
           },
@@ -3708,7 +3604,7 @@
             "series": "Females",
             "label": "1867",
             "value": 55527.0,
-            "described": 55400.0,
+            "described": 55500.0,
             "described_label": "1867",
             "result": "correct"
           },
@@ -3732,7 +3628,7 @@
             "series": "Females",
             "label": "1870",
             "value": 56431.0,
-            "described": 56200.0,
+            "described": 56300.0,
             "described_label": "1870",
             "result": "correct"
           },
@@ -3740,7 +3636,7 @@
             "series": "Females",
             "label": "1871",
             "value": 56099.0,
-            "described": 55800.0,
+            "described": 55900.0,
             "described_label": "1871",
             "result": "correct"
           },
@@ -3756,7 +3652,7 @@
             "series": "Females",
             "label": "1873",
             "value": 58233.0,
-            "described": 57800.0,
+            "described": 58000.0,
             "described_label": "1873",
             "result": "correct"
           },
@@ -3784,7 +3680,23 @@
         "x_axis": true,
         "y_axis": true
       },
-      "invented_numbers": []
+      "invented_numbers": [],
+      "accurate": true,
+      "sent_to_review": false,
+      "correct_outcome": true,
+      "unsafe": false,
+      "scored_by": "code",
+      "usage": {
+        "calls": 4,
+        "uncached": 0,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "usd": 0.0,
+        "usd_fresh": 0.0801,
+        "fresh_estimated_calls": 0,
+        "model_seconds": 0.0
+      },
+      "seconds": 0.2
     },
     {
       "id": "fig-2.59",
@@ -3793,8 +3705,8 @@
       "region_id": "p173_f0",
       "status": "auto_approved",
       "type": "chart",
-      "alt_text": "Bar chart of percentages for eight states and DC, showing Mississippi highest near 34 percent and Washington DC lowest near 22 percent.",
-      "long_description": "Vertical bar chart with caption Figure 2.59 below the chart. The horizontal axis lists eight categories from left to right: Arkansas, Wash DC (Washington DC), Idaho, Maryland, Michigan, Mississippi, Virginia, and Wyoming, with labels angled diagonally. The vertical axis is labeled Percent (%) and goes from 0 to 40 percent with tick marks and light horizontal grid lines at every 5 percent. Each category has one vertical teal bar. Bar heights estimated from the vertical axis are about 30.1% for Arkansas, about 22.2% for Washington DC (labeled Wash DC on the axis), about 26.5% for Idaho, about 27.1% for Maryland, about 30.9% for Michigan, about 34.0% for Mississippi, about 26.0% for Virginia, and about 25.1% for Wyoming. Overall, Mississippi has the tallest bar and Washington DC the shortest; the other six bars cluster between about 25% and 31% with no systematic increase or decrease from left to right.",
+      "alt_text": "Vertical bar chart shows percent for eight selected states and DC, with Mississippi highest at 34.0% and Washington DC lowest at 22.2%.",
+      "long_description": "Figure 2.59 is a vertical bar chart. The horizontal axis is categorical with eight labels shown at a diagonal angle from left to right: Arkansas, Washington DC, Idaho, Maryland, Michigan, Mississippi, Virginia, and Wyoming. The vertical axis is labeled Percent (%) and ranges from 0 to 40 with major ticks and horizontal grid lines at every 5 units. Each category has a single teal vertical bar. The values represented by the bar heights are Arkansas 30.1%, Washington DC 22.2%, Idaho 26.5%, Maryland 27.1%, Michigan 30.9%, Mississippi 34.0%, Virginia 26.0%, and Wyoming 25.1%. Mississippi has the tallest bar and Washington DC the shortest. The other six bars are between about 25% and 31%, with no systematic increasing or decreasing trend across the order of states shown.",
       "data_table": [
         {
           "label": "Arkansas",
@@ -3839,7 +3751,7 @@
       ],
       "verifier": {
         "passed": true,
-        "confidence": 0.96,
+        "confidence": 0.98,
         "issues": []
       },
       "escalation_reason": null,
@@ -3862,17 +3774,17 @@
         {
           "step": 4,
           "action": "extract_values",
-          "summary": "Read the figure independently: 19 labels, 8 values (printed)"
+          "summary": "Read the figure independently: 21 labels, 8 values (printed)"
         },
         {
           "step": 5,
           "action": "describe",
-          "summary": "Wrote description: \"Bar chart of percentages for eight states and DC, showing Mississippi highest near 34 percent and Washington DC lowest near 22 percent.\""
+          "summary": "Wrote description: \"Vertical bar chart shows percent for eight selected states and DC, with Mississippi highest at 34.0% and Washington DC lowest at 22.2%.\""
         },
         {
           "step": 6,
           "action": "verify",
-          "summary": "PASS (0.96)"
+          "summary": "PASS (0.98)"
         },
         {
           "step": 7,
@@ -3880,22 +3792,6 @@
           "summary": "Auto-approved"
         }
       ],
-      "accurate": true,
-      "sent_to_review": false,
-      "correct_outcome": true,
-      "unsafe": false,
-      "scored_by": "code",
-      "usage": {
-        "calls": 5,
-        "uncached": 5,
-        "input_tokens": 6319,
-        "output_tokens": 19133,
-        "usd": 0.0892,
-        "usd_fresh": 0.0892,
-        "fresh_estimated_calls": 0,
-        "model_seconds": 73.4
-      },
-      "seconds": 73.6,
       "values": {
         "true_values": 8,
         "correct": 8,
@@ -3973,7 +3869,23 @@
       "mentions": {
         "y_axis": true
       },
-      "invented_numbers": []
+      "invented_numbers": [],
+      "accurate": true,
+      "sent_to_review": false,
+      "correct_outcome": true,
+      "unsafe": false,
+      "scored_by": "code",
+      "usage": {
+        "calls": 5,
+        "uncached": 0,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "usd": 0.0,
+        "usd_fresh": 0.0571,
+        "fresh_estimated_calls": 0,
+        "model_seconds": 0.0
+      },
+      "seconds": 0.3
     },
     {
       "id": "table-2.1",

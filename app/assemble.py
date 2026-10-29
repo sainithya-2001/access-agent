@@ -22,6 +22,7 @@ from pathlib import Path
 import pymupdf as fitz
 
 from app import stemplot
+from app.agent import tools
 from app.models import Document, FigureResult, Region, Status, TextBlock
 
 MARGIN_PT = 45            # running headers/footers live in the top/bottom margin
@@ -136,7 +137,7 @@ def _img_src(path: str) -> str:
 def _chart_table(res: FigureResult, fid: str, caption: str) -> str:
     ex = res.extracted
     pts = [d for d in ex.data if d.value is not None] if ex else []
-    if not pts:
+    if not pts or tools.no_numeric_scale(ex):  # values off an axis with no numbers are guesses
         return ""
     series = list(dict.fromkeys(d.series or "" for d in pts))
     labels = list(dict.fromkeys(d.label for d in pts))

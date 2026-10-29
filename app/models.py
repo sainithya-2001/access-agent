@@ -5,7 +5,7 @@ from __future__ import annotations
 from enum import Enum
 from typing import Literal
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 
 
 # ---------- Ingest ----------
@@ -119,6 +119,17 @@ class ExtractedValues(BaseModel):
     # a blind student can't use colour, and without a legend nobody can say which line is which.
     series_identified_by: Literal["single_series", "legend", "direct_labels", "color_only",
                                   "other"] | None = None
+    # Whether each axis has numeric tick labels (None: no such axis), and which axis the values
+    # are measured on. Values read off an axis without numbers are guesses (see tools.no_numeric_scale).
+    x_axis_numeric_scale: bool | None = None
+    y_axis_numeric_scale: bool | None = None
+    value_axis: Literal["x", "y"] | None = None
+
+    @field_validator("value_axis", mode="before")
+    @classmethod
+    def _axis(cls, v):  # "Y", "y-axis", "both", "none" → "y", "y", None, None
+        v = str(v or "").strip().lower()[:1]
+        return v if v in ("x", "y") else None
 
 
 class Description(BaseModel):

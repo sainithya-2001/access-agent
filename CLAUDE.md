@@ -38,6 +38,7 @@ Code controls the order; the model decides **per figure** inside a capped loop.
 - **On fail**, Muse Spark picks JSON actions with a one-line `why`: reread_value, rewrite, recrop, verify, mark_decorative, approve, escalate.
 - **Limits enforced in code:** `MAX_ACTIONS = 8`, `MAX_REWRITES = 2`; approve refused unless the last verify passed; auto-verify after reread/rewrite/recrop; any exception → needs_review (a run never crashes); a region with `review_reason` is never auto-approved.
 - **Verifier:** `describe` and `extract_values` never see each other's output. `verify` = model check against the image + `code_checks` (data table vs extracted values, matched by label and by series for multi-series charts; numbers not in the figure; alt text ≤ 150; title/axis labels mentioned). Code issues force a fail (confidence capped at 0.6). `PASS_THRESHOLD = 0.8` (tools.py).
+- **General rules, straight to review:** colour-only series (2+ series, no legend/labels); no numeric scale on the value axis (`tools.no_numeric_scale`) → describe compares instead of estimating, any number not in the page text/labels → review "values can't be read: no numeric scale", and the export omits the data table; leaked checking-process words fail verify.
 
 ## Code rules
 1. **All model calls go through `app/llm.py` `chat()`** (SAM through `app/sam.py`); both log backend/model to `output/llm_calls.jsonl`.

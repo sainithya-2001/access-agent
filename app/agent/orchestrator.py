@@ -31,6 +31,7 @@ ZOOM_DPI = 300
 RECROP_PT = 30
 COLOR_ONLY_REASON = ("Series are distinguished by colour only (no legend or labels): check which "
                      "series is which, e.g. from the text or tables nearby, and name them in the description")
+NO_SCALE_REASON = "values can't be read: no numeric scale"
 
 
 class Action(BaseModel):
@@ -90,7 +91,7 @@ class FigureAgent:
             self.log("describe", "Started from a provided description (test mode)")
         else:
             self.res.description = tools.describe(self.res.region, self.res.classification.type.value,
-                                                  self.backend)
+                                                  self.backend, no_scale=self._no_scale())
             self.log("describe", f"Wrote description: \"{self.res.description.alt_text}\"")
 
     def _verify(self) -> None:
@@ -139,6 +140,9 @@ class FigureAgent:
             pairs = asked or pairs
         return max(pairs, key=lambda p: abs(p[1].value - p[0].value) if p[1] and p[1].value is not None else -1)
 
+    def _no_scale(self) -> bool:
+        return tools.no_numeric_scale(self.res.extracted)
+
     def _color_only(self) -> bool:
         ex = self.res.extracted
         return ex.series_identified_by == "color_only" and tools.series_count(ex) >= 2
@@ -171,6 +175,10 @@ class FigureAgent:
     def _finish(self, status: Status, reason: str | None = None) -> FigureResult:
         if status == Status.auto_approved and self.res.region.review_reason:
             status, reason = Status.needs_review, self.res.region.review_reason
+        v = self.res.verification
+        if status == Status.needs_review and v and any(i.kind == "no_numeric_scale" for i in v.issues) \
+                and reason != NO_SCALE_REASON:
+            reason = NO_SCALE_REASON + (f"; {reason}" if reason else "")
         self.res.status = status
         self.res.escalation_reason = reason
         label = {Status.auto_approved: "Auto-approved", Status.needs_review: "Sent to human review",
@@ -204,6 +212,11 @@ class FigureAgent:
             self.log("escalate", "Two or more series are told apart only by colour, with no legend or "
                      "labels naming them → a person must say which series is which")
             return self._finish(Status.needs_review, COLOR_ONLY_REASON)
+        if self._no_scale() and any(i.kind == "no_numeric_scale" for i in self.res.verification.issues):
+            # Told to compare instead of estimating, it still gave numbers the page doesn't support.
+            self.log("escalate", "The value axis has no numbers and the description still gives values "
+                     "that aren't in the page text → a person must check them")
+            return self._finish(Status.needs_review, NO_SCALE_REASON)
         if self.res.verification.passed:
             return self._finish(Status.auto_approved)
 
@@ -233,7 +246,7 @@ class FigureAgent:
                 self.rewrites += 1
                 fb = args.get("feedback") or self._issues_text(self.res.verification)
                 self.res.description = tools.describe(self.res.region, self.res.classification.type.value,
-                                                      self.backend, feedback=fb)
+                                                      self.backend, feedback=fb, no_scale=self._no_scale())
                 self.log("rewrite", f"Rewrote the description (attempt {self.rewrites}){why}")
             elif a == "recrop":
                 side = args.get("side", "all")

@@ -18,7 +18,13 @@ Report:
   "single_series" (only one series), "legend" (a legend names each series), "direct_labels"
   (series names written on or next to the lines/bars), "color_only" (two or more series that differ
   only by colour, with no legend or labels naming them), or "other"
+- x_axis_numeric_scale, y_axis_numeric_scale: true if that axis has numeric tick labels (numbers
+  printed along it), false if it has no numbers (e.g. gridlines or tick marks only, or only category
+  names), null if the figure has no such axis
+- value_axis: the axis the data values are measured on: "y" for vertical bars, histograms and
+  line charts; "x" for horizontal bars and horizontal box plots; null if not a chart
 
 Return ONLY JSON with exactly these keys:
 {"title": ..., "x_axis_label": ..., "y_axis_label": ..., "labels": [...], "data": [...],
- "values_estimated": ..., "trend": ..., "labels_cut_off": ..., "series_identified_by": ...}
+ "values_estimated": ..., "trend": ..., "labels_cut_off": ..., "series_identified_by": ...,
+ "x_axis_numeric_scale": ..., "y_axis_numeric_scale": ..., "value_axis": ...}

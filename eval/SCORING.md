@@ -99,5 +99,11 @@ Fixed in a 6-item trial before the first full run:
   Figure 2.14's day box is drawn at about 53 against the book's 56, and its tolerance is 2.4.
 - **Missing values aren't penalised:** a description that omits values is not marked inaccurate,
   only reported as missing.
+- **Page text is not truth:** a number the description takes from the page text, not the figure,
+  counts as invented unless the reference or caption has it. Figure 2.25's "the text says the y-axis
+  goes from –2.4 to 15" is scored as two invented numbers (seen after the no-numeric-scale rule).
+- **Box plots labelled by drawing part:** STATS maps "min", "Q1", "median" etc., not "left whisker
+  end" or "left edge of box". Meta's Figure 2.11 (all five values right) scored 0/5 and five invented
+  labels after the leak-fix rerun.
 - **The judge is a model:** its verdicts are reused by `--rescore`. Changing `judge.md` requires a
   new run.

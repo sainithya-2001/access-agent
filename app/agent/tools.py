@@ -80,9 +80,12 @@ def extract_values(region: Region, kind: str, backend: str | None = None) -> Ext
 
 
 def describe(region: Region, kind: str, backend: str | None = None,
-             feedback: str | None = None) -> Description:
-    """feedback: issues from a failed verification, used when the agent rewrites."""
+             feedback: str | None = None, no_scale: bool = False) -> Description:
+    """feedback: issues from a failed verification, used when the agent rewrites.
+    no_scale: the value axis has no numbers (see no_numeric_scale)."""
     p = _prompt("describe", type=kind, caption=region.caption, nearby_text=region.nearby_text)
+    if no_scale:
+        p += "\n\n" + _prompt("describe_no_scale")
     if feedback:
         p += ("\n\nA fact-checker found these problems in your previous description. "
               "Fix them, re-reading the figure carefully:\n" + feedback)
@@ -102,7 +105,7 @@ def verify(region: Region, desc: Description, extracted: ExtractedValues,
     for issue in result.issues:
         issue.source = "model"
 
-    code_issues = code_checks(desc, extracted)
+    code_issues = code_checks(desc, extracted, f"{region.caption or ''} {region.nearby_text}")
     if code_issues:
         result.issues += code_issues
         result.passed = False
@@ -134,7 +137,9 @@ _NUM = re.compile(r"(?<![\w.])-?\d[\d,]*\.?\d*")
 
 def _numbers(text: str) -> list[float]:
     out = []
-    for m in _NUM.findall(text):
+    # Book text writes negatives with an en dash or minus sign ("–2.4"); ranges ("10–20") stay
+    # positive because _NUM needs no word character before the sign.
+    for m in _NUM.findall(text.replace("–", "-").replace("−", "-")):
         try:
             out.append(float(m.replace(",", "")))
         except ValueError:
@@ -142,7 +147,14 @@ def _numbers(text: str) -> list[float]:
     return out
 
 
-def code_checks(desc: Description, ex: ExtractedValues) -> list[Issue]:
+def no_numeric_scale(ex: ExtractedValues) -> bool:
+    """Values were read off an axis that has no numbers: any exact value is a guess
+    (e.g. bar heights against unlabeled gridlines)."""
+    scale = {"x": ex.x_axis_numeric_scale, "y": ex.y_axis_numeric_scale}.get(ex.value_axis or "")
+    return bool(ex.values_estimated and scale is False and any(d.value is not None for d in ex.data))
+
+
+def code_checks(desc: Description, ex: ExtractedValues, page_text: str = "") -> list[Issue]:
     issues: list[Issue] = []
 
     # Rewrite feedback must not leak into what the student reads ("This text is explicitly
@@ -156,6 +168,20 @@ def code_checks(desc: Description, ex: ExtractedValues) -> list[Issue]:
     if len(desc.alt_text) > ALT_MAX:
         issues.append(Issue(kind="alt_text_problem", source="code",
                             detail=f"Alt text is {len(desc.alt_text)} characters (max {ALT_MAX})."))
+
+    if no_numeric_scale(ex):
+        # Both readings are guesses, so comparing them proves nothing. Every number must come from
+        # the page text, the figure's own labels (e.g. the other axis), or be a count of its parts.
+        allowed = _numbers(" ".join([page_text, ex.title or ""] + ex.labels))
+        allowed += [len(ex.data), series_count(ex)]
+        said = [d.value for d in desc.data_table if d.value is not None] + _numbers(
+            f"{desc.alt_text} {desc.long_description}")
+        unsupported = sorted({n for n in said if not any(abs(n - a) <= 1e-6 * max(abs(a), 1) for a in allowed)})
+        if unsupported:
+            issues.append(Issue(kind="no_numeric_scale", source="code",
+                                detail="The value axis has no numbers, but the description gives values "
+                                       f"not in the page text: {', '.join(f'{n:g}' for n in unsupported)}."))
+        return issues + _label_checks(desc, ex)
 
     # Data table vs independently extracted values, matched by label (and series, see below).
     vals = [d.value for d in ex.data if d.value is not None]
@@ -177,8 +203,13 @@ def code_checks(desc: Description, ex: ExtractedValues) -> list[Issue]:
                 issues.append(Issue(kind="invented_detail", source="code",
                                     detail=f"The number {n:g} is in the description but not in the figure."))
 
+    return issues + _label_checks(desc, ex)
+
+
+def _label_checks(desc: Description, ex: ExtractedValues) -> list[Issue]:
     # Title and axis labels must be mentioned. Loose match: most of the label's words appear,
     # so "Annual CPI" wording differences don't fail but a dropped axis title does.
+    issues: list[Issue] = []
     have = _words(desc.long_description)
     for what, label in (("title", ex.title), ("x-axis label", ex.x_axis_label),
                         ("y-axis label", ex.y_axis_label)):
