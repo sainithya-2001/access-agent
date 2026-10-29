@@ -145,6 +145,14 @@ def _numbers(text: str) -> list[float]:
 def code_checks(desc: Description, ex: ExtractedValues) -> list[Issue]:
     issues: list[Issue] = []
 
+    # Rewrite feedback must not leak into what the student reads ("This text is explicitly
+    # visible in the image and is not invented.").
+    leaked = sorted({m.group(0).lower() for m in LEAK_RE.finditer(f"{desc.alt_text} {desc.long_description}")})
+    if leaked:
+        issues.append(Issue(kind="leaked_feedback", source="code",
+                            detail=f"The description talks about the checking process ({', '.join(leaked)}); "
+                                   "remove that and describe only the figure."))
+
     if len(desc.alt_text) > ALT_MAX:
         issues.append(Issue(kind="alt_text_problem", source="code",
                             detail=f"Alt text is {len(desc.alt_text)} characters (max {ALT_MAX})."))
@@ -292,6 +300,8 @@ def _compare_values(desc: Description, ex: ExtractedValues, tol: float) -> list[
     return issues
 
 
+LEAK_RE = re.compile(r"\b(verifier|fact[- ]?checker|previous description|earlier description|"
+                     r"feedback|issues?|not invented)\b", re.IGNORECASE)
 LABEL_MATCH = 0.6  # share of a label's words that must appear in the description
 _STOP = {"a", "an", "the", "of", "in", "on", "for", "and", "or", "to", "by", "per", "vs"}
 

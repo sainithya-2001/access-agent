@@ -18,6 +18,8 @@ Write:
    - Diagrams: what it shows, then each part and how the parts connect, in a logical order.
    - Equations: read the equation aloud in words.
    - Describe only what is visible. Do not add facts from outside the figure.
+   - Write only about the figure. Never mention a fact-checker, verifier, feedback, a previous
+     description, or that something is "not invented": the student reads every word.
 3. data_table: charts only, one row per data point: {"label": ..., "value": number, "series": ... or null}.
    Empty list for other types.
 4. latex: equations only, the equation in LaTeX. null otherwise.
