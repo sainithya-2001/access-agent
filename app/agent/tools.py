@@ -14,6 +14,7 @@ from __future__ import annotations
 
 import base64
 import hashlib
+import itertools
 import json
 import re
 from pathlib import Path
@@ -147,20 +148,15 @@ def code_checks(desc: Description, ex: ExtractedValues) -> list[Issue]:
         issues.append(Issue(kind="alt_text_problem", source="code",
                             detail=f"Alt text is {len(desc.alt_text)} characters (max {ALT_MAX})."))
 
-    # Data table vs independently extracted values, matched by label.
-    ref = {d.label.strip().lower(): d.value for d in ex.data if d.value is not None}
-    span = (max(ref.values()) - min(ref.values())) if len(ref) > 1 else max([abs(v) for v in ref.values()] or [1])
-    biggest = max([abs(v) for v in ref.values()] or [1])
+    # Data table vs independently extracted values, matched by label (and series, see below).
+    vals = [d.value for d in ex.data if d.value is not None]
+    span = (max(vals) - min(vals)) if len(vals) > 1 else max([abs(v) for v in vals] or [1])
+    biggest = max([abs(v) for v in vals] or [1])
     # Values read off an axis carry reading error; printed values should match almost exactly.
     # (Tuned on Figure 2.10: a true 201.6 vs an axis reading of 200 must not fail;
     #  a planted 232 vs 207 must.)
     tol = max(0.04 * span, 0.01 * biggest) if ex.values_estimated else 0.005 * max(span, 1)
-    for row in desc.data_table:
-        key = row.label.strip().lower()
-        if key in ref and row.value is not None and abs(row.value - ref[key]) > max(tol, 1e-9):
-            issues.append(Issue(kind="wrong_number", source="code",
-                                detail=f"'{row.label}': description says {row.value}, "
-                                       f"independent reading says {ref[key]}."))
+    issues += _compare_values(desc, ex, max(tol, 1e-9))
 
     # Numbers in the text that appear nowhere in the figure (possible invented values).
     known = set(_numbers(" ".join(ex.labels + [ex.title or "", ex.trend or ""])))
@@ -181,6 +177,80 @@ def code_checks(desc: Description, ex: ExtractedValues) -> list[Issue]:
         if words and len(words & have) / len(words) < LABEL_MATCH:
             issues.append(Issue(kind="missing_label", source="code",
                                 detail=f"The {what} '{label}' is not mentioned in the long description."))
+    return issues
+
+
+def _key(label: str) -> str:
+    return label.strip().lower()
+
+
+def _series_map(desc_pts, ref_pts, tol: float | None = None) -> dict:
+    """Map the description's series names onto the independent reading's.
+
+    The two readings name series independently ("light blue" vs "light cyan-blue", or legend
+    text vs a colour when there is no legend), so names can't be compared directly. Choose the
+    one-to-one mapping under which the most values agree (within tol), then the smallest total
+    error, then matching names. Counting agreements rather than summing errors keeps one badly
+    wrong value (or two series swapped at one label) from flipping the whole mapping."""
+    d_names = list(dict.fromkeys(d.series for d in desc_pts))
+    r_names = list(dict.fromkeys(r.series for r in ref_pts))
+    ref = {(_key(r.label), r.series): r.value for r in ref_pts}
+    labels = {_key(r.label) for r in ref_pts}
+    if tol is None:
+        vals = [r.value for r in ref_pts if r.value is not None] or [0.0]
+        tol = max(0.04 * (max(vals) - min(vals)), 1e-9)
+
+    def cost(perm) -> tuple[int, float, int]:
+        agree, err, name_misses = 0, 0.0, 0
+        for dn, rn in zip(d_names, perm):
+            for d in desc_pts:
+                k = (_key(d.label), rn)
+                if d.series == dn and d.value is not None and k in ref:
+                    err += abs(d.value - ref[k])
+                    agree += abs(d.value - ref[k]) <= tol
+            name_misses += _key(dn or "") != _key(rn or "")
+        return -agree, err, name_misses
+
+    if len(d_names) > len(r_names) or len(r_names) > 6 or not labels:
+        return {n: n for n in d_names}  # can't map sensibly: fall back to matching names
+    best = min(itertools.permutations(r_names, len(d_names)), key=cost)
+    return dict(zip(d_names, best))
+
+
+def _compare_values(desc: Description, ex: ExtractedValues, tol: float) -> list[Issue]:
+    ref_pts = [d for d in ex.data if d.value is not None]
+    desc_pts = [d for d in desc.data_table if d.value is not None]
+    multi = len({d.series for d in ref_pts}) > 1
+    issues = []
+    if not multi:
+        ref = {_key(d.label): d.value for d in ref_pts}
+        for row in desc_pts:
+            k = _key(row.label)
+            if k in ref and abs(row.value - ref[k]) > tol:
+                issues.append(Issue(kind="wrong_number", source="code",
+                                    detail=f"'{row.label}': description says {row.value:g}, "
+                                           f"independent reading says {ref[k]:g}."))
+        return issues
+
+    # Several series share each label (overlaid lines, grouped bars): compare series to series.
+    ref = {(_key(d.label), d.series): d.value for d in ref_pts}
+    named = [d for d in desc_pts if d.series is not None]
+    mapping = _series_map(named, ref_pts, tol) if named else {}
+    for row in desc_pts:
+        k = _key(row.label)
+        if row.series is None:
+            # No series given: it must match one of the values at this label.
+            options = [v for (lab, _), v in ref.items() if lab == k]
+            if options and min(abs(row.value - v) for v in options) > tol:
+                issues.append(Issue(kind="wrong_number", source="code",
+                                    detail=f"'{row.label}': description says {row.value:g}, but the "
+                                           f"independent reading has {', '.join(f'{v:g}' for v in options)}."))
+            continue
+        rs = mapping.get(row.series)
+        if (k, rs) in ref and abs(row.value - ref[(k, rs)]) > tol:
+            issues.append(Issue(kind="wrong_number", source="code",
+                                detail=f"'{row.label}' ({row.series}): description says {row.value:g}, "
+                                       f"independent reading says {ref[(k, rs)]:g} ({rs})."))
     return issues
 
 

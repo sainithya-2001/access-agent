@@ -121,6 +121,22 @@ class FigureAgent:
         r.crop_path = str(out)
         self.res.description = None  # read and describe again from the new crop
 
+    def _value_pair(self, label: str, series: str | None = None):
+        """The independent reading's data point for `label` and the description's matching one.
+        With several series at one label, use the series asked for, else the pair that disagrees most."""
+        k = label.strip().lower()
+        refs = [x for x in self.res.extracted.data if x.label.strip().lower() == k and x.value is not None]
+        mine = [x for x in self.res.description.data_table if x.label.strip().lower() == k]
+        if len(refs) <= 1:
+            return (refs[0] if refs else None), (mine[0] if mine else None)
+        mapping = tools._series_map([m for m in mine if m.series is not None and m.value is not None], refs)
+        pairs = [(r, next((m for m in mine if mapping.get(m.series) == r.series), None)) for r in refs]
+        if series:
+            asked = [p for p in pairs if (p[0].series or "").lower() == str(series).lower()
+                     or (p[1] and (p[1].series or "").lower() == str(series).lower())]
+            pairs = asked or pairs
+        return max(pairs, key=lambda p: abs(p[1].value - p[0].value) if p[1] and p[1].value is not None else -1)
+
     # ---------- agent ----------
     def _decide(self) -> Action:
         d, ex, v = self.res.description, self.res.extracted, self.res.verification
@@ -189,10 +205,7 @@ class FigureAgent:
 
             if a == "reread_value":
                 label = str(args.get("label", ""))
-                ex = self.res.extracted
-                ref = next((x for x in ex.data if x.label.strip().lower() == label.strip().lower()), None)
-                mine = next((x for x in self.res.description.data_table
-                             if x.label.strip().lower() == label.strip().lower()), None)
+                ref, mine = self._value_pair(label, args.get("series"))
                 if not ref:
                     self.log("reread_value", f"Agent asked to re-read '{label}', but no such data point{why}")
                     continue
