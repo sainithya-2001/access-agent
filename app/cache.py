@@ -45,11 +45,16 @@ def usage(key: str) -> dict | None:
 def put(key: str, response: str, usage: dict | None = None) -> None:
     CACHE_DIR.mkdir(parents=True, exist_ok=True)
     entry = {"response": response} | ({"usage": usage} if usage else {})
-    # Threads and parallel runs may write the same key: write a temp file, then rename it into
-    # place, so a reader never sees half an entry.
-    tmp = CACHE_DIR / f"{key}.{os.getpid()}.{threading.get_ident()}.tmp"
-    tmp.write_text(json.dumps(entry), encoding="utf-8")
+    write_atomic(CACHE_DIR / f"{key}.json", json.dumps(entry))
+
+
+def write_atomic(path: Path, text: str) -> None:
+    """Threads and parallel runs may write the same key: write a temp file, then rename it into
+    place, so a reader never sees half an entry."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    tmp = path.with_name(f"{path.stem}.{os.getpid()}.{threading.get_ident()}.tmp")
+    tmp.write_text(text, encoding="utf-8")
     try:
-        os.replace(tmp, CACHE_DIR / f"{key}.json")
+        os.replace(tmp, path)
     except PermissionError:  # Windows: another writer has the file open; its entry is just as good
         tmp.unlink(missing_ok=True)

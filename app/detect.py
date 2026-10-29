@@ -15,8 +15,11 @@ means something was probably missed.
 from __future__ import annotations
 
 import base64
+import functools
+import hashlib
 import io
 import json
+import os
 import re
 from pathlib import Path
 
@@ -24,7 +27,7 @@ import pymupdf as fitz
 from PIL import Image, ImageDraw
 from pydantic import BaseModel, ValidationError
 
-from app import pdf, stemplot
+from app import cache, pdf, stemplot
 from app.ingest import RENDER_DPI
 from app.models import BBox, Document, Page, Region
 
@@ -536,16 +539,60 @@ def draw_overlay(page: Page, regions: list[Region], path: Path) -> None:
     img.save(path)
 
 
+# ---------- detection cache ----------
+# Detection is most of a cached run's time (find_tables). Each page's regions are cached under the
+# PDF hash, the page, the settings, the page-check/SAM model settings and a hash of the code that
+# produces them, so a code change starts a fresh cache. Crops are rendered again on every hit.
+DETECT_CACHE = Path("cache/detect")
+_SOURCES = ("detect.py", "stemplot.py", "ingest.py", "sam.py", "models.py")
+
+
+@functools.cache
+def _code_version() -> str:
+    h = hashlib.sha256(fitz.VersionBind.encode())
+    for name in _SOURCES:
+        h.update((Path(__file__).parent / name).read_bytes())
+    return h.hexdigest()
+
+
+def _page_key(doc: Document, page: int, *settings) -> str:
+    from app import llm
+    models = [os.environ.get(v, "") for v in ("LLM_BACKEND", "SPARK_MODEL", "BASETEN_MODEL", "SAM_MODEL")]
+    parts = [doc.id, page, *settings, *models, llm.RUN_TAG, _code_version()]
+    return hashlib.sha256(json.dumps(parts, default=str).encode()).hexdigest()
+
+
+def _cached_page(key: str, pdf_page: fitz.Page, crops: Path) -> tuple[list[Region], list[str]] | None:
+    try:
+        entry = json.loads((DETECT_CACHE / f"{key}.json").read_text(encoding="utf-8"))
+        regions = [Region.model_validate(r) for r in entry["regions"]]
+    except (FileNotFoundError, json.JSONDecodeError, KeyError, ValidationError):
+        return None
+    crops.mkdir(parents=True, exist_ok=True)
+    for r in regions:
+        b = r.bbox
+        r.crop_path = _crop(pdf_page, fitz.Rect(b.x0, b.y0, b.x1, b.y1), crops / f"{r.id}.png")
+    return regions, entry["notes"]
+
+
 def detect(doc: Document, use_sam: bool = True, use_check: bool = True,
            out_root: str | Path = "output", free_figures: bool = True,
-           sam_extend: str = "auto") -> tuple[list[Region], list[str]]:
+           sam_extend: str = "auto", use_cache: bool = True) -> tuple[list[Region], list[str]]:
+    """use_cache=False runs detection again (and stores the new result)."""
     out_dir = Path(out_root) / doc.id
     overlays = out_dir / "overlays"
     overlays.mkdir(parents=True, exist_ok=True)
     pdf = fitz.open(doc.source_path)
     all_regions, all_notes = [], []
     for page in doc.pages:
-        regions, notes = detect_page(pdf, page, out_dir, use_sam, use_check, free_figures, sam_extend)
+        key = _page_key(doc, page.number, use_sam, use_check, free_figures, sam_extend)
+        hit = _cached_page(key, pdf[page.number - 1], out_dir / "crops") if use_cache else None
+        if hit:
+            regions, notes = hit
+        else:
+            regions, notes = detect_page(pdf, page, out_dir, use_sam, use_check, free_figures, sam_extend)
+            cache.write_atomic(DETECT_CACHE / f"{key}.json", json.dumps(
+                {"regions": [r.model_dump(mode="json") for r in regions], "notes": notes}))
         draw_overlay(page, regions, overlays / f"page_{page.number:03d}.png")
         all_regions += regions
         all_notes += notes

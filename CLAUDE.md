@@ -42,7 +42,7 @@ Code controls the order; the model decides **per figure** inside a capped loop.
 
 ## Code rules
 1. **All model calls go through `app/llm.py` `chat()`** (SAM through `app/sam.py`); both log backend/model to `output/llm_calls.jsonl`.
-2. **Cache every model response** (`app/cache.py`). Re-running a page must cost $0. Report uncached calls after runs.
+2. **Cache every model response** (`app/cache.py`). Re-running a page must cost $0. Report uncached calls after runs. Detection results are cached per page too (`cache/detect/`, keyed by PDF hash, page, settings and a hash of the detection code).
 3. **Validate every model output** with a Pydantic model (`app/models.py`). Invalid JSON → retry once, then escalate.
 4. **Every agent decision appends a `TraceStep`**; the trace is shown in the review UI.
 5. Develop on a few pages, not whole chapters. Prompts live in `app/agent/prompts/`, one file per task.
