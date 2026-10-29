@@ -183,3 +183,41 @@ Baseten 2, 3, 2 (2.59 every run). These runs used the crops from before the neig
 Dev items share PDF pages with the held-out set only on page 173 (dev 2.59 and one held-out figure).
 The runner runs the agent on dev regions only; the free detection layer (no model calls) crops every
 region on the page.
+
+## Dev runs 4–6 (fixes A, B, C, D, F, G), Oct 29: hand check of the unsafe approvals
+Three more runs per backend (`--rep 4..6`), with the reread-before-rewrite rule, the count, comparison
+and duplicate-row checks, fix F (page-text values stated as the text's), and the neighbouring-caption
+crop fix. Summary in `results/dev_repeats_r4-6.md`. Every unsafe approval was checked against the
+figure image (2.58 and 2.59 against the book's values, since their pages fall in the held-out page range):
+
+| Cause | Meta (runs out of 3) | Baseten (runs out of 3) |
+|---|---|---|
+| Matches the drawing, not the book: 2.14 (accurate per the judge; drawn Q1 about 53, book 56) | 3 | 2 |
+| Wording: 2.59 "eight states"; it is 7 states and Washington DC | 2 | 2 |
+| Real: 2.25 box edges snapped to tick labels (Q1 59.7, Q3 86.9; drawn about 64 and 90) | 1 | 1 |
+| Real: 2.19 X's miscounted (3 at 2, 5 at 3; the figure has 2 and 4), both readings agreed | 0 | 2 |
+| Real: 2.16 "bars at 6 and 8 one-third as tall as 7" (half) | 0 | 1 |
+| Real: 2.10 year 3 read as 193 (book 195.3), both readings agreed | 0 | 1 |
+| Real: 2.44 "China lowest"; China is a bare 0–5 line with no median to compare | 0 | 1 |
+| Real: 2.5 "decrease to both sides of the peak"; the left end rises from 0.03 to 0.05 | 0 | 1 |
+| Real: 2.58 a "dip" in 1867; the book rises from 113,667 to 114,044 | 0 | 1 |
+| Real, minor detail: 2.1 title called sans-serif (it is serif) and the banner centred (left) | 1 | 2 |
+| Real, minor detail: 2.47 minor ticks that are not drawn | 1 | 0 |
+
+Real errors per run (without 2.14 and 2.59): Meta 1, 0, 2 (runs 1–3: 2, 1, 2); Baseten 2, 6, 2
+(runs 1–3: 1, 2, 1). 2.19's one-row-per-dot table and 2.16's "about twice" no longer occur.
+
+Baseten run 5 (8 unsafe approvals): 2.14 and 2.59 as in other runs, plus six real errors. Five of
+the six passed the first verify at 0.96 with no issue raised; this run had the fewest first-verify
+failures of any Baseten run (6 of 19; runs 1–6: 9, 11, 10, 7, 6, 7). Baseten is not deterministic at
+temperature 0, so the same figure is caught in one run and passed in the next. In three of the six
+(2.19, 2.25, 2.10) the independent reading made the same misreading as the description, so the
+cross-check had nothing to find. 2.16 shows a gap in the code checks: for a chart with no numeric
+scale, `code_checks` returns before the count and comparison checks. Run 5's description gave no
+numbers (as the no-scale prompt asks), so only its ratio was wrong, and that ratio was never checked;
+replayed from the cache, the comparison check flags it.
+
+Also found: when a zoomed re-read is within tolerance of both earlier readings, `_reread` credits the
+description, not the nearer reading (2.25, Q3: read 86.9, extraction 86.9, description 90). It
+changed no outcome in these runs (the re-read value replaces the extracted value either way).
+Neither this nor the no-scale gap is fixed in the code these runs used.

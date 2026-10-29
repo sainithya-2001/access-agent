@@ -11,6 +11,7 @@ Report:
 - x_axis_label, y_axis_label: axis titles if shown, else null
 - labels: every visible text label (tick labels, legend entries, category names, annotations)
 - data: for charts, one entry per data point / bar / category: {"label": ..., "value": number, "series": ... or null}
+  One entry per label and series. Dot plots: one entry per value on the axis, with the number of marks above it.
   If values are printed on the figure, use them exactly.
   If not, estimate each value from the axis scale as precisely as you can and set values_estimated to true.
 - values_estimated: true if any value was read off the axis rather than printed

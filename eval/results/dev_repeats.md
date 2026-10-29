@@ -1,4 +1,4 @@
-# dev set, 3 runs per backend: mean (min–max)
+# dev set, runs 1–3 per backend: mean (min–max)
 
 | Metric | Muse Spark (Meta) | Muse Spark Open (Baseten) |
 |---|---|---|

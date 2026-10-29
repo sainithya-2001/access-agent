@@ -30,6 +30,8 @@ MAX_ACTIONS = 8
 MAX_REWRITES = 2
 ZOOM_DPI = 300
 RECROP_PT = 30
+REREADS_PER_REWRITE = 3  # disputed values re-read before one rewrite (caps the extra calls)
+UNUSABLE_READING = "The independent reading lists several values at one label, so it can't check the description"
 COLOR_ONLY_REASON = ("Series are distinguished by color only (no legend or labels): check which "
                      "series is which, e.g. from the text or tables nearby, and name them in the description")
 NO_SCALE_REASON = "values can't be read: no numeric scale"
@@ -52,6 +54,7 @@ class FigureAgent:
         self.rewrites = 0
         self.actions = 0
         self.history: list[str] = []
+        self.reread_done: set[tuple] = set()  # (label key, series) re-read at zoom
 
     # ---------- trace ----------
     def log(self, action: str, summary: str) -> None:
@@ -148,6 +151,36 @@ class FigureAgent:
             pairs = asked or pairs
         return max(pairs, key=lambda p: abs(p[1].value - p[0].value) if p[1] and p[1].value is not None else -1)
 
+    def _reread(self, label: str, series: str | None, why: str = "") -> str | None:
+        """Zoomed third reading of one value; it replaces the independent reading's value.
+        Returns which reading it agrees with: "description", "extraction" or "neither"
+        (None if there is no such data point)."""
+        ref, mine = self._value_pair(label, series)
+        if not ref:
+            self.log("reread_value", f"Asked to re-read '{label}', but no such data point{why}")
+            return None
+        said = mine.value if mine else None
+        rr = tools.reread_value(self.res.region, label, said if said is not None else "not stated",
+                                ref.value, ref.series, self.backend, zoom_path=self._zoom())
+        old, ref.value = ref.value, rr.value
+        self.reread_done.add((tools._key(label), series))
+        tol = tools.value_tol(self.res.extracted)
+        side = ("description" if said is not None and abs(rr.value - said) <= tol
+                else "extraction" if abs(rr.value - old) <= tol else "neither")
+        self.log("reread_value", f"Zoomed in on '{label}': read {rr.value:g} (was {old:g}; description says "
+                 f"{'—' if said is None else f'{said:g}'}) → agrees with "
+                 + ("neither reading" if side == "neither" else f"the {side}") + why)
+        return side
+
+    def _unusable_reading(self) -> bool:
+        """A single-series reading with several values at one label (e.g. a dot plot listed one row
+        per mark) can't be used to check the description, and rewriting can't fix it."""
+        dups = tools.duplicate_labels(self.res.extracted.data, self.res.extracted)
+        if dups:
+            self.log("escalate", f"The independent reading has several values at {', '.join(repr(d) for d in dups)}"
+                     " (e.g. one row per mark) → it can't check the description; a person must check the values")
+        return bool(dups)
+
     def _no_scale(self) -> bool:
         return tools.no_numeric_scale(self.res.extracted)
 
@@ -225,6 +258,8 @@ class FigureAgent:
             self.log("escalate", "The value axis has no numbers and the description still gives values "
                      "that aren't in the page text → a person must check them")
             return self._finish(Status.needs_review, NO_SCALE_REASON)
+        if self._unusable_reading():
+            return self._finish(Status.needs_review, UNUSABLE_READING)
         if self.res.verification.passed:
             return self._finish(Status.auto_approved)
 
@@ -237,17 +272,24 @@ class FigureAgent:
 
             if a == "reread_value":
                 label = str(args.get("label", ""))
-                ref, mine = self._value_pair(label, args.get("series"))
-                if not ref:
-                    self.log("reread_value", f"Agent asked to re-read '{label}', but no such data point{why}")
+                side = self._reread(label, args.get("series"), why)
+                if side is None:
                     continue
-                rr = tools.reread_value(self.res.region, label, mine.value if mine else "not stated",
-                                        ref.value, ref.series, self.backend, zoom_path=self._zoom())
-                old = ref.value
-                ref.value = rr.value
-                self.log("reread_value", f"Zoomed in on '{label}': read {rr.value:g} "
-                         f"(was {old:g}; description says {mine.value if mine else '—'}){why}")
+                if side == "neither":
+                    return self._finish(Status.needs_review, f"Three readings of '{label}' disagree")
             elif a == "rewrite":
+                # A value disagreement is settled by a zoomed third reading, not by rewriting the
+                # description to match the independent reading (which can be the wrong one).
+                disputed = [i for i in self.res.verification.issues if i.kind == "wrong_number" and i.label
+                            and (tools._key(i.label), i.series) not in self.reread_done]
+                if disputed:
+                    for i in disputed[:REREADS_PER_REWRITE]:
+                        if self._reread(i.label, i.series, " (before any rewrite of a disputed value)") == "neither":
+                            return self._finish(Status.needs_review, f"Three readings of '{i.label}' disagree")
+                    self._verify()  # if a rewrite is still needed, it is the next decision
+                    if self.res.verification.passed:
+                        return self._finish(Status.auto_approved, "passed verification after reread_value")
+                    continue
                 if self.rewrites >= MAX_REWRITES:
                     return self._finish(Status.needs_review, "Rewrite limit reached; issues remain: "
                                         + self._issues_text(self.res.verification))
@@ -261,6 +303,8 @@ class FigureAgent:
                 self._recrop(side if side in ("left", "right", "top", "bottom", "all") else "all")
                 self.log("recrop", f"Widened the crop ({side}) and re-read the figure{why}")
                 self._extract()
+                if self._unusable_reading():
+                    return self._finish(Status.needs_review, UNUSABLE_READING)
                 self._describe()
             elif a == "verify":
                 self._verify()

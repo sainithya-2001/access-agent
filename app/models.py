@@ -156,6 +156,9 @@ class Issue(BaseModel):
     kind: str  # e.g. "wrong_number", "missing_label", "invented_detail", "wrong_trend"
     detail: str
     source: str = "model"  # "model" (verifier LLM) or "code" (deterministic check)
+    # The data point a wrong_number is about (code checks), so the agent can re-read exactly that value.
+    label: str | None = None
+    series: str | None = None
 
 
 class Verification(BaseModel):

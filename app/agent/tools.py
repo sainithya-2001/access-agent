@@ -265,6 +265,30 @@ def code_checks(desc: Description, ex: ExtractedValues, page_text: str = "") -> 
         return issues + _label_checks(desc, ex)
 
     # Data table vs independently extracted values, matched by label (and series, see below).
+    tol = value_tol(ex)
+    issues += _compare_values(desc, ex, tol)
+    issues += _duplicate_rows(desc, ex)
+    issues += _count_checks(desc, ex)
+    issues += _comparison_checks(desc, ex)
+
+    # Numbers in the text that appear nowhere in the figure (possible invented values). Numbers from
+    # the caption and page text are allowed as written ("20-year-olds"); that a text value is given
+    # as the text's, not as a drawn position, is the describe prompt's rule.
+    known = set(_numbers(" ".join(ex.labels + [ex.title or "", ex.trend or ""])))
+    known |= {d.value for d in ex.data if d.value is not None}
+    from_text = set(_numbers(page_text))
+    if known:
+        for n in set(_numbers(desc.long_description)):
+            close = any(abs(n - k) <= max(tol, 0.01 * max(abs(k), 1)) for k in known)
+            if not close and n not in from_text and not (0 <= n <= 12 and n == int(n)):  # counts: "no X's", "3 bars"
+                issues.append(Issue(kind="invented_detail", source="code",
+                                    detail=f"The number {n:g} is in the description but not in the figure."))
+
+    return issues + _label_checks(desc, ex)
+
+
+def value_tol(ex: ExtractedValues) -> float:
+    """How far two readings of a value may differ and still agree."""
     vals = [d.value for d in ex.data if d.value is not None]
     span = (max(vals) - min(vals)) if len(vals) > 1 else max([abs(v) for v in vals] or [1])
     biggest = max([abs(v) for v in vals] or [1])
@@ -272,19 +296,206 @@ def code_checks(desc: Description, ex: ExtractedValues, page_text: str = "") -> 
     # (Tuned on Figure 2.10: a true 201.6 vs an axis reading of 200 must not fail;
     #  a planted 232 vs 207 must.)
     tol = max(0.04 * span, 0.01 * biggest) if ex.values_estimated else 0.005 * max(span, 1)
-    issues += _compare_values(desc, ex, max(tol, 1e-9))
+    return max(tol, 1e-9)
 
-    # Numbers in the text that appear nowhere in the figure (possible invented values).
-    known = set(_numbers(" ".join(ex.labels + [ex.title or "", ex.trend or ""])))
-    known |= {d.value for d in ex.data if d.value is not None}
-    if known:
-        for n in set(_numbers(desc.long_description)):
-            close = any(abs(n - k) <= max(tol, 0.01 * max(abs(k), 1)) for k in known)
-            if not close and not (1 <= n <= 12 and n == int(n)):  # ignore small counts ("3 bars")
-                issues.append(Issue(kind="invented_detail", source="code",
-                                    detail=f"The number {n:g} is in the description but not in the figure."))
 
-    return issues + _label_checks(desc, ex)
+def _single_series(ex: ExtractedValues) -> bool:
+    return ex.series_identified_by == "single_series" and not ex.boxes
+
+
+def duplicate_labels(rows, ex: ExtractedValues) -> list[str]:
+    """Labels with more than one value in a single-series chart's table (e.g. a dot plot listed one
+    row per mark): one value per label is the only table a reader, or a check, can use."""
+    if not _single_series(ex):
+        return []
+    seen: dict[tuple, int] = defaultdict(int)
+    for d in rows:
+        if d.value is not None:
+            seen[(_key(d.label), d.series)] += 1
+    return sorted({lab for (lab, _), n in seen.items() if n > 1})
+
+
+def _duplicate_rows(desc: Description, ex: ExtractedValues) -> list[Issue]:
+    dups = duplicate_labels(desc.data_table, ex)
+    return [Issue(kind="duplicate_rows", source="code",
+                  detail=f"The data table has several rows for {', '.join(repr(d) for d in dups)}; give one value "
+                         "per label (for a dot plot, the number of marks at each value).")] if dups else []
+
+
+# ---------- stated counts ("eight bars", "three box plots") ----------
+_NUMWORDS = {w: i for i, w in enumerate("zero one two three four five six seven eight nine ten eleven twelve "
+                                         "thirteen fourteen fifteen sixteen seventeen eighteen nineteen twenty".split())}
+_NUMBER = r"\d{1,3}(?:\.\d+)?|" + "|".join(_NUMWORDS)
+_COUNT_NOUNS = {"categories": r"bars|categories|bins|intervals|classes|columns|groups|slices|segments",
+                "series": r"lines|series|curves|polygons",
+                "boxes": r"box ?plots|boxes",
+                "marks": r"x['’]?s|dots|marks|observations"}
+_GAP_WORD = r"(?!(?:and|or|with|in|to|from|of|at|by|for|the|a|an|is|are|than)\b)[a-z-]+"
+_COUNT_RE = re.compile(r"(?<![\d.,–-])\b(\d{1,3}|" + "|".join(_NUMWORDS) + r")\s+((?:" + _GAP_WORD + r"\s+){0,3}?)(?:"
+                       + "|".join(f"(?P<{k}>{v})" for k, v in _COUNT_NOUNS.items()) + r")\b", re.I)
+# A count with one of these is about part of the set ("the other six", "the two tallest bars",
+# "the three bins to the right of the peak"), so it is only checked for being more than the whole.
+_SUBSET_BEFORE = re.compile(r"\b(other|remaining|first|last|top|bottom|next|these|those)\s*$", re.I)
+_SUBSET_WORDS = re.compile(r"\b(tallest|shortest|highest|lowest|largest|smallest|youngest|oldest|isolated|"
+                           r"higher|lower|leftmost|rightmost|outer|inner|middle|central|extreme)\b", re.I)
+_SUBSET_AFTER = re.compile(r"^\s*(to the|on the|of the|of these|above|below|before|after|left|right|near|"
+                           r"between|at|in the|beyond|past|around|over|on|stacked|piled)\b", re.I)
+
+
+def _count_checks(desc: Description, ex: ExtractedValues) -> list[Issue]:
+    """A count the description states for the whole figure must match the independent reading:
+    categories (distinct labels), series, boxes, or marks (the sum of counts, e.g. a dot plot's X's)."""
+    pts = [d for d in ex.data if d.value is not None and not (ex.boxes and d.label in BOX_STATS)]
+    named = {d.series for d in ex.data if d.series} if not ex.boxes else set()
+    expected = {
+        "categories": len({_key(d.label) for d in pts}) or None,
+        "series": (1 if _single_series(ex) else len(named)) or None,
+        "boxes": len(ex.boxes) or None,
+        "marks": int(sum(d.value for d in pts)) if pts and _single_series(ex)
+        and all(d.value >= 0 and d.value == int(d.value) for d in pts) else None,
+    }
+    # A count that is part of a name in the figure ("BMW 5 Series") is not a count.
+    names = " | ".join(ex.labels + [ex.title or ""] + [b.name or "" for b in ex.boxes]
+                       + [d.series or "" for d in ex.data]).lower()
+    issues, text = [], f"{desc.alt_text}\n{desc.long_description}"
+    for m in _COUNT_RE.finditer(text):
+        kind = next(k for k in _COUNT_NOUNS if m.group(k))
+        want = expected[kind]
+        if want is None or f"{m.group(1)} {m.group(kind)}".lower() in names:
+            continue
+        n = int(m.group(1)) if m.group(1).isdigit() else _NUMWORDS[m.group(1).lower()]
+        if n <= 1:
+            continue
+        subset = bool(_SUBSET_BEFORE.search(text[max(0, m.start() - 20):m.start()])
+                      or _SUBSET_WORDS.search(m.group(2)) or _SUBSET_AFTER.match(text[m.end():m.end() + 20]))
+        if n > want or (n != want and not subset):
+            issues.append(Issue(kind="wrong_count", source="code",
+                                detail=f"'{m.group(0).strip()}': the independent reading has {want} "
+                                       f"{'marks' if kind == 'marks' else kind}."))
+    return issues
+
+
+# ---------- comparisons ("about twice as tall as", "a wider box") ----------
+_FRAC = r"(?:a|one)?[- ]?(?:half|third|quarter|fourth|fifth|sixth|seventh|eighth|ninth|tenth)"
+_RATIO_RE = re.compile(
+    r"\b(?:(?P<twice>twice)|(?P<lo>" + _NUMBER + r")\s*(?:to|-|–|or)\s*(?P<hi>" + _NUMBER + r")\s+times"
+    r"|(?P<n>" + _NUMBER + r")\s+times|(?P<flo>" + _FRAC + r")(?:\s*(?:to|-|–|or)\s*(?P<fhi>" + _FRAC + r"))?)"
+    r"\s+(?:(?:as|of)\s+)?(?:the\s+)?(?:tall|high|large|big|long|height)", re.I)
+_FRACS = {"half": 2, "third": 3, "quarter": 4, "fourth": 4, "fifth": 5, "sixth": 6, "seventh": 7, "eighth": 8,
+          "ninth": 9, "tenth": 10}
+
+
+def _frac(w: str) -> float:
+    return 1 / _FRACS[re.search(r"(half|third|quarter|fourth|fifth|sixth|seventh|eighth|ninth|tenth)", w.lower()).group(1)]
+RATIO_TOL = 0.15  # a stated ratio may be off by 15% ("about twice" covers 1.74 to 2.3)
+
+
+def _num(w: str) -> float:
+    return float(w) if w[0].isdigit() else float(_NUMWORDS[w.lower()])
+
+
+def _mentions(sentence: str, pts) -> list[tuple[int, int, float, bool]]:
+    """(start, end, value, is_label) for each data label or extreme group ("the shortest bars") the
+    sentence names. "The next tallest" is not the tallest, so it names nothing."""
+    out = []
+    for d in pts:
+        lab = d.label.strip()
+        if re.fullmatch(r"-?\d+(?:\.\d+)?", lab):
+            # A number names a bar only after "at", "bar" etc., possibly in a list: "at 4, 5, 9, and 10".
+            pat = (r"\b(?:at|bars?|for|over|above|centered at)\s+(?:-?\d+(?:\.\d+)?(?:,\s*|,?\s+and\s+))*"
+                   + re.escape(lab) + r"(?![\d.]*\d)")
+        else:
+            pat = r"\b" + re.escape(lab) + r"\b"
+        for m in re.finditer(pat, sentence, re.I):
+            out.append((m.end() - len(lab), m.end(), d.value, True))
+    vals = [d.value for d in pts]
+    for words, v in ((r"shortest|lowest|smallest", min(vals)), (r"tallest|highest|largest", max(vals))):
+        for m in re.finditer(r"(?<!next )(?<!second )(?<!third )\b(" + words + r")\b", sentence, re.I):
+            out.append((m.start(), m.end(), v, False))
+    return sorted(out)
+
+
+def _comparison_checks(desc: Description, ex: ExtractedValues) -> list[Issue]:
+    """Ratios between named bars, and two-box comparisons, checked against the independent reading.
+    Shape words ("bimodal", "skewed") are left to the model check."""
+    issues = []
+    sentences = re.split(r"(?<=[.;])\s+", f"{desc.alt_text} {desc.long_description}")
+    pts = [d for d in ex.data if d.value is not None and d.label not in BOX_STATS]
+    if pts and _single_series(ex):
+        for s in sentences:
+            for m in _RATIO_RE.finditer(s):
+                if m.group("twice"):
+                    lo = hi = 2.0
+                elif m.group("lo"):
+                    lo, hi = sorted((_num(m.group("lo")), _num(m.group("hi"))))
+                elif m.group("n"):
+                    lo = hi = _num(m.group("n"))
+                else:
+                    lo, hi = sorted((_frac(m.group("flo")), _frac(m.group("fhi") or m.group("flo"))))
+                ments = _mentions(s, pts)
+                # Subject: what the sentence names before its first ratio ("The bar at 7 is the tallest,
+                # about twice as tall as ... and six times as tall as ..."); object: the first thing after.
+                first_ratio = next(_RATIO_RE.finditer(s)).start()
+                subj = [(v, lab) for a, e, v, lab in ments if e <= first_ratio]
+                before = [v for v, lab in subj if lab] or [v for v, _ in subj]
+                nxt = next((x.start() for x in _RATIO_RE.finditer(s, m.end())), len(s))
+                after = [(a, v) for a, e, v, _ in ments if m.end() <= a < nxt]
+                if not before or not after:
+                    continue
+                first = after[0][0]
+                obj = [v for a, v in after if a - first < 25]  # "the bars at 6 and 8": a group
+                b = sum(obj) / len(obj)
+                if b <= 0:
+                    continue
+                r = (sum(before) / len(before)) / b
+                if not (lo / (1 + RATIO_TOL) <= r <= hi * (1 + RATIO_TOL)):
+                    issues.append(Issue(kind="wrong_comparison", source="code",
+                                        detail=f"'{m.group(0)}' in \"{s.strip()[:120]}\": the independent "
+                                               f"reading gives a ratio of about {r:.2g}."))
+    if len(ex.boxes) == 2:
+        issues += _box_comparisons(sentences, ex)
+    return issues
+
+
+_BOX_CLAIMS = [  # (pattern, measure, True if the claim says the subject's measure is bigger)
+    (r"\bwider box\b|\bbox is wider\b", lambda b: b.q3 - b.q1, True),
+    (r"\bnarrower box\b|\bbox is narrower\b", lambda b: b.q3 - b.q1, False),
+    (r"\blonger left whisker\b", lambda b: b.q1 - b.min, True),
+    (r"\bshorter left whisker\b", lambda b: b.q1 - b.min, False),
+    (r"\blonger right whisker\b", lambda b: b.max - b.q3, True),
+    (r"\bshorter right whisker\b", lambda b: b.max - b.q3, False),
+    (r"\bhigher median\b|\bmedian is higher\b|\blarger median\b", lambda b: b.median, True),
+    (r"\blower median\b|\bmedian is lower\b|\bsmaller median\b", lambda b: b.median, False),
+    (r"\b(?:broader|wider|larger|greater) (?:overall )?range\b|\bspans? a (?:broader|wider|larger) range\b",
+     lambda b: b.max - b.min, True),
+]
+
+
+def _box_comparisons(sentences: list[str], ex: ExtractedValues) -> list[Issue]:
+    """Two boxes: "the upper plot has a longer left whisker" is checked from the five numbers.
+    Only sentences that name one of the boxes (by name or position) are checked."""
+    issues, boxes = [], ex.boxes
+    refs = [(r"\b(upper|top)\s+(box|plot|one)", 0), (r"\b(lower|bottom)\s+(box|plot|one)", 1)]
+    refs += [(r"\b" + re.escape(b.name) + r"\b", i) for i, b in enumerate(boxes) if b.name]
+    vals = [v for b in boxes for v in (b.min, b.q1, b.median, b.q3, b.max) if v is not None]
+    btol = max(0.04 * (max(vals) - min(vals)), 1e-9) if vals else 0
+    for s in sentences:
+        found = {i for pat, i in refs if re.search(pat, s, re.I)}
+        if len(found) != 1:
+            continue  # no box named, or both: the subject isn't clear
+        subj = found.pop()
+        for pat, measure, bigger in _BOX_CLAIMS:
+            if not re.search(pat, s, re.I):
+                continue
+            try:
+                diff = measure(boxes[subj]) - measure(boxes[1 - subj])
+            except TypeError:  # a part isn't drawn
+                continue
+            if (diff < -btol) if bigger else (diff > btol):
+                issues.append(Issue(kind="wrong_comparison", source="code",
+                                    detail=f"\"{s.strip()[:120]}\": the independent reading of the two boxes "
+                                           "says the opposite."))
+    return issues
 
 
 def _label_checks(desc: Description, ex: ExtractedValues) -> list[Issue]:
@@ -355,7 +566,7 @@ def _compare_values(desc: Description, ex: ExtractedValues, tol: float) -> list[
         for row in desc_pts:
             k = _key(row.label)
             if k in ref and abs(row.value - ref[k]) > tol:
-                issues.append(Issue(kind="wrong_number", source="code",
+                issues.append(Issue(kind="wrong_number", source="code", label=row.label,
                                     detail=f"'{row.label}': description says {row.value:g}, "
                                            f"independent reading says {ref[k]:g}."))
         return issues
@@ -384,7 +595,7 @@ def _compare_values(desc: Description, ex: ExtractedValues, tol: float) -> list[
                 pairs = [(d, min(ref_vals, key=lambda v: abs(v - d.value))) for d in rows]
             for d, v in pairs:
                 if abs(d.value - v) > tol:
-                    issues.append(Issue(kind="wrong_number", source="code",
+                    issues.append(Issue(kind="wrong_number", source="code", label=d.label, series=d.series,
                                         detail=f"'{d.label}'{f' ({d.series})' if d.series else ''}: description "
                                                f"says {d.value:g}, but the independent reading has "
                                                f"{', '.join(f'{x:g}' for x in by_label[k])} at this label."))
@@ -400,13 +611,13 @@ def _compare_values(desc: Description, ex: ExtractedValues, tol: float) -> list[
             # No series given: it must match one of the values at this label.
             options = [v for (lab, _), v in ref.items() if lab == k]
             if options and min(abs(row.value - v) for v in options) > tol:
-                issues.append(Issue(kind="wrong_number", source="code",
+                issues.append(Issue(kind="wrong_number", source="code", label=row.label,
                                     detail=f"'{row.label}': description says {row.value:g}, but the "
                                            f"independent reading has {', '.join(f'{v:g}' for v in options)}."))
             continue
         rs = mapping.get(row.series)
         if (k, rs) in ref and abs(row.value - ref[(k, rs)]) > tol:
-            issues.append(Issue(kind="wrong_number", source="code",
+            issues.append(Issue(kind="wrong_number", source="code", label=row.label, series=row.series,
                                 detail=f"'{row.label}' ({row.series}): description says {row.value:g}, "
                                        f"independent reading says {ref[(k, rs)]:g} ({rs})."))
     return issues

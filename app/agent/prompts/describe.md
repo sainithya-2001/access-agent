@@ -21,11 +21,15 @@ Write:
      drawn, and say so if a part is not drawn (e.g. no box, or no median line). The median can sit
      on an edge of the box: a box edge drawn differently (e.g. dashed) is the median line.
    - Describe only what is visible. Do not add facts from outside the figure.
+   - A value from the surrounding text may be given as the text's ("the text gives a first quartile
+     of 61"). Never state it as where a drawn part sits, how tall a bar is or where a point is: read
+     those from the figure, even when they differ from the text.
    - Ignore text cut off at the edge of the image (surrounding page text caught in the crop):
      never treat it as the figure's title or a label.
    - Write only about the figure. Never mention a fact-checker, verifier, feedback, a previous
      description, or that something is "not invented": the student reads every word.
-3. data_table: charts only, one row per data point: {"label": ..., "value": number, "series": ... or null}.
+3. data_table: charts only, one row per data point: {"label": ..., "value": number, "series": ... or null},
+   as read from the figure. One row per label and series; for a dot plot, the number of marks at each value.
    Box plots: one row per drawn part, label "min", "Q1", "median", "Q3" or "max", series = the box's name.
    Empty list for other types.
 4. latex: equations only, the equation in LaTeX. null otherwise.
