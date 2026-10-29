@@ -6,7 +6,46 @@ const state = { docs: [], docId: null, doc: null, figs: [], selected: null, dirt
 
 const STATUS_LABEL = {
   needs_review: "Needs review", auto_approved: "Auto-approved", approved: "Approved by staff",
-  edited: "Edited by staff", rejected: "Rejected", pending: "Pending",
+  edited: "Edited by staff", rejected: "Rejected", pending: "Re-running",
+};
+// Why a figure is in the queue (api.reason_code), in plain language, with the next step and the
+// field (or tool) that step needs. The technical reason stays under "Technical details".
+const REASONS = {
+  color_only: {
+    why: "The chart's lines or bars are told apart only by colour, and nothing in the figure says which is which.",
+    todo: "Find out which is which from the text or tables near the figure, and name each one in the long description.",
+    go: "long-desc", button: "Edit the long description",
+  },
+  no_scale: {
+    why: "The chart's value axis has no numbers, so exact values can't be read from it.",
+    todo: "Make sure the description compares the values (tallest, about twice as tall) rather than guessing numbers, unless the text states them.",
+    go: "long-desc", button: "Edit the long description",
+  },
+  unconfirmed_box: {
+    why: "The agent found this figure on its own but couldn't confirm that the box around it is right.",
+    todo: "Compare the crop with the page. If it cuts off part of the figure or takes in extra text, adjust the crop and the agent will describe it again.",
+    go: "crop", button: "Adjust crop",
+  },
+  checks_still_failing: {
+    why: "The agent rewrote the description, but the automatic checks still found problems.",
+    todo: "Read what the checks found, below, and correct the description.",
+    go: "alt-text", button: "Edit the alt text",
+  },
+  error: {
+    why: "Something went wrong while the agent worked on this figure.",
+    todo: "Write the description yourself, or adjust the crop to run the agent again.",
+    go: "alt-text", button: "Write the alt text",
+  },
+  no_description: {
+    why: "There is no description yet.",
+    todo: "Write the alt text, and a long description for charts and diagrams.",
+    go: "alt-text", button: "Write the alt text",
+  },
+  agent_unsure: {
+    why: "The agent wasn't sure its description is right.",
+    todo: "Check the description against the figure and fix anything that's wrong.",
+    go: "alt-text", button: "Edit the alt text",
+  },
 };
 const ACTION_LABEL = {
   classify: "Classified", extract_values: "Read the figure", describe: "Described", verify: "Verified",
@@ -53,7 +92,9 @@ function fmtTime(iso) {
   const d = new Date(iso);
   return d.toLocaleString(undefined, { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" });
 }
-function visibleFigs() { return $("filter-review").checked ? state.figs.filter(needsReview) : state.figs; }
+// Flagged figures first (in page order), then the rest.
+function queueOrder() { return [...state.figs.filter(needsReview), ...state.figs.filter((f) => !needsReview(f))]; }
+function visibleFigs() { return $("filter-review").checked ? state.figs.filter(needsReview) : queueOrder(); }
 
 // ---------- documents ----------
 async function loadDocs(preferred) {
@@ -86,6 +127,7 @@ async function loadDoc(id) {
 
   renderSummary();
   renderQueue();
+  pollPending();
   const fromHash = new URLSearchParams(location.hash.slice(1)).get("fig");
   const keep = [state.selected, fromHash].find((x) => x && state.figs.some((f) => f.id === x));
   const first = keep || (state.figs.find(needsReview) || state.figs[0])?.id;
@@ -125,14 +167,12 @@ function renderQueue() {
   $("queue-count").textContent = `${figs.length} of ${state.figs.length}`;
   $("queue-empty").hidden = figs.length > 0 || !state.figs.length;
   $("queue-list").innerHTML = figs.map((f) => {
-    const conf = f.confidence == null ? "" : f.confidence.toFixed(2);
-    const label = `${figName(f)}, ${STATUS_LABEL[f.status]}, ${pageLabel(f.page)}`
-      + (conf ? `, confidence ${conf}` : "");
+    const label = `${figName(f)}, ${STATUS_LABEL[f.status]}, ${pageLabel(f.page)}`;
     return `<li><button type="button" class="queue-item" data-id="${esc(f.id)}" aria-label="${esc(label)}"
       ${f.id === state.selected ? 'aria-current="true"' : ""}>
       <span class="dot ${f.status}" aria-hidden="true"></span>
       <span class="q-title" aria-hidden="true">${esc(figName(f))}</span>
-      <span class="q-conf" aria-hidden="true">${conf}</span>
+      <span class="q-status ${f.status}" aria-hidden="true">${esc(STATUS_LABEL[f.status])}</span>
       <span class="q-meta" aria-hidden="true">${esc(pageLabel(f.page))} · ${esc(typeLabel(f.type))}</span>
     </button></li>`;
   }).join("");
@@ -197,17 +237,53 @@ function renderPage(f) {
 }
 
 // ---------- detail panel ----------
-function confidenceHtml(f) {
-  if (f.confidence == null) {
-    return `<p class="fig-sub">${f.decorative ? "Decorative: no description needed, so nothing to verify." : "Not verified yet."}</p>`;
+// Secondary to the status line: the checker's score, labelled, with what it is measured against.
+function scoreHtml(f) {
+  if (f.confidence == null) return f.decorative ? `<p class="score">Decorative: no description needed, so nothing to check.</p>` : "";
+  return `<p class="score">Checker score ${f.confidence.toFixed(2)} out of 1 · auto-approval needs at least `
+    + `${PASS_THRESHOLD.toFixed(2)} and no failed checks · ${f.passed ? "these checks passed" : "these checks did not pass"}</p>`;
+}
+
+function lastEdit(f, actions) { return [...f.edits].reverse().find((e) => actions.includes(e.action)); }
+
+// One status line: what state the figure is in and why, in plain words, and what to do next.
+function statusHtml(f) {
+  const r = REASONS[f.reason_code];
+  let main, todo = "", go = "", extra = "";
+  if (f.status === "pending") {
+    main = "The agent is describing this figure again from the new crop. This takes about a minute.";
+  } else if (needsReview(f) && r) {
+    main = r.why;
+    todo = r.todo;
+    go = r.go === "crop"
+      ? `<button type="button" class="btn btn-quiet" data-action="crop">${esc(r.button)}</button>`
+      : `<button type="button" class="btn btn-quiet" data-goto="${r.go}">${esc(r.button)}</button>`;
+    const found = f.issues.filter((i) => i.detail);
+    if (["checks_still_failing", "agent_unsure"].includes(f.reason_code) && found.length) {
+      extra = `<ul class="found">${found.map((i) => `<li>${esc(i.detail)}</li>`).join("")}</ul>`;
+    }
+  } else if (f.status === "rejected") {
+    const e = lastEdit(f, ["reject"]);
+    main = `${e ? `By ${esc(e.who)}` : ""}${e && e.note ? `: “${esc(e.note)}”` : ""}${e ? "." : ""} The export flags it until it has a new description.`;
+    todo = "Write a new description and approve it, or adjust the crop to run the agent again.";
+    go = `<button type="button" class="btn btn-quiet" data-goto="alt-text">Edit the alt text</button>`;
+  } else if (f.status === "approved" || f.status === "edited") {
+    const e = lastEdit(f, ["approve", "edit"]);
+    main = e ? `By ${esc(e.who)}, ${esc(fmtTime(e.at))}.` : "";
+  } else if (f.status === "auto_approved") {
+    main = f.decorative ? "Marked decorative, so the export gives it empty alt text."
+      : "The description passed every automatic check.";
+  } else {
+    main = "Not checked yet.";
   }
-  const pct = Math.round(f.confidence * 100);
-  return `<div class="confidence">
-    <span class="c-label">Verifier confidence</span>
-    <span class="c-value">${f.confidence.toFixed(2)} <span class="hint">· ${f.passed ? "passed" : "did not pass"}</span></span>
-    <div class="c-bar" aria-hidden="true"><div class="c-fill ${f.passed ? "pass" : ""}" style="width:${pct}%"></div>
-      <div class="c-threshold" style="left:${PASS_THRESHOLD * 100}%"></div></div>
-    <span class="c-note">Auto-approval needs ${PASS_THRESHOLD.toFixed(2)} and no failed checks (marker on the bar).</span>
+  const draft = needsReview(f) && f.edits.length && f.edits[f.edits.length - 1].action === "save"
+    ? `<p class="status-draft">Draft saved by ${esc(f.edits[f.edits.length - 1].who)}; not approved yet.</p>` : "";
+  return `<div class="status-line ${f.status}">
+    <p class="status-main"><span class="dot ${f.status}" aria-hidden="true"></span><strong>${STATUS_LABEL[f.status]}.</strong> ${main}</p>
+    ${extra}
+    ${todo ? `<p class="status-todo"><strong>What to do:</strong> ${esc(todo)}</p>` : ""}
+    ${draft}
+    ${go ? `<div class="status-go">${go}</div>` : ""}
   </div>`;
 }
 
@@ -230,7 +306,8 @@ function valuesHtml(f) {
 
 function historyHtml(f) {
   if (!f.edits.length) return "";
-  const verb = { approve: "Approved", edit: "Edited and approved", reject: "Rejected" };
+  const verb = { approve: "Approved", edit: "Edited and approved", reject: "Rejected", save: "Saved a draft",
+                 recrop: "Drew a new crop and re-ran the agent" };
   return `<div class="section"><h3>Review history</h3><ul class="history">${f.edits.map((e) =>
     `<li>${verb[e.action]} by <strong>${esc(e.who)}</strong> · <time datetime="${esc(e.at)}">${esc(fmtTime(e.at))}</time>`
     + `${e.note ? `: “${esc(e.note)}”` : ""}</li>`).join("")}</ul></div>`;
@@ -238,44 +315,50 @@ function historyHtml(f) {
 
 function renderDetail(f) {
   const name = figName(f);
-  const reason = f.status === "rejected"
-    ? `<p class="reason rejected"><strong>Rejected.</strong> The export flags this figure until it has a new description.</p>`
-    : f.reason && needsReview(f) ? `<p class="reason"><strong>Why it's here:</strong> ${esc(f.reason)}</p>` : "";
   const caption = f.caption && f.caption.trim() !== name ? `<p class="fig-sub">${esc(f.caption)}</p>` : "";
   const issues = f.issues.length
     ? `<ul class="issues">${f.issues.map((i) => `<li><span class="issue-kind">${esc(i.kind.replace(/_/g, " "))}</span>`
       + `<span class="issue-src">${i.source === "code" ? "code check" : "model check"}</span><br>${esc(i.detail)}</li>`).join("")}</ul>`
     : `<p class="no-issues">No issues found in the last check.</p>`;
+  const pending = f.status === "pending";
   $("detail-body").innerHTML = `
-    <div class="eyebrow"><span class="badge ${f.status}"><span class="dot ${f.status}" aria-hidden="true"></span>${STATUS_LABEL[f.status]}</span>
-      <span>${esc(typeLabel(f.type))}</span><span aria-hidden="true">·</span><span>${esc(pageLabel(f.page))}</span></div>
+    <div class="eyebrow"><span>${esc(typeLabel(f.type))}</span><span aria-hidden="true">·</span><span>${esc(pageLabel(f.page))}</span></div>
     <h2 class="fig-title" id="detail-heading" tabindex="-1">${esc(name)}</h2>
     ${caption}
-    ${reason}
-    ${confidenceHtml(f)}
-    <figure class="crop"><img src="${figPath(f.id)}/crop" alt="${esc(name)} as cropped from the page"></figure>
+    ${statusHtml(f)}
+    <figure class="crop"><img src="${figPath(f.id)}/crop?v=${encodeURIComponent(f.crop_version || "")}" alt="${esc(name)} as cropped from the page">
+      <figcaption><button type="button" class="linklike" data-action="crop" ${pending ? "disabled" : ""}>Adjust crop</button>
+        <span class="hint">if the box cuts off part of the figure or takes in extra text</span></figcaption></figure>
     <form id="desc-form" novalidate>
       <div class="field">
-        <label for="alt-text">Alt text <span class="counter" id="alt-counter" aria-live="off"></span></label>
-        <textarea id="alt-text" rows="3" maxlength="300" aria-describedby="alt-hint">${esc(f.alt_text)}</textarea>
-        <p class="hint" id="alt-hint">${f.decorative ? "Marked decorative, so the export uses empty alt text." : `One or two sentences, up to about ${ALT_RECOMMENDED} characters.`}</p>
+        <label for="alt-text">Alt text</label>
+        <textarea id="alt-text" rows="3" maxlength="300" aria-describedby="alt-hint alt-counter" ${pending ? "readonly" : ""}>${esc(f.alt_text)}</textarea>
+        <p class="hint" id="alt-hint">${f.decorative ? "Marked decorative, so the export uses empty alt text." : `One or two sentences. About ${ALT_RECOMMENDED} characters or fewer reads best; put detail in the long description.`}</p>
+        <p class="counter" id="alt-counter"></p>
       </div>
       <div class="field">
         <label for="long-desc">Long description</label>
-        <textarea id="long-desc" rows="7" aria-describedby="long-hint">${esc(f.long_description)}</textarea>
+        <textarea id="long-desc" rows="7" aria-describedby="long-hint" ${pending ? "readonly" : ""}>${esc(f.long_description)}</textarea>
         <p class="hint" id="long-hint">Linked from the image in the export. Charts also get a data table from the values below.</p>
       </div>
       ${f.latex ? `<div class="field"><span class="label">Equation (LaTeX, exported as MathML)</span><pre class="math-src">${esc(f.latex)}</pre></div>` : ""}
     </form>
-    <div class="section"><h3>Verifier issues <span class="count">(${f.issues.length})</span></h3>${issues}</div>
-    ${valuesHtml(f)}
-    <div class="section"><h3>How the agent got here</h3>
-      <ol class="timeline">${f.trace.map((t) => `<li class="${traceClass(t)}"><span class="t-dot" aria-hidden="true"></span>
-        <span class="t-action">${esc(ACTION_LABEL[t.action] || t.action)}</span><span class="t-text">${esc(t.summary)}</span></li>`).join("")}</ol></div>
-    ${historyHtml(f)}`;
+    ${historyHtml(f)}
+    <details class="tech" id="tech"${state.techOpen ? " open" : ""}><summary>Technical details</summary>
+      ${scoreHtml(f)}
+      ${f.reason ? `<p class="tech-reason"><strong>Agent's reason:</strong> ${esc(f.reason)}</p>` : ""}
+      <div class="section"><h3>Checker issues <span class="count">(${f.issues.length})</span></h3>${issues}</div>
+      ${valuesHtml(f)}
+      <div class="section"><h3>How the agent got here</h3>
+        <ol class="timeline">${f.trace.map((t) => `<li class="${traceClass(t)}"><span class="t-dot" aria-hidden="true"></span>
+          <span class="t-action">${esc(ACTION_LABEL[t.action] || t.action)}</span><span class="t-text">${esc(t.summary)}</span></li>`).join("")}</ol></div>
+    </details>`;
+  $("tech").addEventListener("toggle", (e) => { state.techOpen = e.target.open; });
   $("actionbar").hidden = false;
   $("reject-box").hidden = true;
+  $("crop-panel").hidden = true;
   $("actions").hidden = false;
+  for (const b of $("actions").querySelectorAll("button")) b.disabled = pending;
   for (const id of ["alt-text", "long-desc"]) $(id).addEventListener("input", onEdit);
   updateCounter();
   updateButtons();
@@ -284,8 +367,9 @@ function renderDetail(f) {
 function updateCounter() {
   const n = $("alt-text").value.length;
   const c = $("alt-counter");
-  c.textContent = `${n} / ${ALT_RECOMMENDED}`;
-  c.classList.toggle("over", n > ALT_RECOMMENDED);
+  const over = n > ALT_RECOMMENDED;
+  c.textContent = `${n} characters` + (over ? `: longer than the usual ${ALT_RECOMMENDED}. That's allowed (up to 300); consider moving detail to the long description.` : "");
+  c.classList.toggle("long", over);
 }
 function onEdit() {
   const f = current();
@@ -294,19 +378,32 @@ function onEdit() {
   updateButtons();
 }
 function updateButtons() {
-  $("approve-btn").innerHTML = (state.dirty ? "Approve with edits" : "Approve") + " <kbd>A</kbd>";
   $("discard-btn").hidden = !state.dirty;
+  $("save-btn").disabled = !state.dirty;
 }
 function current() { return state.figs.find((x) => x.id === state.selected); }
 
 // ---------- review actions ----------
+// The reviewer's name: entered once at the top, kept in this browser.
 function reviewer() {
-  const who = $("reviewer").value.trim();
+  const who = (store("reviewer") || "").trim();
   if (!who) {
-    banner("Enter your name in Reviewer first, so the decision is recorded with who made it.", "error");
-    $("reviewer").focus();
+    banner("Enter your name at the top first (once), so each decision is recorded with who made it.", "error");
+    showReviewerForm();
   }
   return who;
+}
+function showReviewer() {
+  const who = (store("reviewer") || "").trim();
+  $("reviewer-name").textContent = who;
+  $("reviewer-show").hidden = !who;
+  $("reviewer-form").hidden = !!who;
+}
+function showReviewerForm() {
+  $("reviewer").value = store("reviewer") || "";
+  $("reviewer-show").hidden = true;
+  $("reviewer-form").hidden = false;
+  $("reviewer").focus();
 }
 
 async function decide(action, extra = {}) {
@@ -314,7 +411,7 @@ async function decide(action, extra = {}) {
   const who = reviewer();
   if (!f || !who) return;
   const body = { action, who, ...extra };
-  if (action === "edit") { body.alt_text = $("alt-text").value.trim(); body.long_description = $("long-desc").value.trim(); }
+  if (action === "edit" || action === "save") { body.alt_text = $("alt-text").value.trim(); body.long_description = $("long-desc").value.trim(); }
   try {
     const updated = await api(`${figPath(f.id)}/review`, {
       method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body),
@@ -323,6 +420,13 @@ async function decide(action, extra = {}) {
     state.dirty = false;
     banner("");
     renderSummary();
+    if (action === "save") {  // a draft: stay on this figure
+      renderQueue();
+      select(f.id, { focus: "none" });
+      $("approve-btn").focus();
+      announce(`Saved your edits to ${figName(f)}. Not approved yet.`);
+      return;
+    }
     const left = state.figs.filter(needsReview).length;
     const verb = { approve: "Approved", edit: "Saved edits and approved", reject: "Rejected" }[action];
     // Move on to the next figure that still needs review (after this one, wrapping around).
@@ -354,6 +458,103 @@ function closeReject() {
   $("reject-btn").focus();
 }
 
+// ---------- adjust crop ----------
+// Draw a new box on the page image (or move/resize it with the keyboard), then re-run the agent.
+const crop = { on: false, box: null, drag: null };
+
+function pagePts() { const p = pageInfo(current().page); return { w: p.width, h: p.height }; }
+function drawCropRect() {
+  const { w, h } = pagePts();
+  const b = crop.box;
+  const r = $("crop-rect");
+  r.style.left = `${(b.x0 / w) * 100}%`; r.style.top = `${(b.y0 / h) * 100}%`;
+  r.style.width = `${((b.x1 - b.x0) / w) * 100}%`; r.style.height = `${((b.y1 - b.y0) / h) * 100}%`;
+  r.textContent = `New crop box: ${Math.round(b.x1 - b.x0)} by ${Math.round(b.y1 - b.y0)} points`;
+}
+function startCrop() {
+  const f = current();
+  if (!f || f.status === "pending" || !pageInfo(f.page)) return;
+  crop.on = true;
+  crop.box = { ...f.bbox };
+  $("page-frame").classList.add("cropping");
+  $("crop-rect").hidden = false;
+  drawCropRect();
+  $("actions").hidden = true;
+  $("reject-box").hidden = true;
+  $("crop-panel").hidden = false;
+  $("crop-rect").focus();
+  announce("Adjusting the crop. Drag on the page, or use the arrow keys on the crop box.");
+}
+function endCrop() {
+  crop.on = false; crop.drag = null;
+  $("page-frame").classList.remove("cropping");
+  $("crop-rect").hidden = true;
+  $("crop-panel").hidden = true;
+  $("actions").hidden = false;
+}
+function toPts(ev) {
+  const r = $("page-frame").getBoundingClientRect();
+  const { w, h } = pagePts();
+  return { x: Math.min(Math.max((ev.clientX - r.left) / r.width, 0), 1) * w,
+           y: Math.min(Math.max((ev.clientY - r.top) / r.height, 0), 1) * h };
+}
+$("page-frame").addEventListener("pointerdown", (ev) => {
+  if (!crop.on) return;
+  ev.preventDefault();
+  crop.drag = toPts(ev);
+  $("page-frame").setPointerCapture(ev.pointerId);
+});
+$("page-frame").addEventListener("pointermove", (ev) => {
+  if (!crop.on || !crop.drag) return;
+  const a = crop.drag, b = toPts(ev);
+  crop.box = { x0: Math.min(a.x, b.x), y0: Math.min(a.y, b.y), x1: Math.max(a.x, b.x), y1: Math.max(a.y, b.y) };
+  drawCropRect();
+});
+$("page-frame").addEventListener("pointerup", () => { if (crop.drag) { crop.drag = null; $("crop-rect").focus(); } });
+$("crop-rect").addEventListener("keydown", (ev) => {
+  const step = 4;  // points
+  const d = { ArrowLeft: [-step, 0], ArrowRight: [step, 0], ArrowUp: [0, -step], ArrowDown: [0, step] }[ev.key];
+  if (ev.key === "Escape") { ev.preventDefault(); endCrop(); $("detail-heading").focus(); return; }
+  if (!d) return;
+  ev.preventDefault();
+  const b = crop.box;
+  if (ev.shiftKey) { b.x1 = Math.max(b.x0 + 10, b.x1 + d[0]); b.y1 = Math.max(b.y0 + 10, b.y1 + d[1]); }
+  else { b.x0 += d[0]; b.x1 += d[0]; b.y0 += d[1]; b.y1 += d[1]; }
+  drawCropRect();
+});
+async function confirmCrop() {
+  const f = current();
+  const who = reviewer();
+  if (!f || !who) return;
+  try {
+    const updated = await api(`${figPath(f.id)}/recrop`, {
+      method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ who, ...crop.box }),
+    });
+    Object.assign(f, updated);
+    endCrop();
+    renderSummary(); renderQueue(); select(f.id, { focus: "detail" });
+    announce(`New crop saved. The agent is describing ${figName(f)} again.`);
+    pollPending();
+  } catch (err) {
+    banner(`Could not re-run the agent: ${err.message}`, "error");
+  }
+}
+function pollPending() {
+  clearTimeout(state.pendingPoll);
+  if (!state.figs.some((f) => f.status === "pending")) return;
+  state.pendingPoll = setTimeout(async () => {
+    const was = state.figs.filter((f) => f.status === "pending").map((f) => f.id);
+    state.figs = await api(`${docPath(state.docId)}/figures`);
+    renderSummary(); renderQueue();
+    const done = was.filter((id) => state.figs.find((f) => f.id === id)?.status !== "pending");
+    if (done.includes(state.selected) && !state.dirty) {
+      select(state.selected);
+      announce(`${figName(current())} is ready: ${STATUS_LABEL[current().status]}.`);
+    }
+    pollPending();
+  }, 3000);
+}
+
 // ---------- upload ----------
 async function upload(ev) {
   ev.preventDefault();
@@ -382,6 +583,8 @@ document.addEventListener("keydown", (ev) => {
   if (document.querySelector("dialog[open]")) return;
   const t = ev.target;
   const typing = t.matches("input, textarea, select");
+  if (crop.on) return;  // the crop box handles its own keys
+  if (ev.key.toLowerCase() === "s" && (ev.ctrlKey || ev.metaKey) && state.dirty) { ev.preventDefault(); decide("save"); return; }
   if (typing) {
     if (ev.key === "Enter" && (ev.ctrlKey || ev.metaKey) && (t.id === "alt-text" || t.id === "long-desc")) { ev.preventDefault(); approve(); }
     else if (ev.key === "Enter" && (ev.ctrlKey || ev.metaKey) && t.id === "reject-note") { ev.preventDefault(); $("reject-confirm").click(); }
@@ -423,8 +626,26 @@ $("boxes").addEventListener("click", (e) => {
   const b = e.target.closest(".box");
   if (b) select(b.dataset.id, { focus: "queue" });
 });
-$("reviewer").value = store("reviewer") || "";
-$("reviewer").addEventListener("change", (e) => { store("reviewer", e.target.value.trim()); banner(""); });
+$("reviewer-form").addEventListener("submit", (e) => {
+  e.preventDefault();
+  const who = $("reviewer").value.trim();
+  if (!who) { $("reviewer").focus(); return; }
+  store("reviewer", who);
+  banner("");
+  showReviewer();
+  $("reviewer-change").focus();
+  announce(`Reviewing as ${who}.`);
+});
+$("reviewer-change").addEventListener("click", showReviewerForm);
+$("save-btn").addEventListener("click", () => decide("save"));
+$("crop-cancel").addEventListener("click", () => { endCrop(); $("detail-heading").focus(); });
+$("crop-confirm").addEventListener("click", confirmCrop);
+$("detail-body").addEventListener("click", (e) => {
+  const b = e.target.closest("[data-goto], [data-action]");
+  if (!b) return;
+  if (b.dataset.action === "crop") startCrop();
+  else { const el = $(b.dataset.goto); el.scrollIntoView({ block: "center" }); el.focus(); }
+});
 $("approve-btn").addEventListener("click", approve);
 $("reject-btn").addEventListener("click", openReject);
 $("reject-cancel").addEventListener("click", closeReject);
@@ -441,6 +662,7 @@ for (const a of [$("export-link"), $("preview-link")]) {
   a.addEventListener("click", (e) => { if (a.getAttribute("aria-disabled") === "true") e.preventDefault(); });
 }
 window.addEventListener("beforeunload", (e) => { if (state.dirty) e.preventDefault(); });
-$("filter-review").checked = store("filter") === "review";
+$("filter-review").checked = store("filter") !== "all";  // on by default
+showReviewer();
 
 loadDocs().catch((e) => banner(`Could not load documents: ${e.message}`, "error"));

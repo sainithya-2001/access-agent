@@ -8,9 +8,11 @@ Usage:
 
 Setup (once): pip install playwright && python -m playwright install chromium && npm install
 Rules: WCAG 2.0/2.1/2.2 A and AA, plus axe best practices (heading order, landmarks, ...).
-The review screen is checked in each state staff see (queue, filter on, reject form, dialogs), and
-with a keyboard-only walk: skip link first, J/K move the selection, the action buttons are reachable
-with Tab, and every focused element shows a visible focus indicator. Nothing is approved or saved.
+The review screen is checked in each state staff see (queue, filter on and off, technical details,
+an unsaved edit, the crop tool, reject form, name form, dialogs), and with a keyboard-only walk: skip
+link first, J/K move the selection, the action buttons are reachable with Tab, every focused element
+shows a visible focus indicator, the status line's button reaches its field, and the crop box moves
+and resizes with the arrow keys. Nothing is approved, saved or re-run.
 Exit code 1 if there are violations.
 """
 
@@ -146,6 +148,37 @@ def keyboard_walk(page) -> list[str]:
     page.keyboard.press("k")
     if page.inner_text("#detail-heading") != before:
         problems.append("K did not move back to the previous figure")
+    # The status line's button (if any) moves focus to the field it names.
+    go = page.locator(".status-go [data-goto]")
+    if go.count():
+        target = go.first.get_attribute("data-goto")
+        go.first.focus()
+        page.keyboard.press("Enter")
+        if page.evaluate("document.activeElement.id") != target:
+            problems.append(f"the status line button did not move focus to #{target}")
+    page.locator(".queue-item").first.focus()
+    # Typing makes Save available; Ctrl+S is not sent (it would save).
+    page.keyboard.press("e")
+    page.keyboard.type(" x")
+    if page.locator("#save-btn").is_disabled():
+        problems.append("Save did not become available after an edit")
+    page.click("#discard-btn")
+    # The crop tool: open it from the keyboard, move and resize the box with the arrow keys, Esc leaves.
+    page.locator(".crop [data-action=crop]").focus()
+    page.keyboard.press("Enter")
+    if page.evaluate("document.activeElement.id") != "crop-rect":
+        problems.append("Adjust crop did not focus the crop box")
+    else:
+        box = page.locator("#crop-rect").bounding_box()
+        page.keyboard.press("ArrowRight")
+        page.keyboard.press("Shift+ArrowDown")
+        moved = page.locator("#crop-rect").bounding_box()
+        if not (moved["x"] > box["x"] and moved["height"] > box["height"]):
+            problems.append("arrow keys did not move / Shift+arrows did not resize the crop box")
+        page.keyboard.press("Escape")
+        if not page.locator("#crop-rect").is_hidden():
+            problems.append("Esc did not close the crop tool")
+    page.locator(".queue-item").first.focus()
     # E jumps into the alt text box, Esc leaves it again.
     page.keyboard.press("e")
     if page.evaluate("document.activeElement.id") != "alt-text":
@@ -180,6 +213,18 @@ def check_review(url: str | None) -> int:
             if item.count():
                 item.click()
                 total += report("figure needing review", run_axe(page))
+            page.click("#tech summary")
+            total += report("technical details open", run_axe(page))
+            page.click("#tech summary")
+            page.fill("#alt-text", page.input_value("#alt-text") + " (edited)")
+            total += report("unsaved edit", run_axe(page))
+            page.click("#discard-btn")
+            page.click(".crop [data-action=crop]")
+            total += report("crop tool open", run_axe(page))
+            page.click("#crop-cancel")
+            page.click("#reviewer-change")
+            total += report("reviewer name form", run_axe(page))
+            page.click("#reviewer-form button[type=submit]")
             page.check("#filter-review", force=True)
             total += report("needs-review filter on", run_axe(page))
             page.click("#reject-btn")

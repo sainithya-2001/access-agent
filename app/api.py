@@ -18,10 +18,14 @@ from fastapi.responses import FileResponse, HTMLResponse, Response
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
+import pymupdf as fitz
+
 from app import pipeline, store
+from app.agent.orchestrator import COLOR_ONLY_REASON, NO_SCALE_REASON, FigureAgent
 from app.assemble import assemble, printed_page_numbers
+from app.detect import _crop
 from app.ingest import _doc_id
-from app.models import FigureResult, Status
+from app.models import BBox, FigureResult, Status
 
 ROOT = Path(__file__).resolve().parents[1]
 UPLOADS = ROOT / "data" / "uploads"
@@ -92,6 +96,29 @@ def document(doc_id: str):
     return out
 
 
+def reason_code(res: FigureResult) -> str | None:
+    """Why a figure is in the queue, as a code the UI turns into plain language and a next step.
+    The full technical reason is sent too, for the "Technical details" view."""
+    if res.status == Status.pending:
+        return "processing"
+    if res.status != Status.needs_review:
+        return None
+    r = res.escalation_reason or res.region.review_reason or ""
+    if r.startswith(COLOR_ONLY_REASON[:40]):
+        return "color_only"
+    if r.startswith(NO_SCALE_REASON):
+        return "no_scale"
+    if res.region.review_reason and r == res.region.review_reason:
+        return "unconfirmed_box"
+    if r.startswith(("Rewrite limit reached", "Action limit reached")):
+        return "checks_still_failing"
+    if "processing step failed" in r or "could not be parsed" in r:
+        return "error"
+    if res.description is None or not res.description.alt_text:
+        return "no_description"
+    return "agent_unsure"
+
+
 def _figure_json(fid: str, res: FigureResult) -> dict:
     d, v, c, ex = res.description, res.verification, res.classification, res.extracted
     first = next((t.summary for t in res.trace if t.action == "describe"), None)
@@ -100,6 +127,8 @@ def _figure_json(fid: str, res: FigureResult) -> dict:
         "region_id": res.region.id,
         "page": res.region.page,
         "bbox": res.region.bbox.model_dump(),
+        # Changes whenever the crop does, so the browser doesn't show a cached old crop.
+        "crop_version": "{}:{:.0f},{:.0f},{:.0f},{:.0f}".format(Path(res.region.crop_path).name, *res.region.bbox.model_dump().values()),
         "caption": res.region.caption,
         "source": res.region.source,
         "status": res.status.value,
@@ -109,6 +138,7 @@ def _figure_json(fid: str, res: FigureResult) -> dict:
         "passed": v.passed if v else None,
         "issues": [i.model_dump() for i in v.issues] if v else [],
         "reason": res.escalation_reason or res.region.review_reason,
+        "reason_code": reason_code(res),
         "alt_text": d.alt_text if d else "",
         "long_description": d.long_description if d else "",
         "latex": d.latex if d else None,
@@ -163,7 +193,7 @@ def crop(fid: str):
 # ---------- review ----------
 
 class ReviewIn(BaseModel):
-    action: str = Field(pattern="^(approve|edit|reject)$")
+    action: str = Field(pattern="^(save|approve|edit|reject)$")
     who: str = Field(min_length=1, max_length=80)
     alt_text: str | None = Field(default=None, max_length=300)
     long_description: str | None = Field(default=None, max_length=8000)
@@ -173,10 +203,52 @@ class ReviewIn(BaseModel):
 @app.post("/api/figures/{fid}/review")
 def review(fid: str, body: ReviewIn):
     _fig_or_404(fid)
-    if body.action == "edit" and not (body.alt_text or "").strip():
+    if body.action in ("edit", "save") and not (body.alt_text or "").strip():
         raise HTTPException(422, "Alt text can't be empty; reject the figure or mark it decorative instead")
     res = store.review(con, fid, body.action, body.who.strip(), body.alt_text, body.long_description,
                        body.note)
+    return _figure_json(fid, res)
+
+
+class RecropIn(BaseModel):
+    """The new box, in PDF points on the figure's page."""
+    who: str = Field(min_length=1, max_length=80)
+    x0: float
+    y0: float
+    x1: float
+    y1: float
+
+
+def _rerun(key: str, pdf_path: str, res: FigureResult) -> None:
+    with _lock:
+        try:
+            out = FigureAgent(res.region, pdf_path).run()
+        except Exception as e:  # FigureAgent.run() doesn't raise, but keep the figure out of 'pending'
+            res.status, res.escalation_reason = Status.needs_review, f"Re-run failed: {e.__class__.__name__}"
+            out = res
+        store.save_figure(con, key, out)
+
+
+@app.post("/api/figures/{fid}/recrop", status_code=202)
+def recrop(fid: str, body: RecropIn, tasks: BackgroundTasks):
+    """Staff drew a new box around the figure: crop it again and re-run the agent on it."""
+    res = _fig_or_404(fid)
+    key = fid.rsplit(":", 1)[0]
+    row = _doc_or_404(key)
+    _, page = _page(key, res.region.page)
+    x0, x1 = sorted((max(0.0, body.x0), min(page.width, body.x1)))
+    y0, y1 = sorted((max(0.0, body.y0), min(page.height, body.y1)))
+    if x1 - x0 < 10 or y1 - y0 < 10:
+        raise HTTPException(422, "The box is too small; draw it around the whole figure")
+    pdf_page = fitz.open(row["source_path"])[res.region.page - 1]
+    path = Path(res.region.crop_path).with_name(f"{res.region.id}_staff.png")
+    region = res.region.model_copy(update={
+        "bbox": BBox(x0=x0, y0=y0, x1=x1, y1=y1), "source": "staff",
+        "crop_path": _crop(pdf_page, fitz.Rect(x0, y0, x1, y1), path),
+        "review_reason": None,  # a person drew this box: no longer an unconfirmed detection
+    })
+    res = store.start_recrop(con, fid, body.who.strip(), region)
+    tasks.add_task(_rerun, key, row["source_path"], FigureResult(region=region))
     return _figure_json(fid, res)
 
 

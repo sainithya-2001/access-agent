@@ -33,8 +33,14 @@
       <span>Needs review only</span>
     </label>
     <div class="reviewer">
-      <label for="reviewer">Reviewer</label>
-      <input id="reviewer" type="text" autocomplete="name" placeholder="Your name" size="12">
+      <p class="reviewer-show" id="reviewer-show" hidden>Reviewing as <strong id="reviewer-name"></strong>
+        <button type="button" class="linklike" id="reviewer-change">Change<span class="visually-hidden"> reviewer name</span></button></p>
+      <form class="reviewer-edit" id="reviewer-form">
+        <label for="reviewer">Your name</label>
+        <input id="reviewer" type="text" autocomplete="name" size="12" aria-describedby="reviewer-hint">
+        <button type="submit" class="btn btn-quiet">Save name</button>
+        <span class="visually-hidden" id="reviewer-hint">Saved in this browser and recorded with every decision you make.</span>
+      </form>
     </div>
     <button type="button" class="btn btn-quiet" id="upload-open">Upload PDF</button>
     <a class="btn btn-quiet" id="preview-link" href="#" target="_blank" rel="noopener">Preview<span class="visually-hidden"> exported HTML (opens in a new tab)</span></a>
@@ -68,6 +74,7 @@
       <div class="page-frame" id="page-frame">
         <img id="page-image" alt="">
         <div class="boxes" id="boxes" aria-hidden="true"></div>
+        <button type="button" class="crop-rect" id="crop-rect" aria-describedby="crop-help" hidden>New crop box</button>
       </div>
     </div>
   </section>
@@ -80,6 +87,14 @@
       </div>
     </div>
     <div class="actionbar" id="actionbar" hidden>
+      <div class="crop-panel" id="crop-panel" hidden>
+        <p id="crop-help">Drag on the page to draw a new box around the whole figure, including its axis labels.
+          Or focus the box and use the arrow keys to move it, Shift + arrow keys to resize it.</p>
+        <div class="reject-actions">
+          <button type="button" class="btn btn-quiet" id="crop-cancel">Cancel</button>
+          <button type="button" class="btn btn-primary" id="crop-confirm">Re-run the agent on this crop</button>
+        </div>
+      </div>
       <div class="reject-box" id="reject-box" hidden>
         <label for="reject-note">Why is this description wrong? <span class="hint">(optional)</span></label>
         <textarea id="reject-note" rows="2"></textarea>
@@ -90,6 +105,7 @@
       </div>
       <div class="actions" id="actions">
         <button type="button" class="btn btn-quiet" id="discard-btn" hidden>Discard edits</button>
+        <button type="button" class="btn btn-quiet" id="save-btn" disabled>Save</button>
         <button type="button" class="btn btn-outline-danger" id="reject-btn">Reject <kbd>R</kbd></button>
         <button type="button" class="btn btn-primary" id="approve-btn">Approve <kbd>A</kbd></button>
       </div>
@@ -135,6 +151,7 @@
       <tr><td><kbd>J</kbd></td><td>Next figure in the queue</td></tr>
       <tr><td><kbd>K</kbd></td><td>Previous figure</td></tr>
       <tr><td><kbd>A</kbd></td><td>Approve (with your edits, if any)</td></tr>
+      <tr><td><kbd>Ctrl</kbd> + <kbd>S</kbd></td><td>Save your edits without approving</td></tr>
       <tr><td><kbd>R</kbd></td><td>Reject</td></tr>
       <tr><td><kbd>E</kbd></td><td>Edit the alt text</td></tr>
       <tr><td><kbd>Ctrl</kbd> + <kbd>Enter</kbd></td><td>Approve while typing in a text box</td></tr>

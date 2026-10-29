@@ -46,7 +46,7 @@ CREATE TABLE IF NOT EXISTS figures (
 CREATE TABLE IF NOT EXISTS edits (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   figure_id TEXT NOT NULL REFERENCES figures(id),
-  action TEXT NOT NULL,          -- approve | edit | reject
+  action TEXT NOT NULL,          -- save | approve | edit | reject | recrop
   who TEXT NOT NULL,
   at TEXT NOT NULL,
   alt_text TEXT,
@@ -155,19 +155,21 @@ def edits_for(con, fid: str) -> list[dict]:
 
 def review(con, fid: str, action: str, who: str, alt_text: str | None = None,
            long_description: str | None = None, note: str | None = None) -> FigureResult:
-    """Record a human decision. approve keeps the text, edit replaces it, reject flags it."""
+    """Record a human decision. save replaces the text and keeps the status (a draft); approve keeps
+    the text, edit replaces it and approves, reject flags it."""
     res = get_figure(con, fid)
     if res is None:
         raise KeyError(fid)
     previous = res.status.value
-    if action == "edit":
+    if action in ("edit", "save"):
         if res.description is None:
             from app.models import Description
             res.description = Description(alt_text="")
         res.description.alt_text = alt_text if alt_text is not None else res.description.alt_text
         if long_description is not None:
             res.description.long_description = long_description
-        res.status = Status.edited
+        if action == "edit":
+            res.status = Status.edited
     elif action == "approve":
         res.status = Status.approved
     elif action == "reject":
@@ -177,8 +179,28 @@ def review(con, fid: str, action: str, who: str, alt_text: str | None = None,
     with con:
         con.execute("""INSERT INTO edits (figure_id, action, who, at, alt_text, long_description, note,
             previous_status) VALUES (?, ?, ?, ?, ?, ?, ?, ?)""",
-                    (fid, action, who, now(), alt_text if action == "edit" else None,
-                     long_description if action == "edit" else None, note, previous))
+                    (fid, action, who, now(), alt_text if action in ("edit", "save") else None,
+                     long_description if action in ("edit", "save") else None, note, previous))
+        con.execute("UPDATE figures SET status = ?, result_json = ?, updated_at = ? WHERE id = ?",
+                    (res.status.value, res.model_dump_json(), now(), fid))
+    return res
+
+
+def start_recrop(con, fid: str, who: str, region: Region) -> FigureResult:
+    """Staff drew a new box: store the new region (so its crop is served at once), record it, and
+    mark the figure pending until the agent has run again."""
+    res = get_figure(con, fid)
+    if res is None:
+        raise KeyError(fid)
+    previous = res.status.value
+    res.region = region
+    res.status = Status.pending
+    res.escalation_reason = None
+    bbox = region.bbox
+    note = f"New crop: x {bbox.x0:.0f}–{bbox.x1:.0f}, y {bbox.y0:.0f}–{bbox.y1:.0f} (PDF points)"
+    with con:
+        con.execute("""INSERT INTO edits (figure_id, action, who, at, note, previous_status)
+            VALUES (?, 'recrop', ?, ?, ?, ?)""", (fid, who, now(), note, previous))
         con.execute("UPDATE figures SET status = ?, result_json = ?, updated_at = ? WHERE id = ?",
                     (res.status.value, res.model_dump_json(), now(), fid))
     return res

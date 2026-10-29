@@ -203,8 +203,8 @@ def _figure(r: Region, res: FigureResult | None, review: list[tuple[str, str]]) 
 
     if has_long:
         paras = "".join(f"<p>{e(_clean(p))}</p>" for p in desc.long_description.split("\n\n") if p.strip())
-        parts.append(f'<div class="long-desc" id="{fid}-desc"><p class="long-desc-label">'
-                     f"Description of {e(name)}:</p>{paras}</div>")
+        label = "Description" if caption else f"Description of {e(name)}"  # no caption: name it here
+        parts.append(f'<div class="long-desc" id="{fid}-desc"><p class="long-desc-label">{label}</p>{paras}</div>')
     if res and kind == "chart" and not decorative:
         parts.append(_chart_table(res, fid, name))
     parts.append("</div>")
@@ -408,7 +408,9 @@ def assemble(doc: Document, regions: list[Region], results: dict[str, FigureResu
     book = _book_title(doc)
     chapter = _chapter_title(doc) or book
     shown = sorted(printed[p.number] for p in doc.pages if p.number in printed)
-    span = _ranges([int(x) for x in shown]) if shown else _ranges([p.number for p in doc.pages])
+    pdf_span = _ranges([p.number for p in doc.pages])
+    # Both numbering systems: the book's printed page numbers, and the PDF's (what staff selected).
+    span = f"pages {_ranges([int(x) for x in shown])} (PDF pages {pdf_span})" if shown else f"PDF pages {pdf_span}"
     review_html = ""
     if review:
         lis = "".join(f'<li><a href="#{fid}">{e(text)}</a></li>' for fid, text in review)
@@ -416,9 +418,9 @@ def assemble(doc: Document, regions: list[Region], results: dict[str, FigureResu
                        f'<h2 id="review-heading">Staff review: {len(review)} item{"s" if len(review) != 1 else ""} '
                        f"to check</h2><ul>{lis}</ul></section>")
     return PAGE.format(
-        title=e(f"{chapter} (pages {span}) | {book}"),
+        title=e(f"{chapter}, {span} | {book}"),
         h1=e(chapter),
-        intro=e(f"Accessible version of pages {span} of {book}."),
+        intro=e(f"Accessible version of {span} of {book}."),
         review=review_html,
         body="\n".join(out),
         source=e(f"{book}, OpenStax, licensed under CC BY 4.0. PDF pages {first}–{last}."),
