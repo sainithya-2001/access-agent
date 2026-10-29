@@ -11,6 +11,7 @@ Inject types: wrong_number, wrong_trend, missing_label, invented_detail, wrong_l
 import argparse
 import json
 import sys
+import time
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -21,6 +22,7 @@ from app.agent import tools  # noqa: E402
 from app.agent.orchestrator import FigureAgent  # noqa: E402
 from app.detect import detect  # noqa: E402
 from app.ingest import ingest  # noqa: E402
+from app.llm import LOG_PATH, get_client  # noqa: E402
 from scripts.run_ingest import pick_pdf  # noqa: E402
 from scripts.test_verifier import ERROR_TYPES, plant  # noqa: E402
 
@@ -37,9 +39,12 @@ def main() -> None:
     doc = ingest(pdf, args.pages)
     regions, _ = detect(doc)
     figures = [r for r in regions if r.kind == "figure"]
+    backend = get_client(args.backend)[2]
+    log_start = sum(1 for _ in open(LOG_PATH, encoding="utf-8")) if LOG_PATH.exists() else 0
 
-    results = []
+    results, seconds = [], {}
     for r in figures:
+        t0 = time.time()
         start = None
         if args.inject:
             kind = tools.classify_region(r, args.backend).type.value
@@ -54,8 +59,17 @@ def main() -> None:
         if res.description and res.description.alt_text:
             print(f"  ALT: {res.description.alt_text}")
         results.append(res)
+        seconds[r.id] = round(time.time() - t0, 1)
 
-    out = Path("output") / doc.id / "agent_results.json"
+    calls = [json.loads(x) for x in open(LOG_PATH, encoding="utf-8")][log_start:] if LOG_PATH.exists() else []
+    new = [c for c in calls if not c.get("cached")]
+    print(f"\nBackend {backend}: {len(calls)} model calls ({len(new)} uncached, "
+          f"{sum(c.get('seconds') or 0 for c in new):.0f}s waiting on the model); "
+          f"agent wall time {sum(seconds.values()):.0f}s")
+    suffix = f"_{backend}" + (f"_{args.inject}" if args.inject else "")
+    (Path("output") / doc.id / f"agent_timing{suffix}.json").write_text(json.dumps(
+        {"seconds_per_figure": seconds, "calls": calls}, indent=2), encoding="utf-8")
+    out = Path("output") / doc.id / f"agent_results{suffix}.json"
     out.write_text(json.dumps([x.model_dump(mode="json") for x in results], indent=2), encoding="utf-8")
     auto = sum(1 for x in results if x.status.value == "auto_approved")
     print(f"\n{auto}/{len(results)} auto-approved, {len(results) - auto} sent to human review. Saved {out}")

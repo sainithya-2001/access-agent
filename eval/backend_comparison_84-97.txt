@@ -1,0 +1,82 @@
+10 figures in both runs (meta: 10, baseten: 10)
+
+== p84_f0 Figure 2.2  same status
+  meta     auto_approved  conf 0.98  type chart  series single_series  verify PASS (0.98)  actions recrop
+           alt: Line graph of frequency vs times teenager is reminded, peaking at 3 times with frequency 14.
+  baseten  auto_approved  conf 0.98  type chart  series single_series  verify PASS (0.98)  actions recrop
+           alt: Line graph of frequency versus number of times a teenager is reminded, peaking at 3 times with 14 occurrences.
+== p85_f0 Figure 2.3  same status
+  meta     auto_approved  conf 0.98  type chart  series single_series  verify FAIL (0.60) → PASS (0.98)  actions recrop, rewrite
+           reason: passed verification after rewrite
+           alt: Bar chart of TikTok user proportion by age group, showing proportion decreases with age and is highest for 10-19.
+  baseten  auto_approved  conf 0.97  type chart  series single_series  verify PASS (0.97)  actions recrop
+           alt: Bar chart of TikTok users by age shows proportion declines with age, highest for 10-19 and lowest for 50+.
+== p86_f0 Figure 2.4  same status
+  meta     auto_approved  conf 0.97  type chart  series single_series  verify PASS (0.97)  actions recrop
+           alt: Vertical bar chart showing percentage of graduates by US region; South has the highest at about 39%.
+  baseten  auto_approved  conf 0.97  type chart  series single_series  verify PASS (0.97)  actions recrop
+           alt: Vertical bar chart shows South has the largest share of graduates at about 39%, while Northeast has the smallest at about 16%.
+== p87_f1 no caption  same status
+  meta     needs_review   conf 0.98  type equation  series single_series  verify PASS (0.98)  actions recrop
+           reason: Box from the Muse Spark page check that SAM 3.1 could not confirm; check the crop
+           alt: Equation defining relative frequency as RF equals f divided by n.
+  baseten  needs_review   conf 0.98  type equation  series single_series  verify FAIL (0.67) → PASS (0.98)  actions recrop, recrop
+           reason: Box from the Muse Spark page check that SAM 3.1 could not confirm; check the crop
+           alt: Equation defining relative frequency as RF equals f divided by n.
+== p89_f0 Figure 2.5  same status
+  meta     auto_approved  conf 1.00  type chart  series single_series  verify FAIL (0.60) → PASS (1.00)  actions recrop, rewrite
+           reason: passed verification after rewrite
+           alt: Histogram of heights by relative frequency peaking at 0.4 for the 65.95 to 67.95 interval.
+  baseten  auto_approved  conf 0.99  type chart  series single_series  verify FAIL (0.60) → PASS (0.99)  actions recrop, rewrite
+           reason: passed verification after rewrite
+           alt: Histogram of heights by relative frequency with a sharp peak at 65.95 to 67.95 with relative frequency 0.4.
+== p90_f0 Figure 2.6  same status
+  meta     auto_approved  conf 0.97  type chart  series single_series  verify PASS (0.97)  actions recrop
+           alt: Histogram of number of books with 6 bars peaking at 2.5 to 3.5 books with frequency 16.
+  baseten  auto_approved  conf 0.97  type chart  series single_series  verify PASS (0.97)  actions recrop
+           alt: Histogram of number of books versus frequency with six bars, peaking at 2.5 to 3.5 books with a frequency of 16.
+== p91_f0 Figure 2.7  same status
+  meta     auto_approved  conf 0.99  type chart  series single_series  verify PASS (0.99)  actions recrop
+           alt: Histogram shows more students spend more hours playing video games on weekends, peaking at 9 students in the 20-25 hour group.
+  baseten  auto_approved  conf 0.98  type chart  series single_series  verify PASS (0.98)  actions recrop
+           alt: Histogram of weekend video game hours per student shows frequency rises with hours, peaking at 9 students in the 20 to 25 hour interval.
+== p93_f0 Figure 2.8  same status
+  meta     auto_approved  conf 0.98  type chart  series single_series  verify PASS (0.98)  actions recrop
+           alt: Frequency polygon of test scores that rises to a peak of 40 at 84.5 and falls to zero at both ends.
+  baseten  auto_approved  conf 0.98  type chart  series single_series  verify FAIL (0.60) → FAIL (0.60) → PASS (0.98)  actions recrop, recrop, rewrite
+           reason: passed verification after rewrite
+           alt: Frequency polygon titled Test Scores shows frequency rising to a peak of 40 at 84.5 and falling to zero at both ends.
+== p94_f0 Figure 2.9  same status
+  meta     needs_review   conf 0.82  type chart  series color_only  verify FAIL (0.82)  actions recrop, escalate
+           last issues: invented_detail
+           reason: Series are distinguished by colour only (no legend or labels): check which series is which, e.g. from the text or tables nearby, and name them in the 
+           alt: Overlay frequency polygon comparing final test grades and final grades, both peaking around 84.5 with similar distributions.
+  baseten  needs_review   conf 0.60  type chart  series color_only  verify FAIL (0.60)  actions recrop, escalate
+           last issues: invented_detail, wrong_number
+           reason: Series are distinguished by colour only (no legend or labels): check which series is which, e.g. from the text or tables nearby, and name them in the 
+           alt: Overlay frequency polygon comparing Final Test Grades and Final Grades, both peaking near 84.5 with a similar distribution shape.
+== p96_f0 Figure 2.10  same status
+  meta     auto_approved  conf 0.93  type chart  series single_series  verify PASS (0.93)  actions recrop
+           alt: Line chart of Annual Consumer Price Index from Year 1 to 10, showing a steady increase from about 184 to about 230.
+  baseten  auto_approved  conf 0.94  type chart  series single_series  verify FAIL (0.89) → PASS (0.94)  actions recrop, rewrite
+           reason: passed verification after rewrite
+           alt: Line chart of Annual CPI from Year 1 to 10 showing overall increase from about 184 to about 230.
+
+Same status on 10/10 figures.
+  meta     8 auto_approved, 2 needs_review; mean verifier confidence 0.96
+  baseten  8 auto_approved, 2 needs_review; mean verifier confidence 0.94
+
+Model latency per call, seconds (median, n):
+  agent_decide     meta    7.7 (16)   baseten   14.6 (10)
+  classify         meta    2.4 (16)   baseten    4.2 (10)
+  describe         meta    8.1 (20)   baseten   11.3 (12)
+  describe_retry   meta    7.1 (12)   baseten   10.6 (5)
+  detect_check     meta    4.8 (29)   baseten      —    
+  extract_values   meta    8.5 (45)   baseten   10.6 (22)
+  plant            meta    6.7 (5)   baseten      —    
+  reread           meta    3.7 (1)   baseten   13.3 (1)
+  test_text        meta    2.0 (1)   baseten    2.1 (1)
+  test_vision      meta    5.0 (1)   baseten    5.0 (1)
+  verify           meta    6.2 (52)   baseten    9.4 (17)
+  meta     this run: 56 calls, 0 uncached, agent wall time 3s for 10 figures
+  baseten  this run: 67 calls, 0 uncached, agent wall time 3s for 10 figures
