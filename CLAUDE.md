@@ -47,7 +47,7 @@ Code controls the order; the model decides **per figure** inside a capped loop.
 5. Develop on a few pages, not whole chapters. Prompts live in `app/agent/prompts/`, one file per task.
 6. Frontend: plain HTML/CSS/JS in `web/`, served by FastAPI. Both the exported HTML and the review screen must pass **axe-core** with 0 violations.
 7. Never invent chart numbers. Data tables come from `extract_values` after verification.
-8. **Held-out set (`eval/heldout.json`, Figures 2.52–2.63, PDF pages 168–175): run once, for the final report.** No prompt, threshold, or code changes may be based on held-out results. Do not run, inspect, or debug the pipeline on those pages during development; tune on `eval/benchmark.json` only.
+8. **Held-out set (`eval/heldout.json`: 8 Chapter 2 figures on PDF pages 168–175, 8 Chapter 12 figures on pages 630–670): run once, for the final report.** No prompt, threshold, or code changes may be based on held-out results. Do not run, inspect, or debug the pipeline on those pages during development; tune on `eval/benchmark.json` only.
 9. Never print `.env`.
 
 ## Milestones

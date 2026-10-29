@@ -1,0 +1,86 @@
+{
+  "description": "Held-out test set: run once, for the final report only. No prompt, threshold, or code changes may be based on these results (see CLAUDE.md). Page = 1-based PDF page. Chapter 2 figures 2.52-2.63 minus those used in development (2.54, 2.55, 2.58, 2.59), plus Chapter 12 figures (scatter plots, a regression line, a line graph) from pages never processed.",
+  "source_pdf": "data/samples/introductory-statistics-2e_-_WEB.pdf",
+  "figures": [
+    {
+      "id": "fig-2.52",
+      "page": 168,
+      "caption": "Figure 2.52"
+    },
+    {
+      "id": "fig-2.53",
+      "page": 169,
+      "caption": "Figure 2.53"
+    },
+    {
+      "id": "fig-2.56",
+      "page": 170,
+      "caption": "Figure 2.56"
+    },
+    {
+      "id": "fig-2.57",
+      "page": 170,
+      "caption": "Figure 2.57"
+    },
+    {
+      "id": "fig-2.60",
+      "page": 173,
+      "caption": "Figure 2.60"
+    },
+    {
+      "id": "fig-2.61",
+      "page": 174,
+      "caption": "Figure 2.61"
+    },
+    {
+      "id": "fig-2.62",
+      "page": 175,
+      "caption": "Figure 2.62"
+    },
+    {
+      "id": "fig-2.63",
+      "page": 175,
+      "caption": "Figure 2.63"
+    },
+    {
+      "id": "fig-12.2",
+      "page": 630,
+      "caption": "Figure 12.2"
+    },
+    {
+      "id": "fig-12.6",
+      "page": 634,
+      "caption": "Figure 12.6"
+    },
+    {
+      "id": "fig-12.9",
+      "page": 636,
+      "caption": "Figure 12.9 Scatter plot showing the scores on the final exam based on scores from the third exam."
+    },
+    {
+      "id": "fig-12.11",
+      "page": 639,
+      "caption": "Figure 12.11 Scatter plot of the data looks like a straight line."
+    },
+    {
+      "id": "fig-12.13",
+      "page": 640,
+      "caption": "Figure 12.13"
+    },
+    {
+      "id": "fig-12.20",
+      "page": 649,
+      "caption": "Figure 12.20"
+    },
+    {
+      "id": "fig-12.28",
+      "page": 666,
+      "caption": "Figure 12.28"
+    },
+    {
+      "id": "fig-12.32",
+      "page": 670,
+      "caption": "Figure 12.32"
+    }
+  ]
+}
