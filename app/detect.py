@@ -144,15 +144,48 @@ def _rows_from_text(pdf_page: fitz.Page, r: fitz.Rect) -> list[list[str | None]]
 
 # ---------- layer 3: vector charts ----------
 
+def _is_caption(text: str) -> bool:
+    return bool(CAPTION_RE.match(text) or TABLE_CAPTION_RE.match(text))
+
+
+def drop_neighbour_captions(box: fitz.Rect, core: fitz.Rect, lines, own: str | None = None) -> fitz.Rect:
+    """Pull back the edges of a widened box so it doesn't take in a caption line ("Table 2.17",
+    "Figure 2.8") beside the figure's core: that caption belongs to the neighbouring table or figure.
+    lines: (rect, text) pairs from the page's text layer. own: the figure's own caption, which may stay;
+    if unknown, a caption below core may be its own (OpenStax puts captions below) and stays too.
+    The edge stops PAD_PT short of the caption, since crops add that padding, but never cuts into core."""
+    box = fitz.Rect(box)
+    for br, text in lines:
+        if not _is_caption(text) or (own and text.strip().startswith(own.strip()[:12])):
+            continue
+        if own is None and br.y0 >= core.y1:
+            continue
+        if not box.intersects(br) or core.intersects(br):
+            continue
+        if br.y1 <= core.y0:
+            box.y0 = min(max(box.y0, br.y1 + PAD_PT + 1), core.y0)
+        elif br.y0 >= core.y1:
+            box.y1 = max(min(box.y1, br.y0 - PAD_PT - 1), core.y1)
+        elif br.x1 <= core.x0:
+            box.x0 = min(max(box.x0, br.x1 + PAD_PT + 1), core.x0)
+        elif br.x0 >= core.x1:
+            box.x1 = max(min(box.x1, br.x0 - PAD_PT - 1), core.x1)
+    return box
+
+
 def _pull_in_labels(box: fitz.Rect, text_blocks) -> fitz.Rect:
-    """Grow box to take in short text labels (axis titles, ticks, legend) sitting at its edges."""
+    """Grow box to take in short text labels (axis titles, ticks, legend) sitting at its edges.
+    Figure captions are not labels. A "Table N" line above the box is the caption of the table
+    above it (OpenStax puts captions below), so it isn't pulled in either; one below may be the
+    box's own caption, when the box is a table drawn with vector lines."""
+    core = fitz.Rect(box)
     box = fitz.Rect(box)
     zone = fitz.Rect(box.x0 - 40, box.y0 - 25, box.x1 + 25, box.y1 + 35)
     for b in text_blocks:
         br = _rect(b.bbox)
         if len(b.text) <= 60 and zone.contains(br) and not CAPTION_RE.match(b.text):
             box |= br
-    return box
+    return drop_neighbour_captions(box, core, [(_rect(b.bbox), b.text) for b in text_blocks])
 
 
 def _vector_figures(page: fitz.Page, avoid: list[fitz.Rect], text_blocks) -> list[fitz.Rect]:
@@ -282,7 +315,7 @@ def _extend_sam_box(r: fitz.Rect, spark: fitz.Rect, page: Page, mode: str) -> tu
     if mode == "labels":
         out = _pull_in_labels(r, page.text_blocks)
     elif mode == "union":
-        out = r | spark
+        out = drop_neighbour_captions(r | spark, r, [(_rect(b.bbox), b.text) for b in page.text_blocks])
     elif mode == "pad":
         out = fitz.Rect(r.x0 - SAM_PAD * r.width, r.y0 - SAM_PAD * r.height,
                         r.x1 + SAM_PAD * r.width, r.y1 + SAM_PAD * r.height)

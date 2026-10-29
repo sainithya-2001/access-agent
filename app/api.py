@@ -21,7 +21,7 @@ from pydantic import BaseModel, Field
 import pymupdf as fitz
 
 from app import pipeline, store
-from app.agent.orchestrator import COLOR_ONLY_REASON, NO_SCALE_REASON, FigureAgent
+from app.agent.orchestrator import NO_SCALE_REASON, FigureAgent
 from app.assemble import assemble, printed_page_numbers
 from app.detect import _crop
 from app.ingest import _doc_id
@@ -104,7 +104,7 @@ def reason_code(res: FigureResult) -> str | None:
     if res.status != Status.needs_review:
         return None
     r = res.escalation_reason or res.region.review_reason or ""
-    if r.startswith(COLOR_ONLY_REASON[:40]):
+    if re.match(r"Series are distinguished by colou?r only", r):  # older runs spelled it "colour"
         return "color_only"
     if r.startswith(NO_SCALE_REASON):
         return "no_scale"
@@ -117,6 +117,28 @@ def reason_code(res: FigureResult) -> str | None:
     if res.description is None or not res.description.alt_text:
         return "no_description"
     return "agent_unsure"
+
+
+def _marks(c, ex) -> str | None:
+    """What the chart draws its series as ("lines", "bars"), from the classifier's note and the
+    title, so the review screen can name the parts. None if it doesn't say."""
+    text = " ".join(filter(None, [c and c.reason, ex and ex.title])).lower()
+    if re.search(r"\bline|polygon|ogive|time series", text):
+        return "lines"
+    if re.search(r"\bbar|histogram", text):
+        return "bars"
+    return None
+
+
+def _parts(c, ex) -> dict:
+    """The chart parts a review reason can name: series (in reading order), what they are drawn as,
+    and each axis's label and whether it has numbers."""
+    if not ex:
+        return {}
+    series = list(dict.fromkeys(p.series for p in ex.data if p.series))
+    return {"series": series, "marks": _marks(c, ex), "value_axis": ex.value_axis,
+            "axes": {"x": {"label": ex.x_axis_label, "numeric": ex.x_axis_numeric_scale},
+                     "y": {"label": ex.y_axis_label, "numeric": ex.y_axis_numeric_scale}}}
 
 
 def _figure_json(fid: str, res: FigureResult) -> dict:
@@ -139,6 +161,7 @@ def _figure_json(fid: str, res: FigureResult) -> dict:
         "issues": [i.model_dump() for i in v.issues] if v else [],
         "reason": res.escalation_reason or res.region.review_reason,
         "reason_code": reason_code(res),
+        "parts": _parts(c, ex),
         "alt_text": d.alt_text if d else "",
         "long_description": d.long_description if d else "",
         "latex": d.latex if d else None,

@@ -20,6 +20,7 @@ from pathlib import Path
 import pymupdf as fitz
 from pydantic import BaseModel, ValidationError
 
+from app import detect
 from app.agent import tools
 from app.llm import chat
 from app.models import (BBox, Description, ExtractedValues, FigureResult, Region, Status,
@@ -29,7 +30,7 @@ MAX_ACTIONS = 8
 MAX_REWRITES = 2
 ZOOM_DPI = 300
 RECROP_PT = 30
-COLOR_ONLY_REASON = ("Series are distinguished by colour only (no legend or labels): check which "
+COLOR_ONLY_REASON = ("Series are distinguished by color only (no legend or labels): check which "
                      "series is which, e.g. from the text or tables nearby, and name them in the description")
 NO_SCALE_REASON = "values can't be read: no numeric scale"
 
@@ -117,7 +118,9 @@ class FigureAgent:
         x1 = b.x1 + (d if side in ("right", "all") else 0)
         y0 = b.y0 - (d if side in ("top", "all") else 0)
         y1 = b.y1 + (d if side in ("bottom", "all") else 0)
-        rect = fitz.Rect(x0, y0, x1, y1) & page.rect
+        lines = [(fitz.Rect(t[:4]), t[4]) for t in page.get_text("blocks")]
+        rect = detect.drop_neighbour_captions(fitz.Rect(x0, y0, x1, y1), fitz.Rect(b.x0, b.y0, b.x1, b.y1),
+                                              lines, r.caption) & page.rect
         r.bbox = BBox(x0=rect.x0, y0=rect.y0, x1=rect.x1, y1=rect.y1)
         out = Path(r.crop_path).with_name(Path(r.crop_path).stem + f"_recrop_{side}.png")
         page.get_pixmap(clip=rect, dpi=200).save(out)
@@ -209,7 +212,7 @@ class FigureAgent:
         self._verify()
         if self._color_only():
             # A person must say which series is which; more agent steps can't fix that.
-            self.log("escalate", "Two or more series are told apart only by colour, with no legend or "
+            self.log("escalate", "Two or more series are told apart only by color, with no legend or "
                      "labels naming them → a person must say which series is which")
             return self._finish(Status.needs_review, COLOR_ONLY_REASON)
         if self._no_scale() and any(i.kind == "no_numeric_scale" for i in self.res.verification.issues):

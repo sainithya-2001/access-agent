@@ -149,7 +149,7 @@ def keyboard_walk(page) -> list[str]:
     if page.inner_text("#detail-heading") != before:
         problems.append("K did not move back to the previous figure")
     # The status line's button (if any) moves focus to the field it names.
-    go = page.locator(".status-go [data-goto]")
+    go = page.locator(".status-line [data-goto]")
     if go.count():
         target = go.first.get_attribute("data-goto")
         go.first.focus()
@@ -175,9 +175,28 @@ def keyboard_walk(page) -> list[str]:
         moved = page.locator("#crop-rect").bounding_box()
         if not (moved["x"] > box["x"] and moved["height"] > box["height"]):
             problems.append("arrow keys did not move / Shift+arrows did not resize the crop box")
+        # + / - zoom the page while the crop box has focus.
+        width = page.locator("#page-frame").bounding_box()["width"]
+        page.keyboard.press("+")
+        if not page.locator("#page-frame").bounding_box()["width"] > width:
+            problems.append("+ did not zoom the page while adjusting the crop")
+        page.keyboard.press("-")
         page.keyboard.press("Escape")
         if not page.locator("#crop-rect").is_hidden():
             problems.append("Esc did not close the crop tool")
+        if abs(page.locator("#page-frame").bounding_box()["width"] - width) > 1:
+            problems.append("closing the crop tool did not reset the zoom")
+    # Enlarge opens the full crop in a dialog; Esc closes it and focus goes back to the button.
+    page.locator(".crop button[data-action=enlarge]").focus()
+    page.keyboard.press("Enter")
+    if not page.locator("#crop-dialog").is_visible():
+        problems.append("Enlarge did not open the crop dialog")
+    else:
+        page.keyboard.press("Escape")
+        if page.locator("#crop-dialog").is_visible():
+            problems.append("Esc did not close the crop dialog")
+        elif page.evaluate("document.activeElement.dataset.action") != "enlarge":
+            problems.append("focus did not return to Enlarge after closing the crop dialog")
     page.locator(".queue-item").first.focus()
     # E jumps into the alt text box, Esc leaves it again.
     page.keyboard.press("e")
@@ -219,8 +238,14 @@ def check_review(url: str | None) -> int:
             page.fill("#alt-text", page.input_value("#alt-text") + " (edited)")
             total += report("unsaved edit", run_axe(page))
             page.click("#discard-btn")
+            page.click(".crop button[data-action=enlarge]")
+            total += report("enlarged crop dialog", run_axe(page))
+            page.click("#crop-dialog-close")
             page.click(".crop [data-action=crop]")
             total += report("crop tool open", run_axe(page))
+            page.click("#zoom-in")
+            page.click("#zoom-in")
+            total += report("crop tool zoomed in", run_axe(page))
             page.click("#crop-cancel")
             page.click("#reviewer-change")
             total += report("reviewer name form", run_axe(page))

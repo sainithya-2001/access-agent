@@ -63,11 +63,16 @@
   <section class="page-view" aria-labelledby="page-heading">
     <div class="pane-head">
       <h2 id="page-heading">Page</h2>
-      <div class="legend" aria-hidden="true">
-        <span><i class="dot needs_review"></i>Needs review</span>
-        <span><i class="dot auto_approved"></i>Auto-approved</span>
-        <span><i class="dot approved"></i>Staff approved</span>
-        <span><i class="dot rejected"></i>Rejected</span>
+      <div class="zoom-controls" id="zoom-controls" role="group" aria-label="Zoom the page" hidden>
+        <button type="button" class="btn btn-quiet btn-sm" id="zoom-out" aria-label="Zoom out">−</button>
+        <span class="zoom-level" id="zoom-level">100%</span>
+        <button type="button" class="btn btn-quiet btn-sm" id="zoom-in" aria-label="Zoom in">+</button>
+      </div>
+      <div class="legend" id="legend" aria-hidden="true">
+        <span><i class="swatch needs_review"></i>Needs review</span>
+        <span><i class="swatch auto_approved"></i>Auto-approved</span>
+        <span><i class="swatch approved"></i>Staff approved</span>
+        <span><i class="swatch rejected"></i>Rejected</span>
       </div>
     </div>
     <div class="page-scroll" id="page-scroll" tabindex="0" role="group" aria-labelledby="page-heading">
@@ -89,7 +94,8 @@
     <div class="actionbar" id="actionbar" hidden>
       <div class="crop-panel" id="crop-panel" hidden>
         <p id="crop-help">Drag on the page to draw a new box around the whole figure, including its axis labels.
-          Or focus the box and use the arrow keys to move it, Shift + arrow keys to resize it.</p>
+          Or focus the box and use the arrow keys to move it, Shift + arrow keys to resize it,
+          and + or − to zoom the page.</p>
         <div class="reject-actions">
           <button type="button" class="btn btn-quiet" id="crop-cancel">Cancel</button>
           <button type="button" class="btn btn-primary" id="crop-confirm">Re-run the agent on this crop</button>
@@ -140,6 +146,14 @@
       <button type="submit" class="btn btn-primary" id="upload-submit">Upload and process</button>
     </div>
   </form>
+</dialog>
+
+<dialog id="crop-dialog" class="wide" aria-labelledby="crop-dialog-title">
+  <h2 id="crop-dialog-title">The crop the agent described</h2>
+  <div class="crop-full"><img id="crop-dialog-image" alt=""></div>
+  <div class="dialog-actions">
+    <button type="button" class="btn btn-primary" id="crop-dialog-close">Close</button>
+  </div>
 </dialog>
 
 <dialog id="shortcuts-dialog" aria-labelledby="shortcuts-title">

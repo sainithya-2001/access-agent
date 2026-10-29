@@ -10,14 +10,26 @@ const STATUS_LABEL = {
 };
 // Why a figure is in the queue (api.reason_code), in plain language, with the next step and the
 // field (or tool) that step needs. The technical reason stays under "Technical details".
+// `why` can be a function of the figure, to name the actual chart parts when the agent read them.
 const REASONS = {
   color_only: {
-    why: "The chart's lines or bars are told apart only by colour, and nothing in the figure says which is which.",
+    why: (f) => {
+      const p = f.parts || {}, s = p.series || [], marks = p.marks || "lines or bars";
+      const named = s.length >= 2
+        ? `${s.length === 2 ? "two" : s.length} ${marks} (${listWords(s.map((x) => `the ${x} ${marks === "lines or bars" ? "one" : marks.slice(0, -1)}`))})`
+        : marks;
+      return `The chart's ${named} are told apart only by color, and nothing in the figure says which is which.`;
+    },
     todo: "Find out which is which from the text or tables near the figure, and name each one in the long description.",
     go: "long-desc", button: "Edit the long description",
   },
   no_scale: {
-    why: "The chart's value axis has no numbers, so exact values can't be read from it.",
+    why: (f) => {
+      const p = f.parts || {}, ax = p.value_axis && p.axes ? p.axes[p.value_axis] : null;
+      if (!ax) return "The chart's value axis has no numbers, so exact values can't be read from it.";
+      const name = ax.label ? ` (“${ax.label}”)` : "";
+      return `The chart's ${p.value_axis === "x" ? "horizontal" : "vertical"} axis${name} has no numbers, so exact values can't be read from it.`;
+    },
     todo: "Make sure the description compares the values (tallest, about twice as tall) rather than guessing numbers, unless the text states them.",
     go: "long-desc", button: "Edit the long description",
   },
@@ -81,6 +93,7 @@ function figName(f) {
   const m = (f.caption || "").match(/^\s*(Figure|Fig\.|Table)\s*[\d.]*\d/i);
   return m ? m[0].trim() : `${f.type === "equation" ? "Equation" : "Figure"} on page ${f.page}`;
 }
+function listWords(xs) { return xs.length <= 2 ? xs.join(" and ") : `${xs.slice(0, -1).join(", ")}, and ${xs[xs.length - 1]}`; }
 function typeLabel(t) { return t ? t.replace("_", " ") : "not classified"; }
 function needsReview(f) { return f.status === "needs_review" || f.status === "pending"; }
 function pageInfo(n) { return (state.doc?.page_list || []).find((p) => p.number === n); }
@@ -164,7 +177,7 @@ function renderSummary() {
 
 function renderQueue() {
   const figs = visibleFigs();
-  $("queue-count").textContent = `${figs.length} of ${state.figs.length}`;
+  $("queue-count").textContent = `Showing ${figs.length} of ${state.figs.length}`;
   $("queue-empty").hidden = figs.length > 0 || !state.figs.length;
   $("queue-list").innerHTML = figs.map((f) => {
     const label = `${figName(f)}, ${STATUS_LABEL[f.status]}, ${pageLabel(f.page)}`;
@@ -224,7 +237,7 @@ function renderPage(f) {
       + `width:${((b.x1 - b.x0) / p.width) * 100}%;height:${((b.y1 - b.y0) / p.height) * 100}%`;
     const cls = ["box", x.status, x.id === f.id ? "selected" : "", filtered && !needsReview(x) ? "dim" : ""].join(" ");
     return `<div class="${cls}" style="${style}" data-id="${esc(x.id)}" title="${esc(figName(x))}: ${esc(STATUS_LABEL[x.status])}">
-      ${x.id === f.id ? `<span class="tag">${esc(figName(x))}</span>` : ""}</div>`;
+      ${x.id === f.id ? `<span class="tag">${esc(figName(x))} · ${esc(STATUS_LABEL[x.status])}</span>` : ""}</div>`;
   }).join("") : "";
   const sel = $("boxes").querySelector(".box.selected");
   if (sel) {
@@ -244,6 +257,17 @@ function scoreHtml(f) {
     + `${PASS_THRESHOLD.toFixed(2)} and no failed checks · ${f.passed ? "these checks passed" : "these checks did not pass"}</p>`;
 }
 
+function cropSrc(f) { return `${figPath(f.id)}/crop?v=${encodeURIComponent(f.crop_version || "")}`; }
+function enlargeCrop() {
+  const f = current();
+  if (!f) return;
+  $("crop-dialog-title").textContent = `${figName(f)}: the crop the agent described`;
+  const img = $("crop-dialog-image");
+  img.src = cropSrc(f);
+  img.alt = `${figName(f)} as cropped from the page`;
+  $("crop-dialog").showModal();
+}
+
 function lastEdit(f, actions) { return [...f.edits].reverse().find((e) => actions.includes(e.action)); }
 
 // One status line: what state the figure is in and why, in plain words, and what to do next.
@@ -253,11 +277,11 @@ function statusHtml(f) {
   if (f.status === "pending") {
     main = "The agent is describing this figure again from the new crop. This takes about a minute.";
   } else if (needsReview(f) && r) {
-    main = r.why;
+    main = esc(typeof r.why === "function" ? r.why(f) : r.why);
     todo = r.todo;
     go = r.go === "crop"
-      ? `<button type="button" class="btn btn-quiet" data-action="crop">${esc(r.button)}</button>`
-      : `<button type="button" class="btn btn-quiet" data-goto="${r.go}">${esc(r.button)}</button>`;
+      ? `<button type="button" class="linklike status-go" data-action="crop">${esc(r.button)}</button>`
+      : `<button type="button" class="linklike status-go" data-goto="${r.go}">${esc(r.button)}</button>`;
     const found = f.issues.filter((i) => i.detail);
     if (["checks_still_failing", "agent_unsure"].includes(f.reason_code) && found.length) {
       extra = `<ul class="found">${found.map((i) => `<li>${esc(i.detail)}</li>`).join("")}</ul>`;
@@ -266,7 +290,7 @@ function statusHtml(f) {
     const e = lastEdit(f, ["reject"]);
     main = `${e ? `By ${esc(e.who)}` : ""}${e && e.note ? `: “${esc(e.note)}”` : ""}${e ? "." : ""} The export flags it until it has a new description.`;
     todo = "Write a new description and approve it, or adjust the crop to run the agent again.";
-    go = `<button type="button" class="btn btn-quiet" data-goto="alt-text">Edit the alt text</button>`;
+    go = `<button type="button" class="linklike status-go" data-goto="alt-text">Edit the alt text</button>`;
   } else if (f.status === "approved" || f.status === "edited") {
     const e = lastEdit(f, ["approve", "edit"]);
     main = e ? `By ${esc(e.who)}, ${esc(fmtTime(e.at))}.` : "";
@@ -281,9 +305,8 @@ function statusHtml(f) {
   return `<div class="status-line ${f.status}">
     <p class="status-main"><span class="dot ${f.status}" aria-hidden="true"></span><strong>${STATUS_LABEL[f.status]}.</strong> ${main}</p>
     ${extra}
-    ${todo ? `<p class="status-todo"><strong>What to do:</strong> ${esc(todo)}</p>` : ""}
+    ${todo ? `<p class="status-todo"><strong>What to do:</strong> ${esc(todo)} ${go}</p>` : ""}
     ${draft}
-    ${go ? `<div class="status-go">${go}</div>` : ""}
   </div>`;
 }
 
@@ -326,19 +349,23 @@ function renderDetail(f) {
     <h2 class="fig-title" id="detail-heading" tabindex="-1">${esc(name)}</h2>
     ${caption}
     ${statusHtml(f)}
-    <figure class="crop"><img src="${figPath(f.id)}/crop?v=${encodeURIComponent(f.crop_version || "")}" alt="${esc(name)} as cropped from the page">
-      <figcaption><button type="button" class="linklike" data-action="crop" ${pending ? "disabled" : ""}>Adjust crop</button>
-        <span class="hint">if the box cuts off part of the figure or takes in extra text</span></figcaption></figure>
+    <figure class="crop">
+      <div class="crop-thumb" data-action="enlarge" title="Enlarge"><img src="${cropSrc(f)}" alt=""></div>
+      <figcaption>
+        <span class="crop-title">The crop the agent described</span>
+        <span class="crop-links"><button type="button" class="linklike" data-action="enlarge">Enlarge<span class="visually-hidden"> the crop of ${esc(name)}</span></button>
+        <button type="button" class="linklike" data-action="crop" ${pending ? "disabled" : ""}>Adjust crop</button></span>
+        <span class="hint">Adjust it if it cuts off part of the figure or takes in extra text.</span>
+      </figcaption></figure>
     <form id="desc-form" novalidate>
       <div class="field">
-        <label for="alt-text">Alt text</label>
+        <div class="field-head"><label for="alt-text">Alt text</label><p class="counter" id="alt-counter"></p></div>
         <textarea id="alt-text" rows="3" maxlength="300" aria-describedby="alt-hint alt-counter" ${pending ? "readonly" : ""}>${esc(f.alt_text)}</textarea>
-        <p class="hint" id="alt-hint">${f.decorative ? "Marked decorative, so the export uses empty alt text." : `One or two sentences. About ${ALT_RECOMMENDED} characters or fewer reads best; put detail in the long description.`}</p>
-        <p class="counter" id="alt-counter"></p>
+        <p class="hint" id="alt-hint">${f.decorative ? "Marked decorative, so the export uses empty alt text." : "One or two sentences. Detail goes in the long description."}</p>
       </div>
       <div class="field">
         <label for="long-desc">Long description</label>
-        <textarea id="long-desc" rows="7" aria-describedby="long-hint" ${pending ? "readonly" : ""}>${esc(f.long_description)}</textarea>
+        <textarea id="long-desc" rows="5" aria-describedby="long-hint" ${pending ? "readonly" : ""}>${esc(f.long_description)}</textarea>
         <p class="hint" id="long-hint">Linked from the image in the export. Charts also get a data table from the values below.</p>
       </div>
       ${f.latex ? `<div class="field"><span class="label">Equation (LaTeX, exported as MathML)</span><pre class="math-src">${esc(f.latex)}</pre></div>` : ""}
@@ -368,7 +395,8 @@ function updateCounter() {
   const n = $("alt-text").value.length;
   const c = $("alt-counter");
   const over = n > ALT_RECOMMENDED;
-  c.textContent = `${n} characters` + (over ? `: longer than the usual ${ALT_RECOMMENDED}. That's allowed (up to 300); consider moving detail to the long description.` : "");
+  c.textContent = over ? `${n} characters: over the usual ${ALT_RECOMMENDED} (allowed up to 300). Consider moving detail to the long description.`
+    : `${n} of about ${ALT_RECOMMENDED} characters`;
   c.classList.toggle("long", over);
 }
 function onEdit() {
@@ -460,7 +488,27 @@ function closeReject() {
 
 // ---------- adjust crop ----------
 // Draw a new box on the page image (or move/resize it with the keyboard), then re-run the agent.
-const crop = { on: false, box: null, drag: null };
+const crop = { on: false, box: null, drag: null, zoom: 1, fit: 0 };
+const ZOOMS = [1, 1.5, 2, 3, 4];
+
+// Zoom the page view (while adjusting a crop): widen the page image; boxes are in % so they follow.
+function setZoom(z) {
+  const frame = $("page-frame");
+  if (!crop.fit) crop.fit = frame.offsetWidth;
+  crop.zoom = z;
+  frame.style.maxWidth = z === 1 ? "" : "none";
+  frame.style.width = z === 1 ? "" : `${Math.round(crop.fit * z)}px`;
+  $("zoom-level").textContent = `${Math.round(z * 100)}%`;
+  $("zoom-out").disabled = z === ZOOMS[0];
+  $("zoom-in").disabled = z === ZOOMS[ZOOMS.length - 1];
+  if (crop.on) { drawCropRect(); $("crop-rect").scrollIntoView({ block: "center", inline: "center" }); }
+}
+function stepZoom(dir) {
+  const i = ZOOMS.indexOf(crop.zoom) + dir;
+  if (i < 0 || i >= ZOOMS.length) return;
+  setZoom(ZOOMS[i]);
+  announce(`Zoom ${Math.round(crop.zoom * 100)}%`);
+}
 
 function pagePts() { const p = pageInfo(current().page); return { w: p.width, h: p.height }; }
 function drawCropRect() {
@@ -477,6 +525,10 @@ function startCrop() {
   crop.on = true;
   crop.box = { ...f.bbox };
   $("page-frame").classList.add("cropping");
+  $("zoom-controls").hidden = false;
+  $("legend").hidden = true;  // the boxes are faded while cropping; the zoom controls take its place
+  crop.fit = 0;
+  setZoom(1);
   $("crop-rect").hidden = false;
   drawCropRect();
   $("actions").hidden = true;
@@ -488,6 +540,9 @@ function startCrop() {
 function endCrop() {
   crop.on = false; crop.drag = null;
   $("page-frame").classList.remove("cropping");
+  setZoom(1);
+  $("zoom-controls").hidden = true;
+  $("legend").hidden = false;
   $("crop-rect").hidden = true;
   $("crop-panel").hidden = true;
   $("actions").hidden = false;
@@ -515,6 +570,8 @@ $("crop-rect").addEventListener("keydown", (ev) => {
   const step = 4;  // points
   const d = { ArrowLeft: [-step, 0], ArrowRight: [step, 0], ArrowUp: [0, -step], ArrowDown: [0, step] }[ev.key];
   if (ev.key === "Escape") { ev.preventDefault(); endCrop(); $("detail-heading").focus(); return; }
+  if (ev.key === "+" || ev.key === "=") { ev.preventDefault(); stepZoom(1); return; }
+  if (ev.key === "-") { ev.preventDefault(); stepZoom(-1); return; }
   if (!d) return;
   ev.preventDefault();
   const b = crop.box;
@@ -640,10 +697,15 @@ $("reviewer-change").addEventListener("click", showReviewerForm);
 $("save-btn").addEventListener("click", () => decide("save"));
 $("crop-cancel").addEventListener("click", () => { endCrop(); $("detail-heading").focus(); });
 $("crop-confirm").addEventListener("click", confirmCrop);
+$("zoom-in").addEventListener("click", () => stepZoom(1));
+$("zoom-out").addEventListener("click", () => stepZoom(-1));
+$("crop-dialog-close").addEventListener("click", () => $("crop-dialog").close());
+$("crop-dialog").addEventListener("click", (e) => { if (e.target === $("crop-dialog")) $("crop-dialog").close(); });  // backdrop
 $("detail-body").addEventListener("click", (e) => {
   const b = e.target.closest("[data-goto], [data-action]");
   if (!b) return;
   if (b.dataset.action === "crop") startCrop();
+  else if (b.dataset.action === "enlarge") enlargeCrop();
   else { const el = $(b.dataset.goto); el.scrollIntoView({ block: "center" }); el.focus(); }
 });
 $("approve-btn").addEventListener("click", approve);
