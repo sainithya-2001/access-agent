@@ -20,11 +20,12 @@
 
   function accessibleBlocks(main) {
     const out = [];
-    let page = null;
+    let page = null, region = null;  // region: the figure or table a block belongs to
     const add = (kind, text, say) => {
       text = clean(text);
-      if (text) out.push({ kind, text, say: say === undefined ? text : clean(say), page });
+      if (text) out.push({ kind, text, say: say === undefined ? text : clean(say), page, region });
     };
+    const within = (id, fn) => { const prev = region; region = region || id; fn(); region = prev; };
     const markPage = (el) => {
       const m = [...el.querySelectorAll("[id^='page-']")].pop();
       if (m) page = Number(m.id.slice(5)) || page;
@@ -71,7 +72,8 @@
           const alt = n.getAttribute("alt");
           if (alt) add("Image", alt, `Image. ${alt}`);  // alt="" is decorative: a screen reader skips it
         } else if (tag === "figcaption") add("Caption", n.textContent);
-        else if (tag === "table") table(n);
+        else if (tag === "table") within(n.id.startsWith("tbl-") ? n.id.slice(4) : null, () => table(n));
+        else if (n.classList.contains("figure-block")) within(n.id.replace(/^fig-/, ""), () => walk(n));
         else if (tag === "p" || tag === "li") { markPage(n); add("Text", n.textContent); }
         else walk(n);  // section, div, figure
       }
@@ -82,8 +84,8 @@
 
   function originalBlocks(list) {
     return (list || []).map((b) => b.kind === "Image"
-      ? { kind: "Image", text: "Image", say: "Image.", page: b.page }
-      : { kind: "Text", text: clean(b.text), say: clean(b.text), page: b.page });
+      ? { kind: "Image", text: "Image", say: "Image.", page: b.page, region: b.region || null }
+      : { kind: "Text", text: clean(b.text), say: clean(b.text), page: b.page, region: b.region || null });
   }
 
   function chunks(text) {
@@ -162,6 +164,7 @@ dialog.bf[open] { display: flex; flex-direction: column; gap: 1rem; }
       </div>
       <p class="bf-pos"></p>
       <div class="bf-controls">
+        <button type="button" class="bf-top-btn">Start from the top</button>
         <button type="button" class="bf-prev">Previous</button>
         <button type="button" class="bf-play">Play</button>
         <button type="button" class="bf-next">Next</button>
@@ -174,6 +177,7 @@ dialog.bf[open] { display: flex; flex-direction: column; gap: 1rem; }
     const q = (s) => d.querySelector(s);
     ui = { d, kind: q(".bf-kind"), text: q(".bf-text"), pos: q(".bf-pos"), play: q(".bf-play"),
            rate: q(".bf-rate"), status: q(".bf-status") };
+    q(".bf-top-btn").addEventListener("click", () => go(0));
     q(".bf-prev").addEventListener("click", () => go(st.i - 1));
     q(".bf-next").addEventListener("click", () => go(st.i + 1));
     ui.play.addEventListener("click", () => setPlaying(!st.playing));
@@ -273,21 +277,29 @@ dialog.bf[open] { display: flex; flex-direction: column; gap: 1rem; }
     setRate(RATES[Math.max(0, Math.min(RATES.length - 1, (i < 0 ? 1 : i) + d))]);
   }
 
+  // A figure's first block, else the first block on its page (a figure with no blocks of its own).
+  function placeOf(at) {
+    if (!at) return 0;
+    const i = at.region ? blocks().findIndex((b) => b.region === at.region) : -1;
+    if (i >= 0) return i;
+    return Math.max(0, at.page ? blocks().findIndex((b) => b.page >= at.page) : 0);
+  }
+
   function setVersion(v) {
-    // Keep the place: jump to the first block on the same PDF page in the other version.
-    const page = blocks()[st.i]?.page;
+    // Keep the place: the same figure or table, else the same PDF page, in the other version.
+    const b = blocks()[st.i];
     st.version = v;
     save("version", v);
     for (const r of ui.d.querySelectorAll("input[name=bf-version]")) r.checked = r.value === v;
-    const at = page ? blocks().findIndex((b) => b.page >= page) : 0;
-    st.i = Math.max(0, at);
+    st.i = placeOf(b);
     render();
     if (st.playing) speak();
   }
 
   /* Open over the page. source: {main: the exported page's <main> (live or parsed), original: the
-     #blindfold-original list}. opener: where focus goes back to on close. */
-  function open(source, opener) {
+     #blindfold-original list}. opener: where focus goes back to on close. at: {region, page} to start
+     at that figure (the review screen's selected figure); omitted, it starts at the top. */
+  function open(source, opener, at) {
     if (!ui) build();
     st.sets = { accessible: accessibleBlocks(source.main), original: originalBlocks(source.original) };
     st.opener = opener || document.activeElement;
@@ -295,7 +307,7 @@ dialog.bf[open] { display: flex; flex-direction: column; gap: 1rem; }
     ui.rate.value = String(st.rate);
     st.version = load("version", "accessible") === "original" ? "original" : "accessible";
     for (const r of ui.d.querySelectorAll("input[name=bf-version]")) r.checked = r.value === st.version;
-    st.i = 0;
+    st.i = placeOf(at);
     st.playing = false;
     ui.status.textContent = "";
     render();

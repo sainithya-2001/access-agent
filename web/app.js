@@ -780,7 +780,8 @@ $("blindfold-btn").addEventListener("click", async () => {
     const res = await fetch(`${docPath(state.docId)}/preview`);
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const doc = new DOMParser().parseFromString(await res.text(), "text/html");
-    Blindfold.open(Blindfold.fromDocument(doc), btn);
+    const f = current();  // start at the selected figure's block; "Start from the top" is in the dialog
+    Blindfold.open(Blindfold.fromDocument(doc), btn, f ? { region: f.region_id, page: f.page } : null);
   } catch (e) {
     banner(`Could not open Blindfold mode: ${e.message}`, "error");
   }

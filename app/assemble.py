@@ -439,7 +439,7 @@ def original_reading(doc: Document, regions: list[Region]) -> list[dict]:
     """What a screen reader gets from the untreated PDF, for Blindfold mode's "Original" version:
     every text block in the PDF's order, running headers included, no headings; an embedded image is
     only "Image"; the text inside a table or chart runs together as one stream; a scanned page is
-    one image."""
+    one image. Blocks inside a figure or table carry its region id (Blindfold starts at a figure)."""
     out = []
     for p in doc.pages:
         if p.is_scanned:
@@ -458,8 +458,12 @@ def original_reading(doc: Document, regions: list[Region]) -> list[dict]:
                 items.append(["Text", text, b.bbox.y0, region])
         for img in p.embedded_images:
             at = next((i for i, it in enumerate(items) if it[2] >= img.bbox.y0), len(items))
-            items.insert(at, ["Image", "", img.bbox.y0, None])
-        out += [{"kind": k, "text": t, "page": p.number} for k, t, _, _ in items]
+            ir = fitz.Rect(img.bbox.x0, img.bbox.y0, img.bbox.x1, img.bbox.y1)
+            region = next((r for r in regs if r.kind == "figure" and (ir & fitz.Rect(
+                r.bbox.x0 - 2, r.bbox.y0 - 2, r.bbox.x1 + 2, r.bbox.y1 + 2)).get_area() >= 0.5 * ir.get_area()), None)
+            items.insert(at, ["Image", "", img.bbox.y0, region])
+        out += [{"kind": k, "text": t, "page": p.number} | ({"region": r.id} if r is not None else {})
+                for k, t, _, r in items]
     return out
 
 
