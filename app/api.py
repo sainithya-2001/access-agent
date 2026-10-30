@@ -252,7 +252,8 @@ class RecropIn(BaseModel):
 def _rerun(fid: str, n: int, pdf_path: str, res: FigureResult) -> None:
     key = fid.rsplit(":", 1)[0]
     try:
-        out = FigureAgent(res.region, pdf_path).run()
+        tables = [r for r in store.load_layout(con, key)[1] if r.kind == "table"]
+        out = FigureAgent(res.region, pdf_path, tables=tables).run()
     except Exception as e:  # FigureAgent.run() doesn't raise, but keep the figure out of 'pending'
         res.status, res.escalation_reason = Status.needs_review, f"Re-run failed: {e.__class__.__name__}"
         out = res

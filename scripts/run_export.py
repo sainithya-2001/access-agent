@@ -47,7 +47,8 @@ def main() -> None:
     results = {}
     if not args.no_agent:
         t1 = time.perf_counter()
-        for r, res in pipeline.describe_figures(figures, pdf, args.backend, args.workers):
+        for r, res in pipeline.describe_figures(figures, pdf, args.backend, args.workers,
+                                                     [r for r in regions if r.kind == "table"]):
             results[r.id] = res
             print(f"  {r.id:9} {r.caption or 'no caption':12} → {res.status.value}"
                   + (f" ({res.escalation_reason})" if res.escalation_reason else ""))

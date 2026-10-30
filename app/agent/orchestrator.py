@@ -20,7 +20,7 @@ from pathlib import Path
 import pymupdf as fitz
 from pydantic import BaseModel, ValidationError
 
-from app import detect, pdf
+from app import detect, pdf, source_tables
 from app.agent import tools
 from app.llm import chat
 from app.models import (BBox, Description, ExtractedValues, FigureResult, Region, Status,
@@ -45,9 +45,11 @@ class Action(BaseModel):
 
 class FigureAgent:
     def __init__(self, region: Region, pdf_path: str, backend: str | None = None,
-                 start_description: Description | None = None):
-        """start_description: begin from a given (e.g. deliberately wrong) description; for demos/tests."""
+                 start_description: Description | None = None, tables: list[Region] | None = None):
+        """start_description: begin from a given (e.g. deliberately wrong) description; for demos/tests.
+        tables: the document's table regions, for exact values from a matching table nearby."""
         self.res = FigureResult(region=region)
+        self.tables = tables or []
         self.pdf_path = pdf_path
         self.backend = backend
         self.start_description = start_description
@@ -215,7 +217,19 @@ class FigureAgent:
             return Action(action="escalate", args={"reason": "Agent reply could not be parsed"},
                           why="invalid agent output")
 
+    def _source_table(self) -> None:
+        """Every reading matches a printed table on this or an adjacent page → its exact values."""
+        try:
+            m, why = source_tables.match(self.res, self.tables)
+            if m:
+                self.log("source_table", source_tables.apply(self.res, m)[1])
+            elif why:
+                self.log("source_table", f"{why} → keeping the readings (approximate)")
+        except Exception as e:  # never lose a finished figure over this
+            self.log("source_table", f"Table check skipped ({e.__class__.__name__}: {str(e)[:100]})")
+
     def _finish(self, status: Status, reason: str | None = None) -> FigureResult:
+        self._source_table()
         if status == Status.auto_approved and self.res.region.review_reason:
             status, reason = Status.needs_review, self.res.region.review_reason
         v = self.res.verification

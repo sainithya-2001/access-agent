@@ -52,7 +52,8 @@ def main() -> None:
             start, changed = plant(good, args.inject, args.backend)
             print(f"[test] planted {args.inject}: {changed}")
 
-        res = FigureAgent(r, str(pdf), args.backend, start_description=start).run()
+        res = FigureAgent(r, str(pdf), args.backend, start_description=start,
+                          tables=[x for x in regions if x.kind == "table"]).run()
         print(f"\n== {r.id} | {r.caption or 'no caption'} → {res.status.value}")
         for t in res.trace:
             print(f"  {t.step:2}. [{t.action}] {t.summary}")

@@ -162,7 +162,10 @@ def _chart_table(res: FigureResult, fid: str, caption: str) -> str:
     value = {(d.label, d.series or ""): d.value for d in pts}
     first = e(ex.x_axis_label or "Category")
     heads = [e(s) if s else e(ex.y_axis_label or "Value") for s in series]
-    note = " Values are read from the chart's axis, so they are approximate." if ex.values_estimated else ""
+    if ex.source:  # every reading matched a printed table: its exact values (app/source_tables.py)
+        note = f" Values from {ex.source.caption}."
+    else:
+        note = " Values are read from the chart's axis, so they are approximate." if ex.values_estimated else ""
     if res.status not in (Status.auto_approved, Status.approved, Status.edited):
         note += " Not yet checked by staff."
     out = [_wrap_open(f"Data for {caption}"), f'<table class="data-table" id="{fid}-data">',

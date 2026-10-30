@@ -103,7 +103,7 @@ def describe(region: Region, kind: str, backend: str | None = None,
 def verify(region: Region, desc: Description, extracted: ExtractedValues,
            backend: str | None = None) -> Verification:
     p = _prompt("verify",
-                extracted=extracted.model_dump_json(indent=1),
+                extracted=extracted.model_dump_json(indent=1, exclude={"source"}),  # set in code, not read
                 alt_text=desc.alt_text,
                 long_description=desc.long_description,
                 data_table=json.dumps([d.model_dump() for d in desc.data_table]))
@@ -224,6 +224,8 @@ def no_numeric_scale(ex: ExtractedValues) -> bool:
 
 def code_checks(desc: Description, ex: ExtractedValues, page_text: str = "") -> list[Issue]:
     issues: list[Issue] = []
+    if ex.source:  # values from a printed table (app/source_tables.py): its numbers are the page's
+        page_text = f"{page_text} {ex.source.caption} {ex.source.text}"
 
     # Rewrite feedback must not leak into what the student reads ("This text is explicitly
     # visible in the image and is not invented.").
@@ -276,6 +278,8 @@ def code_checks(desc: Description, ex: ExtractedValues, page_text: str = "") -> 
     # as the text's, not as a drawn position, is the describe prompt's rule.
     known = set(_numbers(" ".join(ex.labels + [ex.title or "", ex.trend or ""])))
     known |= {d.value for d in ex.data if d.value is not None}
+    if ex.source:  # the description was written from the drawing: numbers near the readings still hold
+        known |= {d.value for d in ex.source.readings if d.value is not None}
     from_text = set(_numbers(page_text))
     if known:
         for n in set(_numbers(desc.long_description)):

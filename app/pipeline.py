@@ -22,15 +22,16 @@ WORKERS = 4
 
 
 def describe_figures(figs: list[Region], pdf_path: str | Path, backend: str | None = None,
-                     workers: int = WORKERS) -> Iterator[tuple[Region, FigureResult]]:
+                     workers: int = WORKERS, tables: list[Region] | None = None) -> Iterator[tuple[Region, FigureResult]]:
     """Run the agent on each figure, `workers` at a time; yields (region, result) as each finishes.
+    tables: the document's table regions (exact values when a chart matches one nearby).
     Workers only call models and render crops (under pdf.LOCK): the caller does any SQLite writes."""
     if workers <= 1:
         for r in figs:
-            yield r, FigureAgent(r, str(pdf_path), backend).run()
+            yield r, FigureAgent(r, str(pdf_path), backend, tables=tables).run()
         return
     with ThreadPoolExecutor(max_workers=workers, thread_name_prefix="figure") as pool:
-        jobs = {pool.submit(FigureAgent(r, str(pdf_path), backend).run): r for r in figs}
+        jobs = {pool.submit(FigureAgent(r, str(pdf_path), backend, tables=tables).run): r for r in figs}
         for job in as_completed(jobs):
             yield jobs[job], job.result()
 
@@ -62,7 +63,8 @@ def run(con, key: str, pdf_path: str | Path, pages: str | None, page_check: bool
         store.save_layout(con, key, doc, regions)
         figs = [r for r in regions if r.kind == "figure"]
         store.set_progress(con, key, "processing", f"Describing {len(figs)} figures")
-        for i, (r, res) in enumerate(describe_figures(figs, pdf_path, backend, workers), 1):
+        for i, (r, res) in enumerate(describe_figures(figs, pdf_path, backend, workers,
+                                                     [x for x in regions if x.kind == "table"]), 1):
             store.save_figure(con, key, res)
             store.set_progress(con, key, "processing", f"Described {i} of {len(figs)} figures")
             if echo:

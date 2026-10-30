@@ -151,6 +151,18 @@ def cost_of(calls: list[dict]) -> dict:
     return out
 
 
+def heldout_spans(gap: int = 20) -> list[tuple[int, int]]:
+    """The held-out set's page spans (pages less than `gap` apart joined): pages a dev run must not touch."""
+    pages = sorted({f["page"] for f in json.loads((ROOT / "eval" / "heldout.json").read_text(encoding="utf-8"))["figures"]})
+    spans: list[list[int]] = []
+    for p in pages:
+        if spans and p - spans[-1][1] < gap:
+            spans[-1][1] = p
+        else:
+            spans.append([p, p])
+    return [(a, b) for a, b in spans]
+
+
 def find_region(item: dict, regions):
     by_id = {r.id: r for r in regions}
     if item.get("region_id") in by_id:
@@ -524,8 +536,15 @@ def main() -> None:
     pdf = ROOT / bench.get("source_pdf", "data/samples/introductory-statistics-2e_-_WEB.pdf")
     model = get_client(args.backend)[1]
 
-    doc = ingest(pdf, ",".join(str(p) for p in sorted({f["page"] for f in items})), out_root=out_root)
+    # Pages next to each figure too: a printed table there can supply exact values (app/source_tables.py).
+    # A dev run never adds a page inside the held-out spans (168–175, 630–670) as a neighbour.
+    own = {f["page"] for f in items}
+    held = heldout_spans() if args.which == "dev" else []
+    pages = sorted(own | {p + d for p in own for d in (-1, 1)
+                          if p + d >= 1 and not any(a <= p + d <= b for a, b in held)})
+    doc = ingest(pdf, ",".join(str(p) for p in pages), out_root=out_root)
     regions, _ = detect(doc, use_sam=False, use_check=False, out_root=out_root)  # free layers: same regions for every backend
+    tables = [r for r in regions if r.kind == "table"]
 
     results = []
     for n, item in enumerate(items, 1):
@@ -543,7 +562,7 @@ def main() -> None:
             sp = score_stemplot(item, region) if (item.get("data") or {}).get("stems") else None
             rec.update(status="auto_approved" if region.stem_leaf else "needs_review", agent=False, stemplot=sp)
         else:
-            res = FigureAgent(region, str(pdf), args.backend).run()
+            res = FigureAgent(region, str(pdf), args.backend, tables=tables).run()
             rec.update(status=res.status.value, type=res.classification.type.value if res.classification else None,
                        alt_text=res.description.alt_text if res.description else None,
                        long_description=res.description.long_description if res.description else None,

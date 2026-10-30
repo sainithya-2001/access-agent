@@ -117,6 +117,14 @@ class BoxStats(BaseModel):
     median_drawn: bool | None = None  # a median line is drawn inside (or on the edge of) the box
 
 
+class SourceTable(BaseModel):
+    """A printed table the chart's readings all matched (by label and series, within tolerance)."""
+    caption: str  # "Table 2.9", or "the table on PDF page 84" without a caption
+    pages: list[int]
+    text: str  # the table's printed cells: numbers the verifier accepts as the table's
+    readings: list[DataPoint]  # the chart's own readings, before the table's values replaced them
+
+
 class ExtractedValues(BaseModel):
     """Read from the image independently of the description; used to check it."""
     title: str | None = None
@@ -137,6 +145,9 @@ class ExtractedValues(BaseModel):
     y_axis_numeric_scale: bool | None = None
     value_axis: Literal["x", "y"] | None = None
     boxes: list[BoxStats] = []  # box plots only
+    # Set in code, never by the model: a printed table nearby whose values every reading matched,
+    # so `data` holds the table's exact values (app/source_tables.py). Left out of model prompts.
+    source: SourceTable | None = None
 
     @field_validator("value_axis", mode="before")
     @classmethod
