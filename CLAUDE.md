@@ -99,6 +99,7 @@ python scripts/check_a11y.py                                   # M6: axe-core on
 python scripts/run_review.py --pages 84-97,109,124,130         # M7: pipeline into output/review.db
 uvicorn app.api:app --port 8000                                # M7: review screen, http://localhost:8000
 python scripts/check_a11y.py --review                          # M7: axe-core + keyboard walk on the UI
+python scripts/listen_check.py [EXPORT] --page 85 --figure "Figure 2.3" [--values 32.5,29.5,...]  # audio without listening: Blindfold transcripts, Hear the chart rendered offline + analysed, profile screenshots → output/screens/ (+ listen_check.zip, not committed)
 python scripts/reset_review_db.py output/<doc>/agent_results_meta.json --pages 84-97,109,124,130 [--db PATH]  # M7: rebuild the review DB from one results file, no staff edits (stop the server first; old DB kept as .bak-<time>)
 python eval/make_benchmark.py                                  # M8: draft benchmark → eval/benchmark_draft.json
 python scripts/run_benchmark.py --backend meta --set dev       # M8: run + score → eval/results/dev_meta.json
