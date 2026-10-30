@@ -151,16 +151,32 @@ def cost_of(calls: list[dict]) -> dict:
     return out
 
 
+def heldout_pages() -> set[int]:
+    return {f["page"] for f in json.loads((ROOT / "eval" / "heldout.json").read_text(encoding="utf-8"))["figures"]}
+
+
 def heldout_spans(gap: int = 20) -> list[tuple[int, int]]:
     """The held-out set's page spans (pages less than `gap` apart joined): pages a dev run must not touch."""
-    pages = sorted({f["page"] for f in json.loads((ROOT / "eval" / "heldout.json").read_text(encoding="utf-8"))["figures"]})
     spans: list[list[int]] = []
-    for p in pages:
+    for p in sorted(heldout_pages()):
         if spans and p - spans[-1][1] < gap:
             spans[-1][1] = p
         else:
             spans.append([p, p])
     return [(a, b) for a, b in spans]
+
+
+def run_pages(items: list[dict], which: str) -> list[int]:
+    """The figures' pages plus the pages either side (a printed table there can supply exact values,
+    app/source_tables.py). A dev run never adds a neighbour inside the held-out spans, and refuses to
+    run at all if any page it would process is a held-out page."""
+    own = {f["page"] for f in items}
+    spans = heldout_spans() if which == "dev" else []
+    pages = sorted(own | {p + d for p in own for d in (-1, 1)
+                          if p + d >= 1 and not any(a <= p + d <= b for a, b in spans)})
+    if which == "dev" and (clash := sorted(set(pages) & heldout_pages())):
+        raise SystemExit(f"Dev run would process held-out page(s) {clash}: fix eval/benchmark.json or eval/heldout.json")
+    return pages
 
 
 def find_region(item: dict, regions):
@@ -536,12 +552,7 @@ def main() -> None:
     pdf = ROOT / bench.get("source_pdf", "data/samples/introductory-statistics-2e_-_WEB.pdf")
     model = get_client(args.backend)[1]
 
-    # Pages next to each figure too: a printed table there can supply exact values (app/source_tables.py).
-    # A dev run never adds a page inside the held-out spans (168–175, 630–670) as a neighbour.
-    own = {f["page"] for f in items}
-    held = heldout_spans() if args.which == "dev" else []
-    pages = sorted(own | {p + d for p in own for d in (-1, 1)
-                          if p + d >= 1 and not any(a <= p + d <= b for a, b in held)})
+    pages = run_pages(items, args.which)  # with neighbours; never a held-out page in a dev run
     doc = ingest(pdf, ",".join(str(p) for p in pages), out_root=out_root)
     regions, _ = detect(doc, use_sam=False, use_check=False, out_root=out_root)  # free layers: same regions for every backend
     tables = [r for r in regions if r.kind == "table"]
