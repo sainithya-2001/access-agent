@@ -222,3 +222,24 @@ class Transcript(BaseModel):
     duration: float  # seconds of audio processed
     segments: list[TranscriptSegment]
     text: str  # the whole transcript, as the API returns it
+
+
+class Slide(BaseModel):
+    """One slide of a lecture video (app/lecture.py): when it was on screen, its frame, the
+    transcript segments spoken over it, and its page in the lecture's slides PDF."""
+    index: int  # 1-based
+    start: float
+    end: float
+    image_path: str
+    segment_ids: list[int] = []
+    pdf_page: int | None = None
+
+
+class Lecture(BaseModel):
+    """A processed lecture recording (app/lecture.py): what output/lectures/<id>/lecture.json holds."""
+    id: str  # hash of the video file
+    title: str
+    video: str
+    transcript: Transcript
+    slides: list[Slide]
+    slides_document: str | None = None  # review-store key of the slides PDF (its figures)
