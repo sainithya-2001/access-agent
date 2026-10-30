@@ -66,9 +66,12 @@ Use a private / incognito window (no Render or GitHub session, no cached files),
 5. **Upload PDF**: the dialog says it's a demo and asks for the passcode. Submit a PDF with a wrong
    passcode: refused with a message. (With the right one and ≤ 5 pages it processes; that spends
    credits.)
-6. Render dashboard → **Logs**: no tracebacks; no `ModelCallsBlocked` errors (they would mean some
+6. **Student inbox** in the header opens the course portal: "Introductory Statistics" with the
+   lecture "Two Ways to Display Data". Open it: the video plays with captions, "Play from" buttons
+   seek, and the notes show Figures 2.3 and 2.6 with their descriptions.
+7. Render dashboard → **Logs**: no tracebacks; no `ModelCallsBlocked` errors (they would mean some
    page tried a model call and was stopped).
-7. Try it on a phone too (the review screen and export work at 375 px).
+8. Try it on a phone too (the review screen and export work at 375 px).
 
 ## Free or paid
 

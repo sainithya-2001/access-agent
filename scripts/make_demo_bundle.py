@@ -11,9 +11,15 @@ demo/output/<pdf_id>/{pages,crops,overlays,images}/...   only files the database
 demo/data/samples/<name>.pdf                the source PDF trimmed to the document's pages: every other
                                             page blank, same page count and outline, so page numbers,
                                             the export's chapter title and a passcode recrop still work
+demo/output/lectures/<id>/                  each --lecture's student page as built (notes.html: figures
+                                            inline; video.mp4, captions.vtt, lecture.json)
+demo/output/portal/index.json               the course portal listing those lectures (/portal.html)
 
 A database with staff edits is refused (build a clean one with scripts/reset_review_db.py --db ...),
 unless --keep-edits. No model calls.
+
+Lectures (default: the test lecture, scripts/make_test_lecture.py) go into one course, --course, as
+ready materials; the portal watcher never runs in DEMO_MODE, so the index is served as written.
 """
 
 import argparse
@@ -21,9 +27,11 @@ import json
 import shutil
 import sqlite3
 import sys
+from datetime import datetime, timezone
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
+TEST_LECTURE = "0d05f0e901c0"  # data/lectures/test_lecture.mp4 with its slides PDF
 sys.stdout.reconfigure(encoding="utf-8")
 
 import pymupdf as fitz  # noqa: E402
@@ -78,11 +86,41 @@ def trimmed_pdf(src: Path, keep: set[int], dst: Path) -> None:
     new.save(dst, garbage=4, deflate=True)
 
 
+LECTURE_FILES = ("notes.html", "video.mp4", "captions.vtt", "lecture.json")
+
+
+def bundle_lectures(ids: list[str], course: str, course_title: str, out: Path) -> int:
+    """Copy each lecture's student page and write the portal index. Returns bytes copied."""
+    size, materials = 0, {}
+    for lid in ids:
+        src = ROOT / "output" / "lectures" / lid
+        lec = json.loads((src / "lecture.json").read_text(encoding="utf-8"))
+        for name in LECTURE_FILES:
+            dst = out / "output" / "lectures" / lid / name
+            dst.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copy2(src / name, dst)
+            size += dst.stat().st_size
+        video = Path(lec["video"]).name
+        ready = datetime.fromtimestamp((src / "notes.html").stat().st_mtime, timezone.utc).isoformat(timespec="seconds")
+        materials[f"{course}/{video}"] = {
+            "course": course, "course_title": course_title, "file": video, "stamp": None, "status": "ready",
+            "added": ready, "lecture_id": lid, "title": lec["title"], "ready_at": ready,
+            "duration": lec["transcript"]["duration"], "error": None}
+    index = out / "output" / "portal" / "index.json"
+    index.parent.mkdir(parents=True, exist_ok=True)
+    index.write_text(json.dumps({"materials": materials}, indent=2), encoding="utf-8")
+    return size + index.stat().st_size
+
+
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--db", default="output/review.db")
     ap.add_argument("--out", default="demo")
     ap.add_argument("--keep-edits", action="store_true", help="bundle a database that has staff edits")
+    ap.add_argument("--lecture", action="append", help="lecture id under output/lectures (repeatable; "
+                    "default: the test lecture); --lecture none for no lectures")
+    ap.add_argument("--course", default="stat-101")
+    ap.add_argument("--course-title", default="Introductory Statistics")
     args = ap.parse_args()
 
     out = (ROOT / args.out).resolve()
@@ -134,8 +172,12 @@ def main() -> None:
         trimmed_pdf(pdf_src, keep, out / pdf_dst)
         size += (out / pdf_dst).stat().st_size
     size += db_path.stat().st_size
+    lectures = [x for x in (args.lecture or [TEST_LECTURE]) if x != "none"]
+    if lectures:
+        size += bundle_lectures(lectures, args.course, args.course_title, out)
     figs = sqlite3.connect(db_path).execute("SELECT status, COUNT(*) FROM figures GROUP BY status").fetchall()
-    print(f"{out}: {len(pdfs)} PDF(s), {len(b.files)} image files, {size / 2**20:.1f} MB; figures {dict(figs)}")
+    print(f"{out}: {len(pdfs)} PDF(s), {len(b.files)} image files, {len(lectures)} lecture(s), "
+          f"{size / 2**20:.1f} MB; figures {dict(figs)}")
 
 
 if __name__ == "__main__":

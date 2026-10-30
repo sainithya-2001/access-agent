@@ -138,6 +138,22 @@ def browse(base: str, doc_id: str) -> int:
         page.click("#upload-cancel")
         page.goto(f"{base}/api/documents/{doc_id}/preview")
         page.wait_for_load_state("networkidle")
+        # The course portal, from the review screen's header, and the lecture's notes page
+        page.goto(base + "/")
+        page.click("#portal-link")
+        page.wait_for_url("**/portal.html")
+        page.wait_for_selector("main a[href^='/lectures/']")
+        axe = run_axe(page)
+        check(not axe["violations"], f"browser: header → student inbox; axe-core on it: "
+                                     f"{[v['id'] for v in axe['violations']] or 0} violations")
+        page.click("main a[href^='/lectures/']")
+        page.wait_for_url("**/notes.html")
+        page.wait_for_load_state("networkidle")
+        ok = page.evaluate("document.querySelector('video').readyState >= 1 && "
+                           "document.querySelector('video').textTracks.length === 1")
+        axe = run_axe(page)
+        check(ok and not axe["violations"], f"browser: lecture notes page, video and captions load; axe-core: "
+                                            f"{[v['id'] for v in axe['violations']] or 0} violations")
         browser.close()
     check(not bad, f"browser: no failed requests {bad[:3]}")
     return n
@@ -169,6 +185,13 @@ def main() -> None:
         st, _ = srv.post(f"/api/figures/{urllib.request.quote(figs[0]['id'])}/review",
                          json.dumps({"action": "approve", "who": "Demo test"}).encode(), "application/json")
         check(st == 200, "staff review (approve) works without a passcode")
+        courses = json.loads(srv.get("/api/portal")[1])
+        mats = [m for c in courses for m in c["materials"]]
+        check(len(courses) == 1 and mats and all(m["status"] == "ready" and m["url"] for m in mats),
+              f"portal: {len(courses)} course, {len(mats)} ready lecture(s)")
+        codes = [srv.get(m["url"].replace("notes.html", f))[0] for m in mats
+                 for f in ("notes.html", "video.mp4", "captions.vtt")]
+        check(set(codes) == {200}, f"lecture notes pages, videos and captions: {codes}")
         log = call_log(tmp)
         check(not log, f"no model calls (call log lines: {len(log)})")
 

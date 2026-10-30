@@ -1,0 +1,17 @@
+{
+  "materials": {
+    "stat-101/test_lecture.mp4": {
+      "course": "stat-101",
+      "course_title": "Introductory Statistics",
+      "file": "test_lecture.mp4",
+      "stamp": null,
+      "status": "ready",
+      "added": "2026-10-30T18:53:17+00:00",
+      "lecture_id": "0d05f0e901c0",
+      "title": "Two Ways to Display Data",
+      "ready_at": "2026-10-30T18:53:17+00:00",
+      "duration": 81.44,
+      "error": null
+    }
+  }
+}

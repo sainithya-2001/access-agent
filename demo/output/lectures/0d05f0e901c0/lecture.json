@@ -1,0 +1,329 @@
+{
+  "id": "0d05f0e901c0",
+  "title": "Two Ways to Display Data",
+  "video": "data/lectures/test_lecture.mp4",
+  "transcript": {
+    "source": "data\\lectures\\test_lecture.mp4",
+    "model": "muse-voice-transcribe-1.0",
+    "duration": 81.44,
+    "segments": [
+      {
+        "id": 0,
+        "start": 0.46,
+        "end": 3.1,
+        "text": "Today we look at two ways to display data."
+      },
+      {
+        "id": 1,
+        "start": 3.74,
+        "end": 5.74,
+        "text": "First a bar graph."
+      },
+      {
+        "id": 2,
+        "start": 6.38,
+        "end": 10.46,
+        "text": "This one shows the the proportion of TikTok users in each age group."
+      },
+      {
+        "id": 3,
+        "start": 10.7,
+        "end": 22.3,
+        "text": "As you can see here the tallest bar is the 10 to 19 age group at about 32 and a half percent percent followed by 20 to 29 at 29 and a half percent."
+      },
+      {
+        "id": 4,
+        "start": 23.02,
+        "end": 33.1,
+        "text": "After that the bars drop about 16% for 30 to 39 about 14% for 40 to 49 and 7% for 50 and older."
+      },
+      {
+        "id": 5,
+        "start": 33.58,
+        "end": 38.78,
+        "text": "In a bar graph the bars stand for categories so they are separated by gaps."
+      },
+      {
+        "id": 6,
+        "start": 40.06,
+        "end": 42.38,
+        "text": "Next a histogram. histogram."
+      },
+      {
+        "id": 7,
+        "start": 42.62,
+        "end": 49.26,
+        "text": "A histogram is a graph of quantitative data in which the bars touch and each bar covers an covers an interval of values."
+      },
+      {
+        "id": 8,
+        "start": 49.98,
+        "end": 55.34,
+        "text": "Here the data are the number of of books bought by 50 part-time students at ABC College."
+      },
+      {
+        "id": 9,
+        "start": 55.74,
+        "end": 61.74,
+        "text": "The intervals run from one half to six and a half one book wide so there are six bars."
+      },
+      {
+        "id": 10,
+        "start": 62.38,
+        "end": 76.38,
+        "text": "three books is the most common answer with 16 students 11 students bought one book and 10 bought two I want to emphasize this the frequencies must add up to the number of students 50"
+      },
+      {
+        "id": 11,
+        "start": 76.46,
+        "end": 76.54,
+        "text": "50"
+      },
+      {
+        "id": 12,
+        "start": 77.18,
+        "end": 79.58,
+        "text": "always check that before you draw the histogram"
+      }
+    ],
+    "text": "Today we look at two ways to display data. First a bar graph. This one shows the the proportion of TikTok users in each age group. As you can see here the tallest bar is the 10 to 19 age group at about 32 and a half percent percent followed by 20 to 29 at 29 and a half percent. After that the bars drop about 16% for 30 to 39 about 14% for 40 to 49 and 7% for 50 and older. In a bar graph the bars stand for categories so they are separated by gaps. Next a histogram. histogram. A histogram is a graph of quantitative data in which the bars touch and each bar covers an covers an interval of values. Here the data are the number of of books bought by 50 part-time students at ABC College. The intervals run from one half to six and a half one book wide so there are six bars. three books is the most common answer with 16 students 11 students bought one book and 10 bought two I want to emphasize this the frequencies must add up to the number of students 50 50 always check that before you draw the histogram"
+  },
+  "slides": [
+    {
+      "index": 1,
+      "start": 0.0,
+      "end": 39.5,
+      "image_path": "output/lectures/0d05f0e901c0/slides/slide_001.png",
+      "segment_ids": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "pdf_page": 2,
+      "source_page": 2,
+      "match": 0.994,
+      "document": "lecture-0d05f0e901c0-pdf"
+    },
+    {
+      "index": 2,
+      "start": 39.5,
+      "end": 81.4,
+      "image_path": "output/lectures/0d05f0e901c0/slides/slide_002.png",
+      "segment_ids": [
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12
+      ],
+      "pdf_page": 5,
+      "source_page": 5,
+      "match": 0.995,
+      "document": "lecture-0d05f0e901c0-pdf"
+    }
+  ],
+  "slides_document": "lecture-0d05f0e901c0-pdf",
+  "notes": {
+    "title": "Two Ways to Display Data",
+    "sections": [
+      {
+        "heading": "Bar Graph of TikTok Users by Age Group",
+        "slide": 1,
+        "points": [
+          {
+            "kind": "key_point",
+            "text": "This bar graph shows the proportion of TikTok users in each age group.",
+            "term": null,
+            "segments": [
+              2
+            ],
+            "supported": false,
+            "check": "The cited segment says 'This one shows the proportion...' but does not state that it is a bar graph."
+          },
+          {
+            "kind": "key_point",
+            "text": "The tallest bar is the 10 to 19 age group at about 32.5%.",
+            "term": null,
+            "segments": [
+              3
+            ],
+            "supported": true,
+            "check": null
+          },
+          {
+            "kind": "key_point",
+            "text": "The 20 to 29 age group is at 29.5%.",
+            "term": null,
+            "segments": [
+              3
+            ],
+            "supported": true,
+            "check": null
+          },
+          {
+            "kind": "key_point",
+            "text": "About 16% are in the 30 to 39 age group.",
+            "term": null,
+            "segments": [
+              4
+            ],
+            "supported": true,
+            "check": null
+          },
+          {
+            "kind": "key_point",
+            "text": "About 14% are in the 40 to 49 age group.",
+            "term": null,
+            "segments": [
+              4
+            ],
+            "supported": true,
+            "check": null
+          },
+          {
+            "kind": "key_point",
+            "text": "7% are 50 and older.",
+            "term": null,
+            "segments": [
+              4
+            ],
+            "supported": true,
+            "check": null
+          },
+          {
+            "kind": "definition",
+            "text": "The bars stand for categories so they are separated by gaps.",
+            "term": "bar graph",
+            "segments": [
+              5
+            ],
+            "supported": true,
+            "check": null
+          }
+        ],
+        "visuals": [
+          {
+            "segment": 3,
+            "phrase": "As you can see here",
+            "slide": 1,
+            "figure_id": "lecture-0d05f0e901c0-pdf:p2_f0",
+            "after_point": 2
+          }
+        ]
+      },
+      {
+        "heading": "Histogram of Books Bought by Part-Time Students",
+        "slide": 2,
+        "points": [
+          {
+            "kind": "definition",
+            "text": "A graph of quantitative data in which the bars touch and each bar covers an interval of values.",
+            "term": "histogram",
+            "segments": [
+              7
+            ],
+            "supported": true,
+            "check": null
+          },
+          {
+            "kind": "key_point",
+            "text": "The data are the number of books bought by 50 part-time students at ABC College.",
+            "term": null,
+            "segments": [
+              8
+            ],
+            "supported": true,
+            "check": null
+          },
+          {
+            "kind": "key_point",
+            "text": "The intervals run from 0.5 to 6.5.",
+            "term": null,
+            "segments": [
+              9
+            ],
+            "supported": true,
+            "check": null
+          },
+          {
+            "kind": "key_point",
+            "text": "The intervals are 1 book wide.",
+            "term": null,
+            "segments": [
+              9
+            ],
+            "supported": true,
+            "check": null
+          },
+          {
+            "kind": "key_point",
+            "text": "There are 6 bars.",
+            "term": null,
+            "segments": [
+              9
+            ],
+            "supported": true,
+            "check": null
+          },
+          {
+            "kind": "key_point",
+            "text": "3 books is the most common answer with 16 students.",
+            "term": null,
+            "segments": [
+              10
+            ],
+            "supported": true,
+            "check": null
+          },
+          {
+            "kind": "key_point",
+            "text": "11 students bought 1 book.",
+            "term": null,
+            "segments": [
+              10
+            ],
+            "supported": true,
+            "check": null
+          },
+          {
+            "kind": "key_point",
+            "text": "10 students bought 2 books.",
+            "term": null,
+            "segments": [
+              10
+            ],
+            "supported": true,
+            "check": null
+          },
+          {
+            "kind": "emphasis",
+            "text": "The instructor emphasized that the frequencies must add up to the number of students, 50.",
+            "term": null,
+            "segments": [
+              10,
+              11
+            ],
+            "supported": true,
+            "check": null
+          },
+          {
+            "kind": "key_point",
+            "text": "Always check that before you draw the histogram.",
+            "term": null,
+            "segments": [
+              12
+            ],
+            "supported": true,
+            "check": null
+          }
+        ],
+        "visuals": []
+      }
+    ]
+  }
+}
