@@ -80,7 +80,8 @@ Use a private / incognito window (no Render or GitHub session, no cached files),
   redeploy, and the demo returns to the bundled state. For a demo that is mostly fine (every judge
   starts clean), but one judge's approvals vanish if they come back an hour later.
 - **Memory is not the problem.** Measured locally: ~170 MB idle, ~180 MB after serving every page,
-  crop and export, ~320 MB peak while a 5-page passcode upload is processed (4 figure workers). That
+  crop and export, 320–370 MB peak while a 5-page passcode upload is processed (4 figure workers;
+  two measurements, pages 85–89 and 107–111). That
   fits 512 MB for viewing; several passcode uploads at once could not, but uploads run one at a
   time (`api._lock`). The 0.1 CPU makes page rendering in uploads slow, not the review screen.
 
