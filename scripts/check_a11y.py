@@ -150,6 +150,37 @@ def blindfold_keys(page, opener: str) -> list[str]:
     return problems
 
 
+def blindfold_at_figure(page) -> tuple[int, list[str]]:
+    """Blindfold opened with a figure selected starts at that figure's first block (else the first
+    block on its page); Start from the top goes to block 1. Axe in both states."""
+    n, problems = 0, []
+    page.locator(".queue-item").last.click()  # a figure past the start of the document
+    expect = page.evaluate("""async () => {
+        const f = current();
+        const res = await fetch(`${docPath(state.docId)}/preview`);
+        const doc = new DOMParser().parseFromString(await res.text(), "text/html");
+        const blocks = Blindfold.accessibleBlocks(doc.querySelector("main"));
+        let i = blocks.findIndex((b) => b.region === f.region_id);
+        if (i < 0) i = Math.max(0, blocks.findIndex((b) => b.page >= f.page));
+        return { i, n: blocks.length, fig: f.region_id };
+    }""")
+    page.click("#blindfold-btn")
+    page.wait_for_selector("dialog.bf[open]")
+    page.click(".bf-play")  # pause, so the position stays put
+    pos = page.inner_text(".bf-pos")
+    if f"block {expect['i'] + 1} of" not in pos:
+        problems.append(f"opened at '{pos}', expected block {expect['i'] + 1} (figure {expect['fig']})")
+    if expect["i"] == 0:
+        problems.append("the selected figure is the first block: start-at-figure not really tested")
+    n += report("Blindfold mode at the selected figure", run_axe(page))
+    page.click(".bf-top-btn")
+    if "block 1 of" not in page.inner_text(".bf-pos"):
+        problems.append(f"Start from the top went to '{page.inner_text('.bf-pos')}', not block 1")
+    n += report("Blindfold mode after Start from the top", run_axe(page))
+    page.keyboard.press("Escape")
+    return n, problems
+
+
 PROFILES = ["screen-reader", "low-vision", "reading", "keyboard"]
 
 
@@ -538,6 +569,11 @@ def check_review(url: str | None) -> int:
             total += report("Blindfold mode", run_axe(page))
             page.keyboard.press("Escape")
             page.uncheck("#filter-review", force=True)
+            n, problems = blindfold_at_figure(page)
+            print(f"\n== review screen, Blindfold at the selected figure: {len(problems)} problem(s)")
+            for p in problems:
+                print(f"  - {p}")
+            total += n + len(problems)
 
             page.reload()
             page.wait_for_selector(".queue-item")
