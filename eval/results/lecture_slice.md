@@ -32,3 +32,18 @@ Seen while testing:
 - Slide frames are image-only pages, so the figure pipeline needs the page check (Muse Spark + SAM),
   crops include the printed caption (no caption text box to stop at), and printed tables can't
   supply exact values.
+
+## Update 2026-10-30: one verifier call per point
+
+The notes verifier now checks each point in its own call, with only that point and its cited segments
+(`notes.verify_point`). Before, one batched call checked all points, and the borderline point ("This
+bar graph shows ...") passed when the three planted errors were in the same call but failed without
+them. Now: 16 of 17 genuine points supported, the same point flagged (its cited segment never says "bar
+graph"), and every genuine point's verdict is identical with and without the plants; planted errors
+still 3/3 (the changed number by the code check with no call, the other two by their own calls).
+Cost: 19 uncached calls (17 points + 2 plants), 5,384 input / 14,178 output tokens, $0.067, about
+$0.0035 per point; a lecture like the clip now spends ~$0.06 on verification instead of ~$0.02.
+
+With the slides PDF (`data/lectures/test_lecture.pdf`), both slides match their pages (0.994, 0.995)
+and the slide figures come from the real pages at $0 (cached from the textbook runs): Figure 2.3 with
+Table 2.9's exact values, Figure 2.6 auto-approved.

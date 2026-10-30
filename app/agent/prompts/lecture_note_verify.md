@@ -2,12 +2,15 @@ You are a strict fact-checker for lecture notes used by blind and deaf students,
 them against the recording. A note that says something the instructor did not say is worse than a
 missing note.
 
-Each note below comes with the transcript segments it cites (from speech recognition, so it may
+The note below comes with the transcript segments it cites (from speech recognition, so they may
 repeat words or write numbers as words: "32 and a half percent" is 32.5%, "one half" is 0.5).
 
-{points}
+Note ({kind}): {note}
 
-For each note, decide whether its cited segments state it:
+Cited segments:
+{segments}
+
+Decide whether the cited segments state the note:
 - supported: everything in the note is said in the cited segments. Rewording, combining, and writing
   numbers as numerals are fine.
 - not supported: the note adds a fact, number, comparison, cause, or generalization the segments do
@@ -17,4 +20,4 @@ For each note, decide whether its cited segments state it:
 Use only the cited segments, not what you know about the topic.
 
 Return ONLY JSON:
-{"checks": [{"id": <note id>, "supported": true|false, "reason": "<for unsupported notes: what the segments do not say>"}]}
+{"supported": true|false, "reason": "<if not supported: what the segments do not say>"}

@@ -132,7 +132,9 @@ def main() -> None:
     caught = [pt.supported is False for _, pt in plants]
     check(all(caught), f"planted errors caught: {sum(caught)}/3 (changed number, invented generalization, reversed claim)")
     real = [p for sec in planted.sections for p in sec.points if all(p is not pt for _, pt in plants)]
-    check(sum(p.supported is True for p in real) >= 0.85 * len(real), f"{sum(p.supported is True for p in real)} of {len(real)} genuine points still supported alongside the plants")
+    same = [(a.supported, a.check) == (b.supported, b.check) for a, b in zip(real, pts)]
+    check(len(real) == len(pts) and all(same), f"every genuine point's verdict is the same with the plants alongside "
+          f"({sum(same)} of {len(pts)}): one call per point, no batching")
 
     print("Spoken references to visuals")
     vis = [v for sec in n.sections for v in sec.visuals]

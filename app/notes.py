@@ -11,8 +11,10 @@ Text only, temperature 0, cached like every chat() call. Invalid JSON: one repai
 error propagates (the caller marks the lecture failed).
 
 Verifier: code checks every number in a point against the numbers spoken in its cited segments (digits
-or words: "32 and a half" = 32.5); Muse Spark (prompts/lecture_notes_verify.md) judges the claim from
-the cited segments alone. A point fails if either says so. Visual references ("as you can see here",
+or words: "32 and a half" = 32.5); then Muse Spark (prompts/lecture_note_verify.md) judges the claim
+from the cited segments alone, one call per point, so a verdict never depends on which other points
+are checked with it (a batched call let a borderline point pass or fail with its neighbours). A point
+fails if either says so; one that fails the number check needs no call. Visual references ("as you can see here",
 ...) are found by code (VISUAL_RE); the slide's figure is attached there, and its description is shown
 only if the figure is verified (VERIFIED statuses; app/lecture_html.py).
 """
@@ -26,7 +28,7 @@ from pydantic import BaseModel, ValidationError
 
 from app.agent.tools import _json, _prompt
 from app.llm import chat
-from app.models import FigureResult, Lecture, LectureNotes, NoteChecks, Status, VisualRef
+from app.models import FigureResult, Lecture, LectureNotes, NoteVerdict, Status, VisualRef
 
 T = TypeVar("T", bound=BaseModel)
 
@@ -115,38 +117,30 @@ def note_numbers(text: str) -> set[float]:
     return {float(n) for n in re.findall(r"\d+(?:\.\d+)?", text.replace(",", ""))}
 
 
-def _points_prompt(notes: LectureNotes, segs: dict) -> tuple[str, list]:
-    flat, blocks = [], []
-    for sec in notes.sections:
-        for p in sec.points:
-            flat.append(p)
-            cited = "\n".join(f"    [{i}] {segs[i].text}" for i in p.segments) or "    (no segments cited)"
-            label = f"{p.term}: " if p.term else ""
-            blocks.append(f"Note {len(flat) - 1} ({p.kind}): {label}{p.text}\n  Cited segments:\n{cited}")
-    return "\n\n".join(blocks), flat
+def verify_point(p, segs: dict, backend: str | None = None) -> tuple[bool, str | None]:
+    """One point against its cited segments: (supported, reason). Code first (numbers), then one
+    Muse Spark call that sees only this point and its segments."""
+    if not p.segments:
+        return False, "cites no transcript segment"
+    said = set().union(*(spoken_numbers(segs[k].text) for k in p.segments))
+    missing = sorted(n for n in note_numbers(p.text) if not any(abs(n - m) < 1e-9 for m in said))
+    if missing:
+        return False, "numbers not in the cited segments: " + ", ".join(f"{n:g}" for n in missing)
+    cited = "\n".join(f"[{i}] {segs[i].text}" for i in p.segments)
+    note = f"{p.term}: {p.text}" if p.term else p.text
+    v = _ask_text(NoteVerdict, _prompt("lecture_note_verify", kind=p.kind, note=note, segments=cited),
+                  "lecture_note_verify", backend)
+    return v.supported, (None if v.supported else v.reason or "not supported")
 
 
 def verify_notes(lec: Lecture, notes: LectureNotes, con=None, backend: str | None = None) -> LectureNotes:
-    """Check every point against its cited segments (code: numbers; Muse Spark: the claim), mark it
-    supported or not, and add the spoken references to visuals. Unsupported points stay in the returned
-    notes, marked (staff see why); student_notes() leaves them out. Returns the same notes object."""
+    """Check every point against its cited segments (verify_point), mark it supported or not, and add
+    the spoken references to visuals. Unsupported points stay in the returned notes, marked (staff see
+    why); student_notes() leaves them out. Returns the same notes object."""
     segs = {s.id: s for s in lec.transcript.segments}
-    prompt, flat = _points_prompt(notes, segs)
-    checks = {c.id: c for c in _ask_text(NoteChecks, _prompt("lecture_notes_verify", points=prompt),
-                                         "lecture_notes_verify", backend).checks}
-    for i, p in enumerate(flat):
-        if not p.segments:
-            p.supported, p.check = False, "cites no transcript segment"
-            continue
-        said = set().union(*(spoken_numbers(segs[k].text) for k in p.segments))
-        missing = sorted(n for n in note_numbers(p.text) if not any(abs(n - m) < 1e-9 for m in said))
-        c = checks.get(i)
-        if missing:
-            p.supported, p.check = False, "numbers not in the cited segments: " + ", ".join(f"{n:g}" for n in missing)
-        elif c is None:
-            p.supported, p.check = False, "the checker returned no verdict"
-        else:
-            p.supported, p.check = c.supported, (None if c.supported else c.reason or "not supported")
+    for sec in notes.sections:
+        for p in sec.points:
+            p.supported, p.check = verify_point(p, segs, backend)
     add_visuals(lec, notes, con)
     return notes
 

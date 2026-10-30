@@ -267,14 +267,10 @@ class NoteSection(BaseModel):
     visuals: list[VisualRef] = []
 
 
-class NoteCheck(BaseModel):
-    id: int
+class NoteVerdict(BaseModel):
+    """The notes verifier's answer for one point (app/notes.py; one call per point)."""
     supported: bool
     reason: str | None = None
-
-
-class NoteChecks(BaseModel):
-    checks: list[NoteCheck]
 
 
 class LectureNotes(BaseModel):
