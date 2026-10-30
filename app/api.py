@@ -21,7 +21,7 @@ from pydantic import BaseModel, Field
 
 import pymupdf as fitz
 
-from app import pdf, pipeline, store
+from app import pdf, pipeline, sonify, store
 from app.agent.orchestrator import NO_SCALE_REASON, FigureAgent
 from app.assemble import assemble, printed_page_numbers
 from app.detect import _crop
@@ -173,6 +173,7 @@ def _figure_json(fid: str, res: FigureResult) -> dict:
         "latex": d.latex if d else None,
         "data": [p.model_dump() for p in (ex.data if ex else [])],
         "values_estimated": bool(ex and ex.values_estimated),
+        "sound": sonify.chart_sound(res),  # "Hear the chart": verified bar/histogram/line/frequency-polygon values only
         "first_description": first,
         "trace": [t.model_dump() for t in res.trace],
         "edits": store.edits_for(con, fid),

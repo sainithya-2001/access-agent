@@ -359,3 +359,8 @@ table.shortcuts kbd { margin: 0; }
   .page-scroll { max-height: 70vh; }
 }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+
+/* Hear the chart (sonify.js) */
+.hear-chart { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem 0.75rem; margin: 0 0 1rem; }
+.hear-chart[hidden] { display: none; }
+.hear-chart .hint { margin: 0; }

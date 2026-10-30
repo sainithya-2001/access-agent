@@ -22,7 +22,7 @@ from pathlib import Path
 
 import pymupdf as fitz
 
-from app import pdf, stemplot
+from app import pdf, sonify, stemplot
 from app.agent import tools
 from app.models import Document, FigureResult, Region, Status, TextBlock
 
@@ -135,6 +135,17 @@ def _img_src(path: str) -> str:
     return "data:image/png;base64," + base64.b64encode(data).decode()
 
 
+def hear_chart(sound: dict | None, name: str) -> str:
+    """The "Hear the chart" button (web/sonify.js), only for charts app/sonify.py offers sound for.
+    Hidden until the script finds Web Audio."""
+    if not sound:
+        return ""
+    return (f'<div class="hear-chart" hidden><button type="button" class="hear-chart-btn" '
+            f'data-sound="{e(json.dumps(sound))}"><span class="hear-chart-label">Hear the chart</span>'
+            f'<span class="visually-hidden">: {e(name)}</span></button> '
+            f'<span class="hear-chart-status" role="status"></span></div>')
+
+
 def _wrap_open(label: str) -> str:
     """A wide table scrolls in its own box on a narrow screen (focusable, so it scrolls by keyboard)
     instead of making the whole page scroll sideways."""
@@ -217,6 +228,7 @@ def _figure(r: Region, res: FigureResult | None, review: list[tuple[str, str]]) 
         parts.append(f'<div class="long-desc" id="{fid}-desc"><p class="long-desc-label">{label}</p>{paras}</div>')
     if res and kind == "chart" and not decorative:
         parts.append(_chart_table(res, fid, name))
+        parts.append(hear_chart(sonify.chart_sound(res), name))
     parts.append("</div>")
     return "\n".join(p for p in parts if p)
 
@@ -443,6 +455,7 @@ def assemble(doc: Document, regions: list[Region], results: dict[str, FigureResu
 
 BLINDFOLD_JS = Path(__file__).resolve().parents[1] / "web" / "blindfold.js"
 PROFILES_JS = Path(__file__).resolve().parents[1] / "web" / "profiles.js"
+SONIFY_JS = Path(__file__).resolve().parents[1] / "web" / "sonify.js"
 
 
 def original_reading(doc: Document, regions: list[Region]) -> list[dict]:
@@ -480,7 +493,8 @@ def original_reading(doc: Document, regions: list[Region]) -> list[dict]:
 def _blindfold(doc: Document, regions: list[Region]) -> dict:
     data = json.dumps(original_reading(doc, regions), ensure_ascii=False).replace("</", "<\\/")
     return {"blindfold_data": data, "blindfold_js": BLINDFOLD_JS.read_text(encoding="utf-8"),
-            "profiles_js": PROFILES_JS.read_text(encoding="utf-8")}
+            "profiles_js": PROFILES_JS.read_text(encoding="utf-8"),
+            "sonify_js": SONIFY_JS.read_text(encoding="utf-8")}
 
 
 def _ranges(nums: list[int]) -> str:
@@ -564,6 +578,11 @@ thead th { background: var(--panel); }
 .profile-bar label { display: inline-flex; align-items: center; gap: 0.35rem; cursor: pointer; }
 .profile-bar input[type=radio] { width: 1.1rem; height: 1.1rem; margin: 0; }
 .profile-hint { max-width: 46rem; margin: 0.25rem auto 0; font-size: 0.9rem; color: var(--muted); }
+.hear-chart { margin: 0.75rem 0 0; display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem 1rem; }
+.hear-chart[hidden] { display: none; }
+.hear-chart-btn { font: inherit; font-size: 1rem; color: var(--text); background: var(--bg);
+  border: 2px solid var(--text); border-radius: 6px; padding: 0.35rem 0.8rem; cursor: pointer; }
+.hear-chart-status { color: var(--muted); }
 .ra-bar, .zoom-btn { display: none; }
 .ra-bar { max-width: 46rem; margin: 0.5rem auto 0; flex-wrap: wrap; align-items: center; gap: 0.5rem; }
 .ra-bar button, .ra-bar select, .zoom-btn { font: inherit; font-size: 1rem; color: var(--text); background: var(--bg);
@@ -662,6 +681,7 @@ PAGE = """<!doctype html>
 <script type="application/json" id="blindfold-original">{blindfold_data}</script>
 <script>{blindfold_js}</script>
 <script>{profiles_js}</script>
+<script>{sonify_js}</script>
 </body>
 </html>
 """

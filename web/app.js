@@ -384,7 +384,17 @@ function historyHtml(f) {
     + `${e.note ? `: “${esc(e.note)}”` : ""}</li>`).join("")}</ul></div>`;
 }
 
+// "Hear the chart" (sonify.js): the API sends sound data only for verified, approved bar charts,
+// histograms, line charts and frequency polygons.
+function hearHtml(f, name) {
+  if (!f.sound) return "";
+  return `<div class="hear-chart" hidden><button type="button" class="btn btn-quiet hear-chart-btn" data-sound="${esc(JSON.stringify(f.sound))}">`
+    + `<span class="hear-chart-label">Hear the chart</span><span class="visually-hidden">: ${esc(name)}</span></button>`
+    + `<span class="hint hear-chart-status" role="status"></span></div>`;
+}
+
 function renderDetail(f) {
+  if (window.Sonify) Sonify.stop();
   const name = figName(f);
   const caption = f.caption && f.caption.trim() !== name ? `<p class="fig-sub">${esc(f.caption)}</p>` : "";
   const issues = f.issues.length
@@ -405,6 +415,7 @@ function renderDetail(f) {
         <button type="button" class="linklike" data-action="crop" ${pending ? "disabled" : ""}>Adjust crop</button></span>
         <span class="hint">Adjust it if it cuts off part of the figure or takes in extra text.</span>
       </figcaption></figure>
+    ${hearHtml(f, name)}
     <form id="desc-form" novalidate>
       <div class="field">
         <div class="field-head"><label for="alt-text">Alt text</label><p class="counter" id="alt-counter"></p></div>
@@ -429,6 +440,7 @@ function renderDetail(f) {
           <span class="t-action">${esc(ACTION_LABEL[t.action] || t.action)}</span><span class="t-text">${esc(t.summary)}</span></li>`).join("")}</ol></div>
     </details>`;
   $("tech").addEventListener("toggle", (e) => { state.techOpen = e.target.open; });
+  if (window.Sonify) Sonify.reveal($("detail-body"));
   $("actionbar").hidden = false;
   $("reject-box").hidden = true;
   $("crop-panel").hidden = true;

@@ -64,6 +64,65 @@ window.SpeechSynthesisUtterance = function (t) { this.text = t; };
 """
 
 
+# "Hear the chart" is checked with a silent Web Audio stand-in that records each tone and click.
+FAKE_AUDIO = """
+window.__tones = []; window.__clicks = 0;
+window.AudioContext = function () {
+  const t0 = performance.now();
+  const node = () => ({ connect(n) { return n; }, start() {}, stop() {} });
+  const param = () => ({ value: 0, setValueAtTime() {}, exponentialRampToValueAtTime() {} });
+  return { state: 'running', sampleRate: 8000, destination: {}, resume: async () => {},
+    get currentTime() { return (performance.now() - t0) / 1000; },
+    createOscillator() { const o = Object.assign(node(), { frequency: param() });
+      o.start = (at) => window.__tones.push(o.frequency.value); return o; },
+    createGain() { return Object.assign(node(), { gain: param() }); },
+    createBiquadFilter() { return Object.assign(node(), { frequency: param() }); },
+    createBuffer(c, n) { return { getChannelData: () => new Float32Array(n) }; },
+    createBufferSource() { const s = node(); s.start = () => window.__clicks++; return s; } };
+};
+"""
+
+
+def hear_keys(page, scope: str) -> list[str]:
+    """Play the first "Hear the chart" button in scope from the keyboard: one tone and one click per
+    data point, higher values higher pitch, each series named first; Esc stops."""
+    problems = []
+    btn = page.locator(f"{scope} .hear-chart-btn").first
+    if not btn.is_visible():
+        return [f"Hear the chart is not shown in {scope}"]
+    sound = json.loads(btn.get_attribute("data-sound"))
+    page.evaluate("""() => { window.__tones = []; window.__clicks = 0; speechSynthesis.said = [];
+      if (speechSynthesis.recorded) return;
+      const s = speechSynthesis.speak.bind(speechSynthesis);
+      speechSynthesis.speak = (u) => { speechSynthesis.said.push(u.text); s(u); };
+      speechSynthesis.recorded = true; }""")
+    btn.focus()
+    page.keyboard.press("Enter")
+    page.wait_for_timeout(200)
+    if btn.inner_text().split(":")[0].strip() != "Stop":
+        problems.append("Hear the chart did not switch to Stop while playing")
+    page.wait_for_function("b => b.querySelector('.hear-chart-label').textContent === 'Hear the chart'",
+                           arg=btn.element_handle(), timeout=30000)
+    pts = [p for s in sound["series"] for p in s["points"]]
+    tones = page.evaluate("window.__tones")
+    if len(tones) != len(pts) or page.evaluate("window.__clicks") != len(pts):
+        problems.append(f"expected {len(pts)} tones and clicks, got {len(tones)} tones")
+    else:
+        for (a, fa), (b, fb) in zip(zip(pts, tones), zip(pts[1:], tones[1:])):
+            if (a["value"] < b["value"]) != (fa < fb) and a["value"] != b["value"]:
+                problems.append(f"pitch does not follow the values at {a['label']} → {b['label']}")
+                break
+    said = page.evaluate("speechSynthesis.said")
+    if said != [s["name"] for s in sound["series"]]:
+        problems.append(f"series names spoken {said}, expected {[s['name'] for s in sound['series']]}")
+    page.keyboard.press("Enter")  # play again, then stop with Esc
+    page.wait_for_timeout(150)
+    page.keyboard.press("Escape")
+    if btn.inner_text().split(":")[0].strip() != "Hear the chart":
+        problems.append("Esc did not stop Hear the chart")
+    return problems
+
+
 def blindfold_keys(page, opener: str) -> list[str]:
     """Open Blindfold mode from the keyboard, step through blocks, close with Esc."""
     problems = []
@@ -181,6 +240,7 @@ def check_export(arg: str | None) -> int:
         browser = pw.chromium.launch()
         page = browser.new_page()
         page.add_init_script(SILENT_SPEECH)
+        page.add_init_script(FAKE_AUDIO)
         page.goto(path.resolve().as_uri())
         result = run_axe(page)
         print(f"axe-core {page.evaluate('axe.version')} on {path}")
@@ -198,6 +258,18 @@ def check_export(arg: str | None) -> int:
             n += len(problems)
         if page.locator(".profile-bar").count():
             n += check_profiles(page)
+        if page.locator(".hear-chart-btn").count():
+            page.locator(".hear-chart-btn").first.click()
+            n += report("exported HTML, Hear the chart playing", run_axe(page))
+            page.keyboard.press("Escape")
+            problems = []
+            for fid in page.eval_on_selector_all(".figure-block:has(.hear-chart-btn)", "els => els.map(e => e.id)"):
+                problems += [f"{fid}: {p}" for p in hear_keys(page, f"#{fid}")]
+            print(f"\n== exported HTML, Hear the chart keyboard ({page.locator('.hear-chart-btn').count()} charts): "
+                  f"{len(problems)} problem(s)")
+            for p in problems:
+                print(f"  - {p}")
+            n += len(problems)
         browser.close()
     n += report("exported HTML", result)
     (path.parent / "a11y_report.json").write_text(json.dumps(
@@ -347,6 +419,7 @@ def check_review(url: str | None) -> int:
             browser = pw.chromium.launch()
             page = browser.new_page(viewport={"width": 1600, "height": 1000})
             page.add_init_script(SILENT_SPEECH)
+            page.add_init_script(FAKE_AUDIO)
             page.add_init_script("try { localStorage.setItem('reviewer', 'a11y check'); "
                                  "localStorage.setItem('filter', 'all'); } catch (e) {}")
             page.goto(url)
@@ -389,6 +462,21 @@ def check_review(url: str | None) -> int:
             page.click("#shortcuts-open")
             total += report("shortcuts dialog", run_axe(page))
             page.click("#shortcuts-close")
+            page.uncheck("#filter-review", force=True)
+            problems = []
+            for qid in page.eval_on_selector_all(".queue-item", "els => els.map(e => e.dataset.id)"):
+                page.click(f'.queue-item[data-id="{qid}"]')
+                if page.locator("#detail-body .hear-chart-btn").count():
+                    total += report("Hear the chart in the detail panel", run_axe(page))
+                    problems = hear_keys(page, "#detail-body")
+                    break
+            else:
+                problems = ["no figure in the queue offers Hear the chart"]
+            print(f"\n== review screen, Hear the chart keyboard: {len(problems)} problem(s)")
+            for p in problems:
+                print(f"  - {p}")
+            total += len(problems)
+            page.check("#filter-review", force=True)
             page.click("#blindfold-btn")
             page.wait_for_selector("dialog.bf[open]")
             total += report("Blindfold mode", run_axe(page))
