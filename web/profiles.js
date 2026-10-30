@@ -129,18 +129,7 @@
     }
     return null;
   }
-  function pieces(text) {
-    const out = [];
-    const re = /[^.!?;]*[.!?;]+["')\]]*\s*|[^.!?;]+$/g;
-    let m;
-    while ((m = re.exec(text))) {
-      if (!m[0]) { re.lastIndex++; continue; }
-      const last = out[out.length - 1];
-      if (last && last[1].length + m[0].length <= 220) last[1] += m[0];
-      else out.push([m.index, m[0]]);
-    }
-    return out;
-  }
+  const pieces = (text) => Sentences.chunks(text);  // whole sentences with offsets (web/sentences.js)
   function speakItem() {
     ra.token++;
     if (synth) synth.cancel();

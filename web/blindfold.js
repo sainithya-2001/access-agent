@@ -88,15 +88,8 @@
       : { kind: "Text", text: clean(b.text), say: clean(b.text), page: b.page, region: b.region || null });
   }
 
-  function chunks(text) {
-    const parts = text.match(/[^.!?;:]+[.!?;:]*\s*/g) || [text];
-    const out = [];
-    for (const p of parts) {
-      const last = out[out.length - 1];
-      if (last && last.length + p.length <= CHUNK) out[out.length - 1] = last + p;
-      else out.push(p);
-    }
-    return out.map((c) => c.trim()).filter(Boolean);
+  function chunks(text) {  // whole sentences (web/sentences.js), never "Table 2." + "10 shows"
+    return Sentences.chunks(text, CHUNK).map(([, c]) => c.trim()).filter(Boolean);
   }
 
   // ---------- storage (a per-viewer convenience; works without it) ----------

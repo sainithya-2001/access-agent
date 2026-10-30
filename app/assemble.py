@@ -453,6 +453,7 @@ def assemble(doc: Document, regions: list[Region], results: dict[str, FigureResu
 
 # ---------- 6. Blindfold mode ----------
 
+SENTENCES_JS = Path(__file__).resolve().parents[1] / "web" / "sentences.js"
 BLINDFOLD_JS = Path(__file__).resolve().parents[1] / "web" / "blindfold.js"
 PROFILES_JS = Path(__file__).resolve().parents[1] / "web" / "profiles.js"
 SONIFY_JS = Path(__file__).resolve().parents[1] / "web" / "sonify.js"
@@ -492,7 +493,8 @@ def original_reading(doc: Document, regions: list[Region]) -> list[dict]:
 
 def _blindfold(doc: Document, regions: list[Region]) -> dict:
     data = json.dumps(original_reading(doc, regions), ensure_ascii=False).replace("</", "<\\/")
-    return {"blindfold_data": data, "blindfold_js": BLINDFOLD_JS.read_text(encoding="utf-8"),
+    return {"blindfold_data": data, "sentences_js": SENTENCES_JS.read_text(encoding="utf-8"),
+            "blindfold_js": BLINDFOLD_JS.read_text(encoding="utf-8"),
             "profiles_js": PROFILES_JS.read_text(encoding="utf-8"),
             "sonify_js": SONIFY_JS.read_text(encoding="utf-8")}
 
@@ -679,6 +681,7 @@ PAGE = """<!doctype html>
 </main>
 <footer><p>Source: {source}</p></footer>
 <script type="application/json" id="blindfold-original">{blindfold_data}</script>
+<script>{sentences_js}</script>
 <script>{blindfold_js}</script>
 <script>{profiles_js}</script>
 <script>{sonify_js}</script>
