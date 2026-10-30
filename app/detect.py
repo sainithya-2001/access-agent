@@ -396,20 +396,34 @@ def _caption_for(r: fitz.Rect, page: Page) -> str | None:
     return below[0] or above[0]
 
 
+def caption_top(r: fitz.Rect, lines, caption: str | None) -> float | None:
+    """The top of the figure's own caption when it sits under the figure (OpenStax), else None.
+    lines: (rect, text) pairs (ingest's text blocks or PyMuPDF's). Matched by the caption's label
+    ("Figure 2.3", never "Figure 2.30"), on a line overlapping the figure's columns, below its middle."""
+    m = re.match(r"\s*(?:Figure|Fig\.|Table)\s*\d+(?:\.\d+)*", caption or "", re.I)
+    label = " ".join((m.group(0) if m else (caption or "")[:12]).split())
+    if not label:
+        return None
+    for br, text in lines:
+        t = " ".join(text.split())
+        if not t.startswith(label) or t[len(label):len(label) + 1].isdigit():
+            continue
+        if br.x1 <= r.x0 or br.x0 >= r.x1 or br.y0 <= (r.y0 + r.y1) / 2:
+            continue
+        return br.y0
+    return None
+
+
 def _above_caption(r: fitz.Rect, page: Page, caption: str | None) -> tuple[fitz.Rect, float | None]:
     """A figure's crop ends above its own caption's text box. OpenStax puts the caption about 2pt
     under the figure, so the crop's padding (PAD_PT) took in the tops of its first line's letters.
     Returns (box, the lowest y the crop may reach, or None): the box itself is pulled up only where it
-    reaches into the caption (never by more than its bottom half); otherwise just the padding stops."""
-    if not caption:
+    reaches into the caption (never by more than its bottom half); otherwise just the padding stops.
+    The agent's zoom and recrop crops follow the same rule (orchestrator, via caption_top)."""
+    top = caption_top(r, [(_rect(b.bbox), b.text) for b in page.text_blocks], caption)
+    if top is None or r.y1 + PAD_PT <= top:
         return r, None
-    for b in page.text_blocks:
-        br = _rect(b.bbox)
-        if b.text.strip() != caption or br.x1 <= r.x0 or br.x0 >= r.x1 or br.y0 <= (r.y0 + r.y1) / 2:
-            continue
-        if r.y1 + PAD_PT > br.y0:
-            return fitz.Rect(r.x0, r.y0, r.x1, max(min(r.y1, br.y0), (r.y0 + r.y1) / 2)), br.y0
-    return r, None
+    return fitz.Rect(r.x0, r.y0, r.x1, max(min(r.y1, top), (r.y0 + r.y1) / 2)), top
 
 
 def _nearby_text(r: fitz.Rect, page: Page, limit: int = 600) -> str:

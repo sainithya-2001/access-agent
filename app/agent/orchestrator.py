@@ -111,9 +111,16 @@ class FigureAgent:
         b = r.bbox
         with pdf.LOCK:
             page = fitz.open(self.pdf_path)[r.page - 1]
-            page.get_pixmap(clip=fitz.Rect(b.x0 - 6, b.y0 - 6, b.x1 + 6, b.y1 + 6) & page.rect,
-                            dpi=ZOOM_DPI).save(out)
+            clip = fitz.Rect(b.x0 - 6, b.y0 - 6, b.x1 + 6, b.y1 + 6)
+            top = detect.caption_top(fitz.Rect(b.x0, b.y0, b.x1, b.y1), self._lines(page), r.caption)
+            if top is not None:  # the padding stops at the figure's own caption (as in detection)
+                clip.y1 = max(min(clip.y1, top), b.y1)
+            page.get_pixmap(clip=clip & page.rect, dpi=ZOOM_DPI).save(out)
         return str(out)
+
+    @staticmethod
+    def _lines(page) -> list:
+        return [(fitz.Rect(t[:4]), t[4]) for t in page.get_text("blocks")]
 
     def _recrop(self, side: str) -> None:
         with pdf.LOCK:
@@ -128,9 +135,12 @@ class FigureAgent:
         x1 = b.x1 + (d if side in ("right", "all") else 0)
         y0 = b.y0 - (d if side in ("top", "all") else 0)
         y1 = b.y1 + (d if side in ("bottom", "all") else 0)
-        lines = [(fitz.Rect(t[:4]), t[4]) for t in page.get_text("blocks")]
-        rect = detect.drop_neighbour_captions(fitz.Rect(x0, y0, x1, y1), fitz.Rect(b.x0, b.y0, b.x1, b.y1),
-                                              lines, r.caption) & page.rect
+        lines = self._lines(page)
+        core = fitz.Rect(b.x0, b.y0, b.x1, b.y1)
+        rect = detect.drop_neighbour_captions(fitz.Rect(x0, y0, x1, y1), core, lines, r.caption) & page.rect
+        top = detect.caption_top(core, lines, r.caption)
+        if top is not None:  # widen down to the figure's own caption, never into it (as in detection)
+            rect.y1 = max(min(rect.y1, top), core.y1)
         r.bbox = BBox(x0=rect.x0, y0=rect.y0, x1=rect.x1, y1=rect.y1)
         out = Path(r.crop_path).with_name(Path(r.crop_path).stem + f"_recrop_{side}.png")
         page.get_pixmap(clip=rect, dpi=200).save(out)

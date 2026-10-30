@@ -21,7 +21,8 @@ PDF → ingest.py   page images, text blocks (heading lines split off), embedded
     → detect.py   free layers first: embedded images, text tables (cells read from word positions),
                   vector charts; Table-captioned figures → tables; stemplots expanded (stemplot.py).
                   Figure crops stop above their own caption's text box (the padding stops; a box is
-                  pulled up only where it reaches into the caption), also when re-rendered from cache.
+                  pulled up only where it reaches into the caption), also when re-rendered from cache,
+                  and in the agent's zoom (reread) and recrop crops (`detect.caption_top`, matched by label).
                   Optional page check (--page-check): Muse Spark lists missed figures → SAM 3.1 locates them
     → agent       per figure (orchestrator.py), see below
     → assemble.py accessible HTML        → store.py / api.py / web/   staff review queue
