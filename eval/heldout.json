@@ -1,16 +1,14 @@
 {
-  "description": "Held-out test set: run once, for the final report only. No prompt, threshold, or code changes may be based on these results (see CLAUDE.md). Page = 1-based PDF page. Chapter 2 figures 2.52-2.63 minus those used in development (2.54, 2.55, 2.58, 2.59), plus Chapter 12 figures (scatter plots, a regression line, a line graph) from pages never processed. Removed on 2026-10-29: 2.60 (page 173 is also a dev page, for 2.59) and 2.61 (page 174 is next to dev page 173, and dev runs add adjacent pages as table context). Dev runs never add a held-out page as context (scripts/run_benchmark.py refuses to).",
+  "description": "Held-out test set: run once, for the final report only. No prompt, threshold, or code changes may be based on these results (see CLAUDE.md). Page = 1-based PDF page. Chapter 2 figures 2.52-2.63 minus those used in development (2.54, 2.55, 2.58, 2.59), plus Chapter 12 figures (scatter plots, a regression line, a line graph) from pages never processed. Removed on 2026-10-29: 2.60 (page 173 is also a dev page, for 2.59) and 2.61 (page 174 is next to dev page 173, and dev runs add adjacent pages as table context). Removed on 2026-10-30: 2.53 (page 169 was a --test-check page used to tune SAM box widening). Dev runs never add a held-out page, or a page in guard_pages, as context (scripts/run_benchmark.py refuses to).",
   "source_pdf": "data/samples/introductory-statistics-2e_-_WEB.pdf",
+  "guard_pages": [
+    169
+  ],
   "figures": [
     {
       "id": "fig-2.52",
       "page": 168,
       "caption": "Figure 2.52"
-    },
-    {
-      "id": "fig-2.53",
-      "page": 169,
-      "caption": "Figure 2.53"
     },
     {
       "id": "fig-2.56",

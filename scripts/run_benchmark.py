@@ -152,7 +152,9 @@ def cost_of(calls: list[dict]) -> dict:
 
 
 def heldout_pages() -> set[int]:
-    return {f["page"] for f in json.loads((ROOT / "eval" / "heldout.json").read_text(encoding="utf-8"))["figures"]}
+    """Held-out figure pages, plus guard_pages (pages used in development whose figures were removed)."""
+    h = json.loads((ROOT / "eval" / "heldout.json").read_text(encoding="utf-8"))
+    return {f["page"] for f in h["figures"]} | set(h.get("guard_pages", []))
 
 
 def heldout_spans(gap: int = 20) -> list[tuple[int, int]]:
