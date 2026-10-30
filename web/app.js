@@ -659,7 +659,8 @@ async function confirmCrop() {
   if (!f || !who) return;
   try {
     const updated = await api(`${figPath(f.id)}/recrop`, {
-      method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ who, ...crop.box }),
+      method: "POST", headers: { "Content-Type": "application/json", ...passcodeHeader(state.passcode) },
+      body: JSON.stringify({ who, ...crop.box }),
     });
     Object.assign(f, updated);
     endCrop();
@@ -687,15 +688,29 @@ function pollPending() {
 }
 
 // ---------- upload ----------
+// Demo mode (app/api.py DEMO_MODE): uploads and recrops run the agent, so they send the passcode.
+const passcodeHeader = (p) => (state.demo && p ? { "X-Demo-Passcode": p } : {});
+async function loadConfig() {
+  const c = await api("/api/config");
+  state.demo = c.demo_mode;
+  $("upload-open").hidden = !c.uploads;
+  $("demo-note").hidden = $("demo-passcode-field").hidden = !c.demo_mode;
+  if (c.max_pages) {
+    $("demo-max-pages").textContent = c.max_pages;
+    $("upload-pages-hint").textContent = `PDF page numbers, at most ${c.max_pages} pages. Leave empty if the file is that short.`;
+  }
+}
 async function upload(ev) {
   ev.preventDefault();
   const form = $("upload-form");
   const err = $("upload-error");
   err.textContent = "";
   if (!$("upload-file").files.length) { err.textContent = "Choose a PDF file."; $("upload-file").focus(); return; }
+  if (state.demo && !$("upload-passcode").value) { err.textContent = "Enter the demo passcode."; $("upload-passcode").focus(); return; }
   $("upload-submit").setAttribute("aria-disabled", "true");
   try {
-    const res = await api("/api/documents", { method: "POST", body: new FormData(form) });
+    const res = await api("/api/documents", { method: "POST", body: new FormData(form), headers: passcodeHeader($("upload-passcode").value) });
+    state.passcode = $("upload-passcode").value;  // a recrop also runs the agent: reuse it this session
     $("upload-dialog").close();
     form.reset();
     announce("Upload received. Processing started.");
@@ -827,4 +842,5 @@ window.addEventListener("beforeunload", (e) => { if (state.dirty) e.preventDefau
 $("filter-review").checked = store("filter") !== "all";  // on by default
 showReviewer();
 
+loadConfig().catch(() => {});  // without it the page works as before (no demo note)
 loadDocs().catch((e) => banner(`Could not load documents: ${e.message}`, "error"));

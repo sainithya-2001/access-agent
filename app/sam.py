@@ -20,7 +20,7 @@ from dotenv import load_dotenv
 from openai import OpenAI
 
 from app import cache
-from app.llm import _log
+from app.llm import _log, check_allowed
 
 load_dotenv()
 
@@ -59,6 +59,7 @@ def _run(image_path: str | Path, prompt: str, step: str) -> str:
         _log({"step": step, "backend": "meta", "model": MODEL, "cached": True})
         return hit
 
+    check_allowed(step)
     url = "data:image/png;base64," + base64.b64encode(data).decode()
     text_parts: list[str] = []
     with _client().responses.stream(

@@ -29,7 +29,7 @@ def parse_page_range(spec: str | None, total: int) -> list[int]:
         part = part.strip()
         if "-" in part:
             a, b = part.split("-")
-            pages.update(range(int(a), int(b) + 1))
+            pages.update(range(max(1, int(a)), min(int(b), total) + 1))  # clamped: '1-99999' stays cheap
         else:
             pages.add(int(part))
     return sorted(p for p in pages if 1 <= p <= total)

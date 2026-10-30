@@ -13,6 +13,7 @@ import json
 import os
 import threading
 import time
+from contextlib import contextmanager
 from pathlib import Path
 
 from dotenv import load_dotenv
@@ -34,6 +35,34 @@ _THREAD_LOCK = threading.Lock()  # the file lock below is per process; threads o
 # Set for repeated benchmark runs ("rep1", "rep2", ...): a cache namespace per repeat, so each repeat
 # makes its own model calls (and is itself cached). Empty for normal runs.
 RUN_TAG = ""
+
+# DEMO_MODE (app/api.py) sets BLOCKED: then a model call (a cache miss, here or in app/sam.py) raises,
+# except while a passcode upload or recrop runs inside `allow_calls()`. A count, not a per-thread
+# flag, because a run's figures go to a thread pool.
+BLOCKED = False
+_allowed = 0
+_allowed_lock = threading.Lock()
+
+
+class ModelCallsBlocked(RuntimeError):
+    pass
+
+
+@contextmanager
+def allow_calls():
+    global _allowed
+    with _allowed_lock:
+        _allowed += 1
+    try:
+        yield
+    finally:
+        with _allowed_lock:
+            _allowed -= 1
+
+
+def check_allowed(step: str) -> None:
+    if BLOCKED and not _allowed:
+        raise ModelCallsBlocked(f"Model calls are off in demo mode (step '{step}')")
 
 
 def get_client(backend: str | None = None):
@@ -63,6 +92,7 @@ def chat(messages, backend: str | None = None, step: str = "", use_cache: bool =
               "original": cache.usage(key)})  # tokens of the call that filled the cache, if known
         return hit
 
+    check_allowed(step)
     start = time.time()
     resp = client.chat.completions.create(model=model, messages=messages, **kwargs)
     text = resp.choices[0].message.content or ""

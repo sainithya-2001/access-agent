@@ -5,32 +5,45 @@
 Upload a PDF (with a page range) → the pipeline runs in the background → figures appear in the
 review queue with status, confidence, issues, and the agent trace → staff approve / edit / reject
 (saved with who and when) → export accessible HTML that includes the human edits.
+
+DEMO_MODE=1 (the public deployment, DEPLOY.md): serves the precomputed documents and makes no model
+calls (app/llm.py blocks them). Uploads and recrops, which run the agent, need the passcode in
+DEMO_PASSCODE (sent as the X-Demo-Passcode header); passcode uploads are capped at 5 pages. Staff
+review (approve / edit / reject) and export still work: they make no model calls.
 """
 
 from __future__ import annotations
 
+import os
 import re
+import secrets
 import threading
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
-from fastapi import BackgroundTasks, FastAPI, File, Form, HTTPException, UploadFile
+from fastapi import BackgroundTasks, FastAPI, File, Form, Header, HTTPException, UploadFile
 from fastapi.responses import FileResponse, HTMLResponse, Response
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
 import pymupdf as fitz
 
-from app import pdf, pipeline, sonify, store
+from app import llm, pdf, pipeline, sonify, store
 from app.agent.orchestrator import NO_SCALE_REASON, FigureAgent
 from app.assemble import assemble, printed_page_numbers
 from app.detect import _crop
-from app.ingest import _doc_id
+from app.ingest import _doc_id, parse_page_range
 from app.models import BBox, FigureResult, Status
 
 ROOT = Path(__file__).resolve().parents[1]
 UPLOADS = ROOT / "data" / "uploads"
 PAGES_RE = re.compile(r"^\s*\d+(\s*-\s*\d+)?(\s*,\s*\d+(\s*-\s*\d+)?)*\s*$")
+
+DEMO_MODE = os.environ.get("DEMO_MODE", "").strip().lower() in ("1", "true", "yes", "on")
+DEMO_PASSCODE = os.environ.get("DEMO_PASSCODE", "")  # empty: no uploads at all in demo mode
+DEMO_MAX_PAGES = 5
+DEMO_MAX_MB = 25
+llm.BLOCKED = DEMO_MODE
 
 app = FastAPI(title="Access Agent review")
 con = store.connect()
@@ -56,6 +69,23 @@ def _fig_or_404(fid: str) -> FigureResult:
     return res
 
 
+def _demo_gate(passcode: str | None, what: str) -> None:
+    """In demo mode, running the agent (an upload or a recrop) needs the passcode."""
+    if not DEMO_MODE:
+        return
+    if not DEMO_PASSCODE:
+        raise HTTPException(403, f"{what} is turned off in this demo. The documents here were processed in advance.")
+    if not secrets.compare_digest((passcode or "").encode(), DEMO_PASSCODE.encode()):
+        raise HTTPException(403, f"{what} runs the agent, which needs the demo passcode. "
+                                 "The documents here were processed in advance and can be reviewed without one.")
+
+
+@app.get("/api/config")
+def config():
+    return {"demo_mode": DEMO_MODE, "uploads": not DEMO_MODE or bool(DEMO_PASSCODE),
+            "max_pages": DEMO_MAX_PAGES if DEMO_MODE else None}
+
+
 # ---------- documents ----------
 
 @app.get("/api/documents")
@@ -64,20 +94,35 @@ def documents():
 
 
 def _process(key: str, path: Path, pages: str | None, page_check: bool) -> None:
-    with _lock:
+    with _lock, llm.allow_calls():
         pipeline.run(con, key, path, pages, page_check)
 
 
 @app.post("/api/documents", status_code=202)
 async def upload(tasks: BackgroundTasks, file: UploadFile = File(...), pages: str = Form(""),
-                 page_check: bool = Form(False)):
+                 page_check: bool = Form(False), x_demo_passcode: str | None = Header(None)):
+    _demo_gate(x_demo_passcode, "Uploading")
     if not (file.filename or "").lower().endswith(".pdf"):
         raise HTTPException(422, "Please upload a PDF file")
     pages = pages.strip() or None
     if pages and not PAGES_RE.match(pages):
         raise HTTPException(422, "Pages should look like 84-97 or 84-91,95")
-    UPLOADS.mkdir(parents=True, exist_ok=True)
     data = await file.read()
+    if DEMO_MODE:
+        if len(data) > DEMO_MAX_MB * 2**20:
+            raise HTTPException(413, f"In this demo, PDFs can be up to {DEMO_MAX_MB} MB")
+        try:
+            with pdf.LOCK:
+                total = fitz.open(stream=data, filetype="pdf").page_count
+        except Exception:
+            raise HTTPException(422, "This file could not be opened as a PDF")
+        n = len(parse_page_range(pages, total))
+        if n == 0:
+            raise HTTPException(422, f"The file has {total} pages; none of those pages are in it")
+        if n > DEMO_MAX_PAGES:
+            raise HTTPException(422, f"In this demo, upload at most {DEMO_MAX_PAGES} pages at a time "
+                                     f"(this would process {n}). Enter a page range such as 1-{DEMO_MAX_PAGES}.")
+    UPLOADS.mkdir(parents=True, exist_ok=True)
     path = UPLOADS / Path(file.filename).name
     path.write_bytes(data)
     key = store.document_key(_doc_id(path), pages)
@@ -253,7 +298,8 @@ def _rerun(fid: str, n: int, pdf_path: str, res: FigureResult) -> None:
     key = fid.rsplit(":", 1)[0]
     try:
         tables = [r for r in store.load_layout(con, key)[1] if r.kind == "table"]
-        out = FigureAgent(res.region, pdf_path, tables=tables).run()
+        with llm.allow_calls():
+            out = FigureAgent(res.region, pdf_path, tables=tables).run()
     except Exception as e:  # FigureAgent.run() doesn't raise, but keep the figure out of 'pending'
         res.status, res.escalation_reason = Status.needs_review, f"Re-run failed: {e.__class__.__name__}"
         out = res
@@ -263,11 +309,14 @@ def _rerun(fid: str, n: int, pdf_path: str, res: FigureResult) -> None:
 
 
 @app.post("/api/figures/{fid}/recrop", status_code=202)
-def recrop(fid: str, body: RecropIn):
+def recrop(fid: str, body: RecropIn, x_demo_passcode: str | None = Header(None)):
     """Staff drew a new box around the figure: crop it again and re-run the agent on it."""
+    _demo_gate(x_demo_passcode, "Re-cropping")
     res = _fig_or_404(fid)
     key = fid.rsplit(":", 1)[0]
     row = _doc_or_404(key)
+    if not Path(row["source_path"]).exists():
+        raise HTTPException(409, "The source PDF of this document is not on the server, so it can't be cropped again")
     _, page = _page(key, res.region.page)
     x0, x1 = sorted((max(0.0, body.x0), min(page.width, body.x1)))
     y0, y1 = sorted((max(0.0, body.y0), min(page.height, body.y1)))

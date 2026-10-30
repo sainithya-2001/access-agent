@@ -133,6 +133,11 @@
   <form id="upload-form" method="dialog">
     <h2 id="upload-title">Upload course material</h2>
     <p class="dialog-lede">The agent finds every figure, describes it, checks its own description, and sends only uncertain ones here.</p>
+    <p class="dialog-lede" id="demo-note" hidden>This is a demo: the documents in the list were processed in advance and can be reviewed freely. Processing a new PDF uses API credits, so it needs the demo passcode and is limited to <span id="demo-max-pages">5</span> pages.</p>
+    <div class="field" id="demo-passcode-field" hidden>
+      <label for="upload-passcode">Demo passcode</label>
+      <input id="upload-passcode" type="password" autocomplete="off">
+    </div>
     <div class="field">
       <label for="upload-file">PDF file</label>
       <input id="upload-file" name="file" type="file" accept="application/pdf,.pdf" required>
