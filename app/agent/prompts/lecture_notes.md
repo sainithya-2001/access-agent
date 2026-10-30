@@ -20,6 +20,8 @@ Write structured notes:
   make one point; leave out filler and signposting ("Today we look at...", "First, a bar graph.",
   "Next, a histogram.") unless it carries content. Write numbers as numerals with units ("32.5%",
   "16 students").
+- One claim per point. An emphasis point holds only what the instructor flagged as important; a
+  related statement they did not flag ("always check that ...") is its own key point.
 - Emphasis points read as a sentence: "The instructor emphasized that the frequencies must add up to
   the number of students, 50.", not "emphasized that always check that".
 - Do not add anything the instructor did not say: no outside facts, no examples of your own, no

@@ -245,10 +245,31 @@ class NotePoint(BaseModel):
     check: str | None = None  # the verifier's reason
 
 
+class VisualRef(BaseModel):
+    """The instructor pointed at the screen ("as you can see here"): the slide's figure goes into the
+    notes there. Its description is shown only once verified (app/notes.py VERIFIED)."""
+    segment: int
+    phrase: str
+    slide: int
+    figure_id: str | None = None  # review-store figure id; None if the slide has no figure
+    after_point: int | None = None  # index in the section's points; None = at the start of the section
+
+
 class NoteSection(BaseModel):
     heading: str
     slide: int | None = None
     points: list[NotePoint]
+    visuals: list[VisualRef] = []
+
+
+class NoteCheck(BaseModel):
+    id: int
+    supported: bool
+    reason: str | None = None
+
+
+class NoteChecks(BaseModel):
+    checks: list[NoteCheck]
 
 
 class LectureNotes(BaseModel):

@@ -3,6 +3,7 @@ data/lectures/test_lecture.json. Model calls are blocked (app/llm.py BLOCKED): e
 cache that scripts/run_lecture.py filled, so this costs $0 and fails if a step would call a model.
 
   python scripts/test_lecture.py
+  python scripts/test_lecture.py --allow-calls    # once, to fill the cache for the planted-error check
 """
 
 import json
@@ -16,7 +17,8 @@ sys.path.insert(0, str(ROOT))
 
 from app import llm, store  # noqa: E402
 from app.lecture import OUT_ROOT, detect_slides, lecture_id, link_segments  # noqa: E402
-from app.models import Lecture, Status  # noqa: E402
+from app.models import Lecture, NotePoint, Status  # noqa: E402
+from app.notes import VISUAL_RE, student_notes, verify_notes  # noqa: E402
 from app.transcribe import transcribe  # noqa: E402
 
 VIDEO = ROOT / "data" / "lectures" / "test_lecture.mp4"
@@ -31,7 +33,7 @@ def check(ok: bool, what: str) -> None:
 
 
 def main() -> None:
-    llm.BLOCKED = True
+    llm.BLOCKED = "--allow-calls" not in sys.argv
     print("Transcription")
     t = transcribe(VIDEO)
     check(abs(t.duration - TRUTH["duration"]) < 0.5, f"duration {t.duration} s (clip {TRUTH['duration']} s)")
@@ -82,6 +84,38 @@ def main() -> None:
     check(any(p.kind == "definition" and (p.term or "").lower() == "histogram" for p in pts),
           f"histogram defined; kinds {kinds}")
     check(any(p.kind == "emphasis" and "50" in p.text for p in pts), "the emphasis on frequencies adding up to 50 kept")
+
+    print("Notes verifier")
+    ok = [p for p in pts if p.supported]
+    check(all(p.supported is not None for p in pts), "every point has a verdict")
+    check(len(ok) >= 0.85 * len(pts), f"{len(ok)} of {len(pts)} genuine points supported; flagged: "
+          + "; ".join(f"'{p.text[:50]}' ({p.check[:60]})" for p in pts if not p.supported))
+    shown = [p for sec in student_notes(n).sections for p in sec.points]
+    check(len(shown) == len(ok) and all(p.supported for p in shown), "student notes hold only supported points")
+    planted = n.model_copy(deep=True)
+    seg_of = {k: next(sg.id for sg in t.segments if k in sg.text) for k in ("7%", "bars touch", "separated by gaps")}
+    plants = [(0, NotePoint(kind="key_point", text="The 50 and older group was about 12%.", segments=[seg_of["7%"]])),
+              (1, NotePoint(kind="key_point", text="Histograms are always symmetric around their tallest bar.",
+                            segments=[seg_of["bars touch"]])),
+              (0, NotePoint(kind="emphasis", text="The instructor emphasized that the bars in a bar graph must touch.",
+                            segments=[seg_of["separated by gaps"]]))]
+    for sec, pt in plants:
+        planted.sections[sec].points.append(pt)
+    verify_notes(lec, planted)
+    caught = [pt.supported is False for _, pt in plants]
+    check(all(caught), f"planted errors caught: {sum(caught)}/3 (changed number, invented generalization, reversed claim)")
+    real = [p for sec in planted.sections for p in sec.points if all(p is not pt for _, pt in plants)]
+    check(sum(p.supported is True for p in real) >= 0.85 * len(real), f"{sum(p.supported is True for p in real)} of {len(real)} genuine points still supported alongside the plants")
+
+    print("Spoken references to visuals")
+    vis = [v for sec in n.sections for v in sec.visuals]
+    see = next((v for v in vis if v.phrase.lower() == "as you can see here"), None)
+    check(see is not None and see.slide == 1, f"'as you can see here' linked to slide {see and see.slide}")
+    fig = next((r for fid, r in figs if see and fid == see.figure_id), None)
+    check(fig is not None and fig.region.page == 1 and fig.status == Status.auto_approved,
+          f"its figure is slide 1's, verified ({fig and fig.status.value})")
+    check(not VISUAL_RE.search("Today we look at two ways to display data."), "'look at two ways' is not a visual reference")
+    check(len(vis) == 1, f"{len(vis)} visual reference(s) in the clip (it has one)")
 
     print(f"\n{'All checks passed' if not failures else f'{len(failures)} check(s) failed'}")
     sys.exit(1 if failures else 0)
