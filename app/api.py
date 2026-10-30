@@ -28,7 +28,8 @@ from pydantic import BaseModel, Field
 
 import pymupdf as fitz
 
-from app import llm, pdf, pipeline, sonify, store
+from app import llm, pdf, pipeline, portal, sonify, store
+from app.lecture import OUT_ROOT as LECTURES
 from app.agent.orchestrator import NO_SCALE_REASON, FigureAgent
 from app.assemble import assemble, printed_page_numbers
 from app.detect import _crop
@@ -368,4 +369,31 @@ def preview(doc_id: str):
     return export_html(doc_id)
 
 
+# ---------- course portal (lecture slice) ----------
+# Students: /portal.html lists courses and new materials; each lecture's notes page, video and captions
+# are served from /lectures/<id>/ (StaticFiles answers range requests, so the video can seek).
+# PORTAL_WATCH=1 watches data/portal/<course>/ for new videos (never in DEMO_MODE: it calls models).
+
+@app.get("/api/portal")
+def portal_courses():
+    return portal.courses()
+
+
+_watch_stop = threading.Event()
+
+
+@app.on_event("startup")
+def _start_portal_watch():
+    if os.environ.get("PORTAL_WATCH", "").strip() in ("1", "true", "yes") and not DEMO_MODE:
+        interval = float(os.environ.get("PORTAL_INTERVAL", "10"))
+        threading.Thread(target=portal.watch, args=(interval, _watch_stop), daemon=True, name="portal").start()
+
+
+@app.on_event("shutdown")
+def _stop_portal_watch():
+    _watch_stop.set()
+
+
+LECTURES.mkdir(parents=True, exist_ok=True)
+app.mount("/lectures", StaticFiles(directory=LECTURES), name="lectures")
 app.mount("/", StaticFiles(directory=ROOT / "web", html=True), name="web")

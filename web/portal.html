@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Course materials · Access Agent</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%231f5f5b'/%3E%3Cpath d='M9 16.5l4.5 4.5L23 11.5' stroke='white' stroke-width='3' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<style>
+:root { --text: #1a1a1a; --bg: #ffffff; --muted: #4a4a4a; --link: #0b5cad; --line: #c9c5b9; --panel: #f6f5f0;
+        --new: #1f5f5b; --new-bg: #e3f1ef; --warn: #8a5300; }
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--text); font: 1.0625rem/1.55 system-ui, -apple-system, "Segoe UI", sans-serif; }
+.skip-link { position: absolute; left: 0.5rem; top: -3rem; background: var(--text); color: var(--bg); padding: 0.5rem 0.75rem; }
+.skip-link:focus { top: 0.5rem; }
+:focus-visible { outline: 3px solid var(--link); outline-offset: 2px; }
+header { border-bottom: 1px solid var(--line); background: var(--panel); }
+header p { max-width: 46rem; margin: 0 auto; padding: 0.75rem 1rem; font-weight: 600; }
+main { max-width: 46rem; margin: 0 auto; padding: 1rem 1rem 3rem; }
+h1 { font-size: 1.75rem; margin: 0.5rem 0 1rem; }
+h2 { font-size: 1.3rem; margin: 2rem 0 0.5rem; }
+a { color: var(--link); }
+.inbox { border: 2px solid var(--new); background: var(--new-bg); border-radius: 8px; padding: 0.75rem 1rem; }
+.inbox h2 { margin: 0 0 0.25rem; font-size: 1.15rem; }
+.inbox ul { margin: 0.25rem 0 0.5rem; padding-left: 1.25rem; }
+.inbox.empty { border-color: var(--line); background: var(--panel); }
+.inbox.empty h2 { color: var(--muted); }
+button { font: inherit; font-size: 0.95rem; padding: 0.35rem 0.8rem; color: var(--text); background: var(--bg);
+         border: 2px solid var(--text); border-radius: 6px; cursor: pointer; }
+ul.materials { list-style: none; padding: 0; margin: 0; }
+ul.materials li { padding: 0.75rem 0; border-bottom: 1px solid var(--line); }
+.m-title { font-weight: 600; }
+.m-meta { display: block; color: var(--muted); font-size: 0.95rem; }
+.badge { display: inline-block; margin-left: 0.4rem; padding: 0 0.45rem; border-radius: 4px; font-size: 0.85rem;
+         font-weight: 700; color: #fff; background: var(--new); vertical-align: 0.1em; }
+.status-processing { color: var(--muted); }
+.status-failed { color: var(--warn); }
+.none { color: var(--muted); }
+@media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
+</style>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to main content</a>
+<header><p>Access Agent · Course materials</p></header>
+<main id="main" tabindex="-1">
+<h1>Your courses</h1>
+<section class="inbox empty" id="inbox" aria-labelledby="inbox-h">
+  <h2 id="inbox-h">Loading…</h2>
+  <ul id="inbox-list" hidden></ul>
+  <button type="button" id="mark-read" hidden>Mark all as seen</button>
+</section>
+<div id="courses"></div>
+<p class="visually-hidden" id="announcer" role="status" aria-live="polite" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)"></p>
+</main>
+<script src="portal.js"></script>
+</body>
+</html>
