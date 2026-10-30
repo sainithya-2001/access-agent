@@ -190,19 +190,22 @@ kbd {
 }
 .page-frame img { display: block; width: 100%; height: auto; }
 .boxes { position: absolute; inset: 0; }
+/* The box is the crop exactly; its border is drawn outside it (content-box, pulled back by its own
+   width), so the border never covers the figure. --bw is the border width per state. */
 .box {
-  position: absolute; border: 2px solid; border-radius: 3px; cursor: pointer;
-  transition: box-shadow .15s, background-color .15s;
+  --bw: 2px;
+  position: absolute; box-sizing: content-box; border: var(--bw) solid; margin: calc(-1 * var(--bw)) 0 0 calc(-1 * var(--bw));
+  border-radius: 3px; cursor: pointer; transition: box-shadow .15s, background-color .15s;
 }
 .box.needs_review, .box.pending { border-color: var(--review-box); border-style: dashed; background: rgba(192, 106, 0, .06); }
 .box.auto_approved { border-color: var(--auto-box); background: rgba(58, 138, 93, .04); }
-.box.approved, .box.edited { border-color: var(--human-box); border-style: double; border-width: 4px; background: rgba(68, 103, 194, .05); }
-.box.rejected { border-color: var(--reject-box); border-style: dotted; border-width: 3px; background: rgba(196, 58, 50, .06); }
+.box.approved, .box.edited { border-color: var(--human-box); border-style: double; --bw: 4px; background: rgba(68, 103, 194, .05); }
+.box.rejected { border-color: var(--reject-box); border-style: dotted; --bw: 3px; background: rgba(196, 58, 50, .06); }
 .box.dim { opacity: .45; }
 .box:hover { background-color: rgba(31, 95, 91, .08); }
-.box.selected { border-width: 3px; box-shadow: 0 0 0 4px rgba(31, 95, 91, .22); opacity: 1; }
-.box.selected.approved, .box.selected.edited { border-width: 6px; }
-.box.selected.rejected { border-width: 4px; }
+.box.selected { --bw: 3px; box-shadow: 0 0 0 4px rgba(31, 95, 91, .22); opacity: 1; }
+.box.selected.approved, .box.selected.edited { --bw: 6px; }
+.box.selected.rejected { --bw: 4px; }
 /* adjust crop */
 .page-frame.cropping { cursor: crosshair; touch-action: none; }
 .page-frame.cropping .boxes { pointer-events: none; opacity: .5; }
@@ -372,6 +375,17 @@ table.shortcuts kbd { margin: 0; }
   .workspace { grid-template-columns: 1fr; }
   .queue-list { max-height: 260px; }
   .page-scroll { max-height: 70vh; }
+}
+/* Under 600px: queue, page and detail stacked, each at its full height; the page scrolls as one, and
+   the approve / reject bar stays at the bottom of the screen. */
+@media (max-width: 599px) {
+  .workspace { flex: none; min-height: auto; padding: 10px; gap: 10px; }
+  .workspace > * { min-height: auto; }
+  .queue-list { max-height: none; overflow: visible; }
+  .page-scroll { max-height: none; padding: 10px; }  /* still scrolls sideways when the crop tool zooms in */
+  .detail { overflow: visible; }
+  .detail-scroll { overflow: visible; }
+  .actionbar { position: sticky; bottom: 0; z-index: 2; border-radius: 0 0 var(--radius) var(--radius); }
 }
 /* 1440px and wider: the header stays on one line and the page legend on one row. */
 @media (min-width: 1440px) {
