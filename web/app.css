@@ -214,10 +214,13 @@ kbd {
 .crop-rect:focus-visible { outline: 3px solid var(--focus); outline-offset: 3px; }
 .crop-panel { margin-bottom: 12px; font-size: 14px; }
 .crop-panel p { margin: 0 0 8px; }
+/* The tag sits outside the box, clear of its border and focus halo (up to 6px + 4px), so it never
+   covers the figure; .below when there is no room above it on the page (app.js placeTag). */
 .box .tag {
-  position: absolute; left: -2px; top: -24px; font-size: 12px; font-weight: 600; padding: 2px 7px;
-  border-radius: 4px 4px 4px 0; color: #fff; white-space: nowrap;
+  position: absolute; left: -2px; bottom: calc(100% + 12px); font-size: 12px; font-weight: 600; padding: 2px 7px;
+  border-radius: 4px; color: #fff; white-space: nowrap; pointer-events: none;
 }
+.box .tag.below { bottom: auto; top: calc(100% + 12px); }
 .box.needs_review .tag, .box.pending .tag { background: var(--review); }
 .box.auto_approved .tag { background: var(--auto); }
 .box.approved .tag, .box.edited .tag { background: var(--human); }

@@ -300,6 +300,7 @@ function renderPage(f) {
     return `<div class="${cls}" style="${style}" data-id="${esc(x.id)}" title="${esc(figName(x))}: ${esc(STATUS_LABEL[x.status])}">
       ${x.id === f.id ? `<span class="tag">${esc(figName(x))} · ${esc(STATUS_LABEL[x.status])}</span>` : ""}</div>`;
   }).join("") : "";
+  placeTag(f);
   const sel = $("boxes").querySelector(".box.selected");
   if (sel) {
     const scroller = $("page-scroll");
@@ -309,6 +310,18 @@ function renderPage(f) {
     }
   }
 }
+
+// The selected box's tag goes above the box, or below it when the box is too near the top of the page
+// for the tag to fit there (it would be cut off). Measured from the frame width and the page size, so it
+// is right before the page image has loaded; again on resize.
+function placeTag(f = current()) {
+  const tag = $("boxes").querySelector(".box.selected .tag");
+  const p = f && pageInfo(f.page);
+  if (!tag || !p) return;
+  const above = (f.bbox.y0 / p.width) * $("page-frame").clientWidth;  // px from the page top to the box
+  tag.classList.toggle("below", above < tag.offsetHeight + 16);
+}
+window.addEventListener("resize", () => placeTag());
 
 // ---------- detail panel ----------
 // Secondary to the status line: the checker's score, labelled, with what it is measured against.
