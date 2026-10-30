@@ -135,6 +135,12 @@ def _img_src(path: str) -> str:
     return "data:image/png;base64," + base64.b64encode(data).decode()
 
 
+def _wrap_open(label: str) -> str:
+    """A wide table scrolls in its own box on a narrow screen (focusable, so it scrolls by keyboard)
+    instead of making the whole page scroll sideways."""
+    return f'<div class="table-wrap" role="region" tabindex="0" aria-label="{e(label)}">'
+
+
 def _chart_table(res: FigureResult, fid: str, caption: str) -> str:
     ex = res.extracted
     pts = [d for d in ex.data if d.value is not None] if ex else []
@@ -148,14 +154,14 @@ def _chart_table(res: FigureResult, fid: str, caption: str) -> str:
     note = " Values are read from the chart's axis, so they are approximate." if ex.values_estimated else ""
     if res.status not in (Status.auto_approved, Status.approved, Status.edited):
         note += " Not yet checked by staff."
-    out = [f'<table class="data-table" id="{fid}-data">',
+    out = [_wrap_open(f"Data for {caption}"), f'<table class="data-table" id="{fid}-data">',
            f"<caption>Data for {e(caption)}.{e(note)}</caption>",
            "<thead><tr>" + f'<th scope="col">{first}</th>' + "".join(f'<th scope="col">{h}</th>' for h in heads)
            + "</tr></thead><tbody>"]
     for lab in labels:
         cells = "".join(f"<td>{_num(value[(lab, s)]) if (lab, s) in value else ''}</td>" for s in series)
         out.append(f'<tr><th scope="row">{e(lab)}</th>{cells}</tr>')
-    out.append("</tbody></table>")
+    out.append("</tbody></table></div>")
     return "\n".join(out)
 
 
@@ -201,6 +207,9 @@ def _figure(r: Region, res: FigureResult | None, review: list[tuple[str, str]]) 
     if caption:
         parts.append(f"<figcaption>{e(caption)}</figcaption>")
     parts.append("</figure>")
+    if not decorative and not math:  # shown only in the Low vision profile (web/profiles.js)
+        parts.append(f'<button type="button" class="zoom-btn" data-zoom="{fid}">Zoom figure'
+                     f'<span class="visually-hidden">: {e(name)}</span></button>')
 
     if has_long:
         paras = "".join(f"<p>{e(_clean(p))}</p>" for p in desc.long_description.split("\n\n") if p.strip())
@@ -257,7 +266,7 @@ def _table(r: Region, pages: list[int], context: str) -> str:
         caption = f"{caption}: {title}"
     if len(pages) > 1:
         caption += f" (continues across PDF pages {pages[0]}–{pages[-1]})"
-    out = [f'<table id="tbl-{r.id}"><caption>{e(caption)}</caption>']
+    out = [_wrap_open(caption), f'<table id="tbl-{r.id}"><caption>{e(caption)}</caption>']
     if header:
         out.append("<thead><tr>" + "".join(f'<th scope="col">{e(c)}</th>' for c in header) + "</tr></thead>")
     out.append("<tbody>")
@@ -267,7 +276,7 @@ def _table(r: Region, pages: list[int], context: str) -> str:
             out.append(f'<tr><td colspan="{ncols}">{e(filled[0])}</td></tr>')
         else:
             out.append("<tr>" + "".join(f"<td>{e(c)}</td>" for c in row + [""] * (ncols - len(row))) + "</tr>")
-    out.append("</tbody></table>")
+    out.append("</tbody></table></div>")
 
     # Stemplots: re-parse after merging, so values from every page are included.
     sl = stemplot.parse(r.table_rows, r.caption, context)
@@ -433,6 +442,7 @@ def assemble(doc: Document, regions: list[Region], results: dict[str, FigureResu
 # ---------- 6. Blindfold mode ----------
 
 BLINDFOLD_JS = Path(__file__).resolve().parents[1] / "web" / "blindfold.js"
+PROFILES_JS = Path(__file__).resolve().parents[1] / "web" / "profiles.js"
 
 
 def original_reading(doc: Document, regions: list[Region]) -> list[dict]:
@@ -469,7 +479,8 @@ def original_reading(doc: Document, regions: list[Region]) -> list[dict]:
 
 def _blindfold(doc: Document, regions: list[Region]) -> dict:
     data = json.dumps(original_reading(doc, regions), ensure_ascii=False).replace("</", "<\\/")
-    return {"blindfold_data": data, "blindfold_js": BLINDFOLD_JS.read_text(encoding="utf-8")}
+    return {"blindfold_data": data, "blindfold_js": BLINDFOLD_JS.read_text(encoding="utf-8"),
+            "profiles_js": PROFILES_JS.read_text(encoding="utf-8")}
 
 
 def _ranges(nums: list[int]) -> str:
@@ -542,6 +553,71 @@ thead th { background: var(--panel); }
 .math { overflow-x: auto; font-size: 1.25rem; }
 .blindfold-launch button { font: inherit; font-size: 1rem; padding: 0.5rem 1rem; color: var(--bg);
   background: var(--text); border: 2px solid var(--text); border-radius: 6px; cursor: pointer; }
+.table-wrap { max-width: 100%; overflow-x: auto; }
+.visually-hidden { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden;
+  clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+/* ---------- reading profiles (web/profiles.js): presentation only ---------- */
+.profile-bar { background: var(--panel); border-bottom: 1px solid var(--line); padding: 0.5rem 1rem; }
+.profile-bar fieldset { max-width: 46rem; margin: 0 auto; border: 0; padding: 0; display: flex; flex-wrap: wrap;
+  align-items: center; gap: 0.25rem 1.25rem; }
+.profile-bar legend { float: left; font-weight: 600; margin-right: 0.5rem; padding: 0; }
+.profile-bar label { display: inline-flex; align-items: center; gap: 0.35rem; cursor: pointer; }
+.profile-bar input[type=radio] { width: 1.1rem; height: 1.1rem; margin: 0; }
+.profile-hint { max-width: 46rem; margin: 0.25rem auto 0; font-size: 0.9rem; color: var(--muted); }
+.ra-bar, .zoom-btn { display: none; }
+.ra-bar { max-width: 46rem; margin: 0.5rem auto 0; flex-wrap: wrap; align-items: center; gap: 0.5rem; }
+.ra-bar button, .ra-bar select, .zoom-btn { font: inherit; font-size: 1rem; color: var(--text); background: var(--bg);
+  border: 2px solid var(--text); border-radius: 6px; padding: 0.35rem 0.8rem; cursor: pointer; }
+.ra-label { font-weight: 600; }
+.ra-status { margin: 0; }
+.zoom-dialog { width: min(96vw, 80rem); height: 92vh; max-width: none; max-height: none; padding: 0;
+  border: 3px solid var(--text); background: var(--bg); color: var(--text); }
+.zoom-dialog[open] { display: flex; flex-direction: column; }
+.zoom-dialog::backdrop { background: rgb(0 0 0 / 0.85); }
+.zoom-head { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem;
+  border-bottom: 1px solid var(--line); }
+.zoom-head h2 { margin: 0 auto 0 0; font-size: 1.25rem; }
+.zoom-head button { font: inherit; font-size: 1rem; color: var(--text); background: var(--bg);
+  border: 2px solid var(--text); border-radius: 6px; padding: 0.35rem 0.8rem; cursor: pointer; }
+.zoom-view { flex: 1; overflow: auto; background: #fff; }
+.zoom-view img { display: block; max-width: none; height: auto; }
+
+/* Low vision: large reflowing text, high contrast, zoomable figures. */
+html[data-profile="low-vision"] { font-size: 150%; --text: #ffffff; --bg: #000000; --muted: #e8e8e8;
+  --link: #ffe14d; --line: #d0d0d0; --flag-bg: #000000; --flag-border: #ffe14d; --panel: #1f1f1f; }
+html[data-profile="low-vision"] body { line-height: 1.6; }
+html[data-profile="low-vision"] a { text-decoration-thickness: 0.12em; text-underline-offset: 0.15em; }
+html[data-profile="low-vision"] figure img { width: 100%; background: #fff; border: 2px solid #fff; }
+html[data-profile="low-vision"] table { width: 100%; table-layout: fixed; }
+html[data-profile="low-vision"] th, html[data-profile="low-vision"] td { overflow-wrap: anywhere; }
+html[data-profile="low-vision"] .zoom-btn { display: inline-block; margin-top: 0.5rem; }
+html[data-profile="low-vision"] .math { font-size: 1.5rem; }
+
+/* Reading support: readable font, wider spacing, shorter lines, read-aloud with word highlighting. */
+html[data-profile="reading"] { --bg: #fbf8ef; --text: #1d1d1d; --muted: #454545; --link: #0a4f99; --panel: #f1ece0; }
+html[data-profile="reading"] body { font-family: Verdana, Tahoma, "Segoe UI", sans-serif; font-size: 1.15rem;
+  line-height: 1.9; letter-spacing: 0.035em; word-spacing: 0.16em; }
+html[data-profile="reading"] main, html[data-profile="reading"] footer { max-width: 36rem; }
+html[data-profile="reading"] main p, html[data-profile="reading"] main li { margin: 0 0 1.4em; }
+@media (min-width: 48rem) and (min-height: 36rem) {  /* on a phone the bar would cover the text */
+  html[data-profile="reading"] { scroll-padding-top: 12rem; }
+  html[data-profile="reading"] .profile-bar { position: sticky; top: 0; z-index: 5; }
+}
+html[data-profile="reading"] .ra-bar { display: flex; }
+html[data-profile="reading"] .ra-bar[hidden] { display: none; }
+html[data-profile="reading"] .ra-current { background: #fff0b3; box-shadow: 0 0 0 0.3em #fff0b3; }
+html[data-profile="reading"] figure.ra-current { outline: 4px solid #8a6100; outline-offset: 4px; }
+::highlight(ra-word) { background-color: #1d3f8f; color: #ffffff; }
+
+/* Keyboard: large focus outlines and targets. */
+html[data-profile="keyboard"] :focus-visible { outline: 4px solid #0b5cad; outline-offset: 3px;
+  box-shadow: 0 0 0 7px #ffd54f; }
+html[data-profile="keyboard"] button, html[data-profile="keyboard"] select,
+html[data-profile="keyboard"] .skip-link { min-height: 48px; min-width: 48px; padding: 0.6rem 1rem; font-size: 1.05rem; }
+html[data-profile="keyboard"] .profile-bar label { min-height: 48px; padding: 0 0.5rem; }
+html[data-profile="keyboard"] .profile-bar input[type=radio] { width: 1.4rem; height: 1.4rem; }
+html[data-profile="keyboard"] main a, html[data-profile="keyboard"] footer a { padding: 0.2em 0.1em; }
+html[data-profile="keyboard"] .review-summary li a { display: inline-block; padding: 0.6rem 0.25rem; }
 """
 
 PAGE = """<!doctype html>
@@ -550,10 +626,31 @@ PAGE = """<!doctype html>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{title}</title>
+<script>try {{ var p = localStorage.getItem("reading-profile");
+  if (["low-vision", "reading", "keyboard"].indexOf(p) >= 0) document.documentElement.dataset.profile = p; }} catch (e) {{}}</script>
 <style>{css}</style>
 </head>
 <body>
 <a class="skip-link" href="#main">Skip to main content</a>
+<header class="profile-bar" hidden>
+<fieldset>
+<legend>Reading profile</legend>
+<label><input type="radio" name="profile" value="screen-reader"> Screen reader</label>
+<label><input type="radio" name="profile" value="low-vision"> Low vision</label>
+<label><input type="radio" name="profile" value="reading"> Reading support</label>
+<label><input type="radio" name="profile" value="keyboard"> Keyboard</label>
+</fieldset>
+<p class="profile-hint">Changes how the page looks and works. The content is the same in every profile.</p>
+<div class="ra-bar" role="group" aria-labelledby="ra-label">
+<span class="ra-label" id="ra-label">Read aloud</span>
+<button type="button" class="ra-play">Play</button>
+<button type="button" class="ra-prev">Previous</button>
+<button type="button" class="ra-next">Next</button>
+<button type="button" class="ra-stop">Stop</button>
+<label>Speed <select class="ra-rate"><option value="0.75">0.75×</option><option value="1" selected>1×</option><option value="1.25">1.25×</option><option value="1.5">1.5×</option></select></label>
+<p class="ra-status" role="status"></p>
+</div>
+</header>
 <main id="main" tabindex="-1">
 <h1>{h1}</h1>
 <p>{intro}</p>
@@ -564,6 +661,7 @@ PAGE = """<!doctype html>
 <footer><p>Source: {source}</p></footer>
 <script type="application/json" id="blindfold-original">{blindfold_data}</script>
 <script>{blindfold_js}</script>
+<script>{profiles_js}</script>
 </body>
 </html>
 """

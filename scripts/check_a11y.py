@@ -57,7 +57,9 @@ def report(label: str, result: dict) -> int:
 SILENT_SPEECH = """
 Object.defineProperty(window, 'speechSynthesis', { configurable: true, value: {
   cancel() { this.u = null; }, pause() {}, resume() {}, getVoices() { return []; },
-  speak(u) { this.u = u; setTimeout(() => { if (this.u === u && u.onend) u.onend(); }, 200); } } });
+  speak(u) { this.u = u;
+    if (u.onboundary) setTimeout(() => { if (this.u === u) u.onboundary({ name: 'word', charIndex: 0, charLength: 0 }); }, 20);
+    setTimeout(() => { if (this.u === u && u.onend) u.onend(); }, 200); } } });
 window.SpeechSynthesisUtterance = function (t) { this.text = t; };
 """
 
@@ -87,6 +89,80 @@ def blindfold_keys(page, opener: str) -> list[str]:
     elif page.evaluate("'#' + document.activeElement.id") != opener:
         problems.append(f"focus did not return to {opener} after Blindfold mode")
     return problems
+
+
+PROFILES = ["screen-reader", "low-vision", "reading", "keyboard"]
+
+
+def _content(page) -> str:
+    """Main's accessibility tree, minus the profile-only controls (Zoom figure buttons)."""
+    snap = page.locator("main").aria_snapshot()
+    return "\n".join(line for line in snap.splitlines() if "Zoom figure" not in line)
+
+
+def check_profiles(page) -> int:
+    """Each reading profile: axe at 0, the same content as Screen reader, no sideways scroll on a phone,
+    and its own controls (zoom dialog, read-aloud bar, focus outlines) working from the keyboard."""
+    n = 0
+    base = None
+    for prof in PROFILES:
+        page.set_viewport_size({"width": 1280, "height": 900})
+        page.check(f".profile-bar input[value={prof}]")
+        problems = []
+        if page.evaluate("document.documentElement.dataset.profile || 'screen-reader'") != prof:
+            problems.append("profile not applied")
+        content = _content(page)
+        if base is None:
+            base = content
+        elif content != base:
+            problems.append("content differs from the Screen reader profile")
+        n += report(f"exported HTML, profile {prof}", run_axe(page))
+
+        if prof == "low-vision":
+            btn = page.locator(".zoom-btn").first
+            btn.focus()
+            page.keyboard.press("Enter")
+            try:
+                page.wait_for_selector("dialog.zoom-dialog[open]", timeout=3000)
+                n += report("exported HTML, profile low-vision, zoom dialog", run_axe(page))
+                before = page.inner_text(".zoom-level")
+                page.keyboard.press("+")
+                if page.inner_text(".zoom-level") == before:
+                    problems.append("+ did not zoom in")
+                page.keyboard.press("Escape")
+                if not page.evaluate("document.activeElement.classList.contains('zoom-btn')"):
+                    problems.append("focus did not return to Zoom figure")
+            except Exception:
+                problems.append("Zoom figure did not open the zoom dialog")
+        elif prof == "reading":
+            page.locator(".ra-play").focus()
+            page.keyboard.press("Enter")
+            page.wait_for_timeout(120)
+            if not page.locator(".ra-current").count():
+                problems.append("read-aloud did not mark the current block")
+            if not page.evaluate("CSS.highlights && CSS.highlights.has('ra-word')"):
+                problems.append("read-aloud did not highlight the current word")
+            n += report("exported HTML, profile reading, reading aloud", run_axe(page))
+            page.keyboard.press("Enter")  # pause
+            if page.inner_text(".ra-play") != "Play":
+                problems.append("Play/Pause did not pause")
+        elif prof == "keyboard":
+            page.locator(".profile-bar input[value=keyboard]").focus()
+            page.keyboard.press("Tab")
+            width = page.evaluate("parseFloat(getComputedStyle(document.activeElement).outlineWidth)")
+            if width < 4:
+                problems.append(f"focus outline is {width}px, expected 4px or more")
+
+        page.set_viewport_size({"width": 375, "height": 800})
+        if page.evaluate("document.documentElement.scrollWidth > window.innerWidth + 1"):
+            problems.append("page scrolls sideways at 375px")
+        print(f"\n== exported HTML, profile {prof} behaviour: {len(problems)} problem(s)")
+        for p in problems:
+            print(f"  - {p}")
+        n += len(problems)
+    page.check(".profile-bar input[value=screen-reader]")
+    page.set_viewport_size({"width": 1280, "height": 900})
+    return n
 
 
 # ---------- exported HTML ----------
@@ -120,6 +196,8 @@ def check_export(arg: str | None) -> int:
             for p in problems:
                 print(f"  - {p}")
             n += len(problems)
+        if page.locator(".profile-bar").count():
+            n += check_profiles(page)
         browser.close()
     n += report("exported HTML", result)
     (path.parent / "a11y_report.json").write_text(json.dumps(
