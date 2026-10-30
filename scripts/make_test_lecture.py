@@ -5,7 +5,10 @@ sequence with narration spoken by a local Windows voice.
 
 Writes data/lectures/test_lecture.mp4 (1280x720, 5 fps, H.264 + AAC) and data/lectures/test_lecture.json,
 the ground truth for the lecture tests: each slide's PDF page, start and end time, and narration text,
-plus the time of the "as you can see here" moment. Speech: System.Speech (SAPI) through PowerShell,
+plus the time of the "as you can see here" moment.
+  python scripts/make_test_lecture.py --slides-pdf
+writes only data/lectures/test_lecture.pdf, the "slides PDF" given with the clip: textbook pages DECK
+(the two shown, plus neighbours that look alike and hold the rest of Table 2.9), in that order. Speech: System.Speech (SAPI) through PowerShell,
 24 kHz mono 16-bit. Video: the ffmpeg bundled with imageio-ffmpeg. No model calls.
 """
 
@@ -49,6 +52,7 @@ SLIDES = [
         "must add up to the number of students, fifty. Always check that before you draw the histogram.")},
 ]
 SEE_HERE = "As you can see here"
+DECK = [84, 85, 86, 89, 90, 91]  # textbook pages in test_lecture.pdf; slides show 85 (deck page 2) and 90 (5)
 
 TTS_PS = r"""
 Add-Type -AssemblyName System.Speech
@@ -85,12 +89,26 @@ def slide_image(pdf: fitz.Document, page: int, path: Path) -> None:
     canvas.save(path)
 
 
+def write_slides_pdf(pdf: fitz.Document) -> Path:
+    deck = fitz.open()
+    for p in DECK:
+        deck.insert_pdf(pdf, from_page=p - 1, to_page=p - 1)
+    path = OUT / "test_lecture.pdf"
+    deck.save(path, garbage=4, deflate=True)
+    return path
+
+
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--voice", default="Microsoft David Desktop")
+    ap.add_argument("--slides-pdf", action="store_true", help="write only the slides PDF (no video, no speech)")
     args = ap.parse_args()
     OUT.mkdir(parents=True, exist_ok=True)
     pdf = fitz.open(pick_pdf(None))
+    if args.slides_pdf:
+        path = write_slides_pdf(pdf)
+        print(f"{path.relative_to(ROOT)}: textbook pages {DECK}, {path.stat().st_size / 1024:.0f} KB")
+        return
     with tempfile.TemporaryDirectory() as t:
         tmp = Path(t)
         pcm, slides, concat = b"", [], []

@@ -232,7 +232,12 @@ class Slide(BaseModel):
     end: float
     image_path: str
     segment_ids: list[int] = []
-    pdf_page: int | None = None
+    pdf_page: int | None = None  # its page in `document` (the review-store document holding its figures)
+    # A slides PDF given with the video (app/lecture.py match_slides): the page this slide shows, and
+    # how well the frame matched it (correlation, 0-1). None: no match, the frame itself is used.
+    source_page: int | None = None
+    match: float | None = None
+    document: str | None = None  # review-store key; None: the lecture's slides_document
 
 
 class NotePoint(BaseModel):

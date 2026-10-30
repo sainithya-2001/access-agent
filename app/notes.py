@@ -154,13 +154,12 @@ def verify_notes(lec: Lecture, notes: LectureNotes, con=None, backend: str | Non
 def slide_figures(lec: Lecture, con=None) -> dict[int, list[tuple[str, FigureResult]]]:
     """Each slide's figures from the review store, in reading order: {slide index: [(figure id, result)]}."""
     from app import store
-    if not lec.slides_document:
-        return {}
     con = con or store.connect()
-    by_page: dict[int, list] = {}
-    for fid, res in store.figures(con, lec.slides_document):
-        by_page.setdefault(res.region.page, []).append((fid, res))
-    return {s.index: by_page.get(s.pdf_page, []) for s in lec.slides}
+    by_doc: dict[str, dict[int, list]] = {}  # a slide's figures are in its own document (PDF page or frame)
+    for key in {s.document or lec.slides_document for s in lec.slides} - {None}:
+        for fid, res in store.figures(con, key):
+            by_doc.setdefault(key, {}).setdefault(res.region.page, []).append((fid, res))
+    return {s.index: by_doc.get(s.document or lec.slides_document, {}).get(s.pdf_page, []) for s in lec.slides}
 
 
 def add_visuals(lec: Lecture, notes: LectureNotes, con=None) -> None:

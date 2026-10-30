@@ -1,7 +1,7 @@
 """Lecture slice: one recording through transcription, slide detection and linking, and the figure
 pipeline for its slides (app/lecture.py).
 
-  python scripts/run_lecture.py data/lectures/test_lecture.mp4
+  python scripts/run_lecture.py data/lectures/test_lecture.mp4 [--slides deck.pdf]
 
 Writes output/lectures/<id>/ (lecture.json, slides/, slides.pdf, frame_diffs.json); the slides'
 figures go into the review store (output/review.db) as their own document. Cached: re-runs cost $0.
@@ -23,12 +23,14 @@ def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("video")
     ap.add_argument("--title")
+    ap.add_argument("--slides", help="the lecture's slides PDF (default: the video's name with .pdf, if it exists)")
     args = ap.parse_args()
     start = pipeline.log_offset()
-    lec = process_lecture(args.video, store.connect(), args.title, echo=True)
+    lec = process_lecture(args.video, store.connect(), args.title, echo=True, slides=args.slides)
     print(f"\n{lec.title}: {lec.transcript.duration:.1f} s, {len(lec.transcript.segments)} segments, {len(lec.slides)} slides")
     for s in lec.slides:
-        print(f"  slide {s.index}: {s.start:.1f}-{s.end:.1f} s, segments {s.segment_ids}")
+        print(f"  slide {s.index}: {s.start:.1f}-{s.end:.1f} s, segments {s.segment_ids}, "
+              + (f"PDF page {s.source_page} (match {s.match})" if s.source_page else f"frame (best match {s.match})"))
     calls = pipeline.calls_since(start)
     print(f"Model calls: {len(calls)} ({sum(not c.get('cached') for c in calls)} uncached)")
 

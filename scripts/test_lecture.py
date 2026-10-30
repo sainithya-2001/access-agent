@@ -16,12 +16,14 @@ sys.stdout.reconfigure(encoding="utf-8")
 sys.path.insert(0, str(ROOT))
 
 from app import llm, store  # noqa: E402
-from app.lecture import OUT_ROOT, detect_slides, lecture_id, link_segments  # noqa: E402
+from app.lecture import OUT_ROOT, detect_slides, lecture_id, link_segments, match_slides  # noqa: E402
 from app.models import Lecture, NotePoint, Status  # noqa: E402
-from app.notes import VISUAL_RE, student_notes, verify_notes  # noqa: E402
+from app.notes import VISUAL_RE, slide_figures, student_notes, verify_notes  # noqa: E402
+from scripts.make_test_lecture import DECK  # noqa: E402
 from app.transcribe import transcribe  # noqa: E402
 
 VIDEO = ROOT / "data" / "lectures" / "test_lecture.mp4"
+SLIDES_PDF = VIDEO.with_suffix(".pdf")  # scripts/make_test_lecture.py --slides-pdf
 TRUTH = json.loads((ROOT / "data" / "lectures" / "test_lecture.json").read_text(encoding="utf-8"))
 failures: list[str] = []
 
@@ -63,11 +65,36 @@ def main() -> None:
                 wrong.append(i)
     check(not wrong, f"each segment linked to the slide whose narration it matches best (wrong: {wrong})")
 
+    print("Slides PDF matching (no model)")
+    match_slides(slides, SLIDES_PDF)
+    want_pages = [DECK.index(x["page"]) + 1 for x in TRUTH["slides"]]
+    check([s.source_page for s in slides] == want_pages,
+          f"slides matched to deck pages {[s.source_page for s in slides]} (truth {want_pages}), scores {[s.match for s in slides]}")
+    import tempfile
+    import pymupdf as fitz
+    with tempfile.TemporaryDirectory() as tmp:  # a deck without the shown pages: no match, frames are used
+        other = fitz.open()
+        src = fitz.open(SLIDES_PDF)
+        for i in range(src.page_count):
+            if i + 1 not in want_pages:
+                other.insert_pdf(src, from_page=i, to_page=i)
+        other.save(Path(tmp) / "other.pdf")
+        other.close()
+        alt = [sl.model_copy() for sl in slides]
+        match_slides(alt, Path(tmp) / "other.pdf")
+        check(all(sl.source_page is None for sl in alt), f"deck without those pages → no match (best {[sl.match for sl in alt]}): fallback to frames")
+
     print("Slide figures (figure pipeline)")
     lec = Lecture.model_validate_json((OUT_ROOT / lecture_id(VIDEO) / "lecture.json").read_text(encoding="utf-8"))
-    figs = store.figures(store.connect(), lec.slides_document)
-    pages = sorted(res.region.page for _, res in figs)
-    check(pages == [1, 2], f"one figure per slide (pages {pages})")
+    check([s.source_page for s in lec.slides] == want_pages and all(s.document and s.document.endswith("-pdf") for s in lec.slides),
+          "the processed lecture used the slides PDF for every slide")
+    per_slide = slide_figures(lec, store.connect())
+    figs = [f for s in lec.slides for f in per_slide[s.index]]
+    check([len(per_slide[s.index]) for s in lec.slides] == [1, 1], f"one figure per slide ({[len(v) for v in per_slide.values()]})")
+    check([r.region.caption for _, r in figs] == ["Figure 2.3", "Figure 2.6"], f"captions from the PDF's text layer: {[r.region.caption for _, r in figs]}")
+    t23 = figs[0][1].extracted
+    check(t23.source is not None and t23.source.caption == "Table 2.9" and [d.value for d in t23.data] == [32.5, 29.5, 16.4, 13.9, 7.1],
+          "Figure 2.3 has Table 2.9's exact values (table split over the deck's pages 1-2)")
     done = [res for _, res in figs if res.status in (Status.auto_approved, Status.needs_review)]
     check(len(done) == len(figs), "every slide figure described: " + ", ".join(
         f"slide {r.region.page} {r.status.value}" for _, r in figs))
@@ -112,7 +139,7 @@ def main() -> None:
     see = next((v for v in vis if v.phrase.lower() == "as you can see here"), None)
     check(see is not None and see.slide == 1, f"'as you can see here' linked to slide {see and see.slide}")
     fig = next((r for fid, r in figs if see and fid == see.figure_id), None)
-    check(fig is not None and fig.region.page == 1 and fig.status == Status.auto_approved,
+    check(fig is not None and fig.region.page == lec.slides[0].pdf_page and fig.status == Status.auto_approved,
           f"its figure is slide 1's, verified ({fig and fig.status.value})")
     check(not VISUAL_RE.search("Today we look at two ways to display data."), "'look at two ways' is not a visual reference")
     check(len(vis) == 1, f"{len(vis)} visual reference(s) in the clip (it has one)")

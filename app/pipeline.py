@@ -49,8 +49,11 @@ def calls_since(offset: int) -> list[dict]:
 
 
 def run(con, key: str, pdf_path: str | Path, pages: str | None, page_check: bool = False,
-        backend: str | None = None, echo: bool = False, workers: int = WORKERS) -> dict:
+        backend: str | None = None, echo: bool = False, workers: int = WORKERS,
+        figure_pages: set[int] | None = None) -> dict:
     """Process one run. Never raises: a failure is stored as status 'failed' with the error.
+    figure_pages: describe only the figures on these pages; the other pages are read for context
+    (tables there can supply exact values, app/source_tables.py). None: every page's figures.
     Returns {"calls": n, "uncached": n} for the model calls made."""
     start = log_offset()
     try:
@@ -61,7 +64,7 @@ def run(con, key: str, pdf_path: str | Path, pages: str | None, page_check: bool
         with pdf.LOCK:
             regions, _ = detect(doc, use_sam=page_check, use_check=page_check)
         store.save_layout(con, key, doc, regions)
-        figs = [r for r in regions if r.kind == "figure"]
+        figs = [r for r in regions if r.kind == "figure" and (figure_pages is None or r.page in figure_pages)]
         store.set_progress(con, key, "processing", f"Describing {len(figs)} figures")
         for i, (r, res) in enumerate(describe_figures(figs, pdf_path, backend, workers,
                                                      [x for x in regions if x.kind == "table"]), 1):
