@@ -304,7 +304,8 @@ def check_export(arg: str | None) -> int:
         browser.close()
     n += report("exported HTML", result)
     (path.parent / "a11y_report.json").write_text(json.dumps(
-        {"violations": result["violations"], "incomplete": result["incomplete"]}, indent=2), encoding="utf-8")
+        {"violations": result["violations"], "incomplete": result["incomplete"]}, indent=2,
+        default=str), encoding="utf-8")  # an axe rule that errored puts an Error object in "incomplete"
     return n
 
 

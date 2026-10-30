@@ -117,6 +117,29 @@ def main() -> None:
     check(not VISUAL_RE.search("Today we look at two ways to display data."), "'look at two ways' is not a visual reference")
     check(len(vis) == 1, f"{len(vis)} visual reference(s) in the clip (it has one)")
 
+    print("Notes page and captions")
+    out = OUT_ROOT / lecture_id(VIDEO)
+    html = (out / "notes.html").read_text(encoding="utf-8")
+    vtt = (out / "captions.vtt").read_text(encoding="utf-8")
+    cue_times = re.findall(r"(\d\d:\d\d:\d\d\.\d{3}) --> (\d\d:\d\d:\d\d\.\d{3})", vtt)
+
+    def secs(x: str) -> float:
+        return int(x[:2]) * 3600 + int(x[3:5]) * 60 + float(x[6:])
+    check(vtt.startswith("WEBVTT") and bool(cue_times) and all(secs(a) < secs(b) for a, b in cue_times)
+          and all(secs(b) <= secs(c) + 0.001 for (_, b), (c, _) in zip(cue_times, cue_times[1:])),
+          f"captions.vtt: {len(cue_times)} cues, ordered, not overlapping")
+    longest = max(len(x) for x in vtt.splitlines() if x and "-->" not in x and not x.isdigit() and x != "WEBVTT")
+    check(longest <= 90, f"longest cue line {longest} characters")
+    check('<track kind="captions" src="captions.vtt"' in html and (out / "video.mp4").exists(), "video with captions track")
+    esc = lambda x: x.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;").replace('"', "&quot;").replace("'", "&#x27;")
+    check(all(esc(p.text) in html for p in pts if p.supported) and all(esc(p.text) not in html for p in pts if p.supported is False),
+          "the page shows every supported point and no unsupported one")
+    check(html.count('class="visual-ref"') == len(vis) and "This is the figure on the slide" in html,
+          "the verified figure is inserted where the instructor pointed")
+    blocks = html.count('class="figure-block"')
+    check(blocks == len(figs) and all(f'id="seg-{s.id}"' in html for s in t.segments),
+          f"each slide figure once ({blocks}), every transcript segment anchored")
+
     print(f"\n{'All checks passed' if not failures else f'{len(failures)} check(s) failed'}")
     sys.exit(1 if failures else 0)
 

@@ -177,7 +177,7 @@ def add_visuals(lec: Lecture, notes: LectureNotes, con=None) -> None:
             next((x for x in notes.sections if any(seg.id in p.segments for p in x.points)), None)
         if sec is None:
             continue
-        after = next((k for k, p in enumerate(sec.points) if seg.id in p.segments), None)
+        after = max((k for k, p in enumerate(sec.points) if seg.id in p.segments), default=None)  # after the segment's last point
         fig = (figs.get(slide) or [(None, None)])[0][0]
         sec.visuals.append(VisualRef(segment=seg.id, phrase=m.group(0), slide=slide, figure_id=fig, after_point=after))
 
