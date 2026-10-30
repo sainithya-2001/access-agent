@@ -203,3 +203,22 @@ class FigureResult(BaseModel):
     status: Status = Status.pending
     escalation_reason: str | None = None
     trace: list[TraceStep] = []
+
+
+# ---------- Lecture (app/transcribe.py, app/lecture.py) ----------
+
+class TranscriptSegment(BaseModel):
+    """One turn from Muse Voice Transcribe. Times in seconds from the start of the recording; the
+    API's turn boundaries are not precise acoustic boundaries."""
+    id: int
+    start: float
+    end: float
+    text: str
+
+
+class Transcript(BaseModel):
+    source: str  # the video or audio file
+    model: str
+    duration: float  # seconds of audio processed
+    segments: list[TranscriptSegment]
+    text: str  # the whole transcript, as the API returns it
