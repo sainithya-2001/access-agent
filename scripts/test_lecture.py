@@ -70,6 +70,19 @@ def main() -> None:
     check(len(done) == len(figs), "every slide figure described: " + ", ".join(
         f"slide {r.region.page} {r.status.value}" for _, r in figs))
 
+    print("Notes")
+    n = lec.notes
+    pts = [p for sec in n.sections for p in sec.points]
+    check(len(n.sections) == len(slides) and [sec.slide for sec in n.sections] == [s.index for s in slides],
+          f"{len(n.sections)} sections, one per slide")
+    check(all(p.segments for p in pts), f"{len(pts)} points, each citing at least one segment")
+    times = [min(t.segments[i].start for i in p.segments) for p in pts]
+    check(times == sorted(times), "points in transcript order (by their first cited segment)")
+    kinds = {k: sum(p.kind == k for p in pts) for k in ("key_point", "definition", "emphasis")}
+    check(any(p.kind == "definition" and (p.term or "").lower() == "histogram" for p in pts),
+          f"histogram defined; kinds {kinds}")
+    check(any(p.kind == "emphasis" and "50" in p.text for p in pts), "the emphasis on frequencies adding up to 50 kept")
+
     print(f"\n{'All checks passed' if not failures else f'{len(failures)} check(s) failed'}")
     sys.exit(1 if failures else 0)
 

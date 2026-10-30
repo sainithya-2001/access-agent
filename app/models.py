@@ -235,6 +235,27 @@ class Slide(BaseModel):
     pdf_page: int | None = None
 
 
+class NotePoint(BaseModel):
+    kind: Literal["key_point", "definition", "emphasis"]
+    text: str
+    term: str | None = None  # definitions only
+    segments: list[int] = Field(min_length=1)  # transcript segment ids that state this point
+    # Set by the notes verifier (app/notes.py verify_notes):
+    supported: bool | None = None
+    check: str | None = None  # the verifier's reason
+
+
+class NoteSection(BaseModel):
+    heading: str
+    slide: int | None = None
+    points: list[NotePoint]
+
+
+class LectureNotes(BaseModel):
+    title: str
+    sections: list[NoteSection]
+
+
 class Lecture(BaseModel):
     """A processed lecture recording (app/lecture.py): what output/lectures/<id>/lecture.json holds."""
     id: str  # hash of the video file
@@ -243,3 +264,5 @@ class Lecture(BaseModel):
     transcript: Transcript
     slides: list[Slide]
     slides_document: str | None = None  # review-store key of the slides PDF (its figures)
+    notes: LectureNotes | None = None
+

@@ -114,10 +114,12 @@ def lecture_id(video: str | Path) -> str:
 
 
 def process_lecture(video: str | Path, con=None, title: str | None = None, echo: bool = False) -> Lecture:
-    """Transcribe, find slides, link segments, and run the slides' figures through the figure pipeline
-    (pipeline.run into the review store, with the page check: slide frames are image-only pages).
+    """Transcribe, find slides, link segments, run the slides' figures through the figure pipeline
+    (pipeline.run into the review store, with the page check: slide frames are image-only pages), and
+    write the notes (app/notes.py).
     Writes output/lectures/<id>/lecture.json. con: a store connection (default store.connect())."""
     from app import pipeline, store
+    from app.notes import write_notes
     from app.transcribe import transcribe
 
     video = Path(video)
@@ -136,5 +138,8 @@ def process_lecture(video: str | Path, con=None, title: str | None = None, echo:
         print(f"Slides document {key}: {calls['calls']} model calls ({calls['uncached']} uncached)")
     lec = Lecture(id=lid, title=title or video.stem.replace("_", " ").capitalize(), video=video.as_posix(),
                   transcript=transcript, slides=slides, slides_document=key)
+    lec.notes = write_notes(lec)
+    if not title:
+        lec.title = lec.notes.title
     (out / "lecture.json").write_text(lec.model_dump_json(indent=2), encoding="utf-8")
     return lec
