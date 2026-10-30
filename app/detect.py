@@ -368,8 +368,10 @@ def _locate_with_sam(page: Page, m: _Missed, spark: fitz.Rect, taken: list[fitz.
 
 # ---------- crops and captions ----------
 
-def _crop(pdf_page: fitz.Page, r: fitz.Rect, path: Path) -> str:
-    clip = fitz.Rect(r.x0 - PAD_PT, r.y0 - PAD_PT, r.x1 + PAD_PT, r.y1 + PAD_PT) & pdf_page.rect
+def _crop(pdf_page: fitz.Page, r: fitz.Rect, path: Path, bottom: float | None = None) -> str:
+    """bottom: the lowest y the padded crop may reach (the top of the figure's caption)."""
+    y1 = r.y1 + PAD_PT if bottom is None else max(min(r.y1 + PAD_PT, bottom), r.y1)
+    clip = fitz.Rect(r.x0 - PAD_PT, r.y0 - PAD_PT, r.x1 + PAD_PT, y1) & pdf_page.rect
     with pdf.LOCK:
         pdf_page.get_pixmap(clip=clip, dpi=CROP_DPI).save(path)
     return str(path)
@@ -392,6 +394,22 @@ def _caption_for(r: fitz.Rect, page: Page) -> str | None:
         if dist < above[1]:
             above = (b.text.strip(), dist)
     return below[0] or above[0]
+
+
+def _above_caption(r: fitz.Rect, page: Page, caption: str | None) -> tuple[fitz.Rect, float | None]:
+    """A figure's crop ends above its own caption's text box. OpenStax puts the caption about 2pt
+    under the figure, so the crop's padding (PAD_PT) took in the tops of its first line's letters.
+    Returns (box, the lowest y the crop may reach, or None): the box itself is pulled up only where it
+    reaches into the caption (never by more than its bottom half); otherwise just the padding stops."""
+    if not caption:
+        return r, None
+    for b in page.text_blocks:
+        br = _rect(b.bbox)
+        if b.text.strip() != caption or br.x1 <= r.x0 or br.x0 >= r.x1 or br.y0 <= (r.y0 + r.y1) / 2:
+            continue
+        if r.y1 + PAD_PT > br.y0:
+            return fitz.Rect(r.x0, r.y0, r.x1, max(min(r.y1, br.y0), (r.y0 + r.y1) / 2)), br.y0
+    return r, None
 
 
 def _nearby_text(r: fitz.Rect, page: Page, limit: int = 600) -> str:
@@ -509,9 +527,12 @@ def _to_regions(pdf_page, page: Page, found, crops: Path) -> list[Region]:
     for i, (rect, kind, source, conf, rows) in enumerate(found):
         rid = f"p{page.number}_{kind[0]}{i}"
         caption = _caption_for(rect, page)
+        bottom = None
+        if kind == "figure":
+            rect, bottom = _above_caption(rect, page, caption)
         regions.append(Region(
             id=rid, page=page.number, kind=kind, bbox=_bbox(rect),
-            crop_path=_crop(pdf_page, rect, crops / f"{rid}.png"),
+            crop_path=_crop(pdf_page, rect, crops / f"{rid}.png", bottom),
             source=source, confidence=conf,
             caption=caption,
             nearby_text=_nearby_text(rect, page),
@@ -562,7 +583,7 @@ def _page_key(doc: Document, page: int, *settings) -> str:
     return hashlib.sha256(json.dumps(parts, default=str).encode()).hexdigest()
 
 
-def _cached_page(key: str, pdf_page: fitz.Page, crops: Path) -> tuple[list[Region], list[str]] | None:
+def _cached_page(key: str, pdf_page: fitz.Page, page: Page, crops: Path) -> tuple[list[Region], list[str]] | None:
     try:
         entry = json.loads((DETECT_CACHE / f"{key}.json").read_text(encoding="utf-8"))
         regions = [Region.model_validate(r) for r in entry["regions"]]
@@ -570,8 +591,9 @@ def _cached_page(key: str, pdf_page: fitz.Page, crops: Path) -> tuple[list[Regio
         return None
     crops.mkdir(parents=True, exist_ok=True)
     for r in regions:
-        b = r.bbox
-        r.crop_path = _crop(pdf_page, fitz.Rect(b.x0, b.y0, b.x1, b.y1), crops / f"{r.id}.png")
+        rect = _rect(r.bbox)
+        bottom = _above_caption(rect, page, r.caption)[1] if r.kind == "figure" else None
+        r.crop_path = _crop(pdf_page, rect, crops / f"{r.id}.png", bottom)
     return regions, entry["notes"]
 
 
@@ -586,7 +608,7 @@ def detect(doc: Document, use_sam: bool = True, use_check: bool = True,
     all_regions, all_notes = [], []
     for page in doc.pages:
         key = _page_key(doc, page.number, use_sam, use_check, free_figures, sam_extend)
-        hit = _cached_page(key, pdf[page.number - 1], out_dir / "crops") if use_cache else None
+        hit = _cached_page(key, pdf[page.number - 1], page, out_dir / "crops") if use_cache else None
         if hit:
             regions, notes = hit
         else:

@@ -20,6 +20,8 @@ Pitch: "AI can already write alt text, but staff can't trust it without checking
 PDF → ingest.py   page images, text blocks (heading lines split off), embedded images, scanned flag
     → detect.py   free layers first: embedded images, text tables (cells read from word positions),
                   vector charts; Table-captioned figures → tables; stemplots expanded (stemplot.py).
+                  Figure crops stop above their own caption's text box (the padding stops; a box is
+                  pulled up only where it reaches into the caption), also when re-rendered from cache.
                   Optional page check (--page-check): Muse Spark lists missed figures → SAM 3.1 locates them
     → agent       per figure (orchestrator.py), see below
     → assemble.py accessible HTML        → store.py / api.py / web/   staff review queue
