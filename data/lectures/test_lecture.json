@@ -1,0 +1,28 @@
+{
+  "video": "data/lectures/test_lecture.mp4",
+  "voice": "Microsoft David Desktop",
+  "duration": 81.339,
+  "slides": [
+    {
+      "index": 0,
+      "page": 85,
+      "start": 0.0,
+      "end": 39.45,
+      "speech_start": 0.8,
+      "text": "Today we look at two ways to display data. First, a bar graph. This one shows the proportion of TikTok users in each age group. As you can see here, the tallest bar is the ten to nineteen age group, at about thirty-two and a half percent, followed by twenty to twenty-nine, at twenty-nine and a half percent. After that the bars drop: about sixteen percent for thirty to thirty-nine, about fourteen percent for forty to forty-nine, and seven percent for fifty and older. In a bar graph the bars stand for categories, so they are separated by gaps."
+    },
+    {
+      "index": 1,
+      "page": 90,
+      "start": 39.45,
+      "end": 81.339,
+      "speech_start": 40.249,
+      "text": "Next, a histogram. A histogram is a graph of quantitative data in which the bars touch, and each bar covers an interval of values. Here the data are the number of books bought by fifty part-time students at ABC College. The intervals run from one half to six and a half, one book wide, so there are six bars. Three books is the most common answer, with sixteen students. Eleven students bought one book, and ten bought two. I want to emphasize this: the frequencies must add up to the number of students, fifty. Always check that before you draw the histogram."
+    }
+  ],
+  "see_here": {
+    "phrase": "As you can see here",
+    "slide": 0,
+    "approx_time": 10.6
+  }
+}

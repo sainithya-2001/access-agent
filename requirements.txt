@@ -7,4 +7,5 @@ uvicorn>=0.29
 python-multipart>=0.0.9  # PDF upload in app/api.py
 pydantic>=2.6
 latex2mathml>=3.77
+imageio-ffmpeg>=0.5  # lecture slice: ffmpeg binary for audio and video frames (app/lecture.py)
 playwright>=1.44   # scripts/check_a11y.py; then: python -m playwright install chromium
