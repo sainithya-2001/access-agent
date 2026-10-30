@@ -90,6 +90,15 @@ kbd {
 .brand-name { font-weight: 650; font-size: 15px; display: flex; align-items: center; gap: 10px; }
 .brand-sub { color: var(--muted); font-weight: 400; font-size: 14px; padding-left: 10px; border-left: 1px solid var(--line); }
 .doc-picker, .reviewer, .reviewer-edit { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--muted); }
+.doc-picker { position: relative; }
+/* Full document name under the narrow select, on hover or keyboard focus (Esc hides it). */
+.doc-full {
+  display: none; position: absolute; top: calc(100% + 6px); left: 0; z-index: 20; width: max-content; max-width: min(520px, 90vw);
+  padding: 6px 10px; border-radius: 6px; background: var(--ink); color: var(--surface);
+  font-size: 13px; line-height: 1.4; white-space: normal; overflow-wrap: anywhere; box-shadow: var(--shadow);
+}
+.doc-picker:hover .doc-full:not(:empty), .doc-picker:has(select:focus-visible) .doc-full:not(:empty) { display: block; }
+.doc-picker.tip-dismissed .doc-full { display: none !important; }  /* beats the :has(:focus-visible) rule */
 .reviewer-show { margin: 0; font-size: 14px; color: var(--ink-2); }
 .reviewer-show strong { color: var(--ink); }
 .doc-picker select, .reviewer input {
@@ -151,7 +160,10 @@ kbd {
 .queue-item .q-meta { grid-column: 2 / 4; font-size: 12.5px; color: var(--muted); }
 .queue-item .q-status { font-size: 12px; font-weight: 600; color: var(--muted); white-space: nowrap; }
 .queue-item .q-status.needs_review, .queue-item .q-status.pending { color: var(--review); }
-.queue-empty { padding: 16px; color: var(--muted); font-size: 14px; margin: 0; }
+.queue-empty { padding: 16px; color: var(--muted); font-size: 14px; }
+.queue-empty[hidden] { display: none; }
+.queue-list:empty { flex: 0; padding: 0; }  /* so the empty-state message sits at the top */
+.queue-empty p { margin: 0 0 12px; }
 .dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: var(--line-strong); }
 .dot.needs_review, .dot.pending { background: var(--review-box); }
 .dot.auto_approved { background: var(--auto-box); }
@@ -357,6 +369,28 @@ table.shortcuts kbd { margin: 0; }
   .workspace { grid-template-columns: 1fr; }
   .queue-list { max-height: 260px; }
   .page-scroll { max-height: 70vh; }
+}
+/* 1440px and wider: the header stays on one line and the page legend on one row. */
+@media (min-width: 1440px) {
+  .topbar { flex-wrap: nowrap; gap: 14px; padding: 10px 16px; }
+  .topbar > * { flex-shrink: 0; }
+  .brand-name { gap: 8px; }
+  .doc-picker select { width: 210px; }
+  .summary { white-space: nowrap; font-size: 14px; }
+  .topbar-actions { flex-wrap: nowrap; gap: 8px; }
+  .topbar-actions .btn { padding: 0 10px; }
+  .reviewer-show { white-space: nowrap; }
+  .reviewer-show strong { display: inline-block; max-width: 130px; overflow: hidden; text-overflow: ellipsis;
+    vertical-align: bottom; }
+  .legend { flex-wrap: nowrap; white-space: nowrap; gap: 12px; }
+  .page-view .pane-head h2 { white-space: nowrap; }
+}
+/* 1440–1679px: words that only label what is already clear on screen are hidden visually,
+   but stay in the accessible names (h1, select label, reviewer line). */
+@media (min-width: 1440px) and (max-width: 1679px) {
+  .brand-sub, .doc-picker label, .reviewer-as, .summary .sum-long {
+    position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0);
+    white-space: nowrap; padding: 0; border: 0; }
 }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
 

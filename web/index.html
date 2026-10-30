@@ -19,9 +19,10 @@
     <h1 class="brand-name">Access Agent <span class="brand-sub">Figure review</span></h1>
   </div>
 
-  <div class="doc-picker">
+  <div class="doc-picker" id="doc-picker">
     <label for="doc-select">Document</label>
     <select id="doc-select"></select>
+    <span class="doc-full" id="doc-full" aria-hidden="true"></span>
   </div>
 
   <p class="summary" id="summary" aria-live="polite"></p>
@@ -33,10 +34,10 @@
       <span>Needs review only</span>
     </label>
     <div class="reviewer">
-      <p class="reviewer-show" id="reviewer-show" hidden>Reviewing as <strong id="reviewer-name"></strong>
+      <p class="reviewer-show" id="reviewer-show" hidden><span class="reviewer-as">Reviewing as </span><strong id="reviewer-name"></strong>
         <button type="button" class="linklike" id="reviewer-change">Change<span class="visually-hidden"> reviewer name</span></button></p>
       <form class="reviewer-edit" id="reviewer-form">
-        <label for="reviewer">Your name</label>
+        <label for="reviewer">Name</label>
         <input id="reviewer" type="text" autocomplete="name" size="12" aria-describedby="reviewer-hint">
         <button type="submit" class="btn btn-quiet">Save name</button>
         <span class="visually-hidden" id="reviewer-hint">Saved in this browser and recorded with every decision you make.</span>
@@ -59,7 +60,10 @@
       <span class="pane-count" id="queue-count"></span>
     </div>
     <ul class="queue-list" id="queue-list"></ul>
-    <p class="queue-empty" id="queue-empty" hidden>Nothing left to review. Every figure is approved.</p>
+    <div class="queue-empty" id="queue-empty" hidden>
+      <p>Nothing left to review. Every figure is approved.</p>
+      <button type="button" class="btn btn-quiet" id="show-all">Show all figures</button>
+    </div>
   </nav>
 
   <section class="page-view" aria-labelledby="page-heading">
@@ -71,10 +75,10 @@
         <button type="button" class="btn btn-quiet btn-sm" id="zoom-in" aria-label="Zoom in">+</button>
       </div>
       <div class="legend" id="legend" aria-hidden="true">
-        <span><i class="swatch needs_review"></i>Needs review</span>
-        <span><i class="swatch auto_approved"></i>Auto-approved</span>
-        <span><i class="swatch approved"></i>Staff approved</span>
-        <span><i class="swatch rejected"></i>Rejected</span>
+        <span title="Needs review"><i class="swatch needs_review"></i>Review</span>
+        <span title="Auto-approved"><i class="swatch auto_approved"></i>Auto</span>
+        <span title="Approved by staff"><i class="swatch approved"></i>Staff</span>
+        <span title="Rejected"><i class="swatch rejected"></i>Rejected</span>
       </div>
     </div>
     <div class="page-scroll" id="page-scroll" tabindex="0" role="group" aria-labelledby="page-heading">

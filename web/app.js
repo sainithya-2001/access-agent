@@ -157,16 +157,28 @@ function queueOrder() { return [...state.figs.filter(needsReview), ...state.figs
 function visibleFigs() { return $("filter-review").checked ? state.figs.filter(needsReview) : queueOrder(); }
 
 // ---------- documents ----------
+// The select is narrow, so the full name shows on hover and on focus (in a tooltip under it and as
+// each option's title); Esc hides the tooltip.
+function docFullName(d) { return `${d.name} · pages ${d.pages}`; }
+function updateDocFull() {
+  const d = state.docs.find((x) => x.id === $("doc-select").value);
+  $("doc-full").textContent = d ? docFullName(d) : "";
+  $("doc-select").title = d ? docFullName(d) : "";
+  $("doc-picker").classList.remove("tip-dismissed");
+}
+
 async function loadDocs(preferred) {
   state.docs = await api("/api/documents");
   const sel = $("doc-select");
   sel.innerHTML = state.docs.length
-    ? state.docs.map((d) => `<option value="${esc(d.id)}">Pages ${esc(d.pages)} · ${esc(d.name.replace(/\.pdf$/i, ""))}</option>`).join("")
+    ? state.docs.map((d) => `<option value="${esc(d.id)}" title="${esc(docFullName(d))}">Pages ${esc(d.pages)} · ${esc(d.name.replace(/\.pdf$/i, ""))}</option>`).join("")
     : `<option value="">No documents yet</option>`;
   const fromHash = new URLSearchParams(location.hash.slice(1)).get("doc");
   const want = [preferred, fromHash, state.docId].find((id) => id && state.docs.some((d) => d.id === id));
   const id = want || state.docs.find((d) => d.status === "ready")?.id || state.docs[0]?.id;
-  if (id) { sel.value = id; await loadDoc(id); } else { renderEmpty(); }
+  if (id) sel.value = id;
+  updateDocFull();
+  if (id) await loadDoc(id); else renderEmpty();
 }
 
 async function loadDoc(id) {
@@ -219,14 +231,15 @@ function renderSummary() {
   const auto = state.figs.filter((f) => f.status === "auto_approved").length;
   const human = state.figs.filter((f) => ["approved", "edited", "rejected"].includes(f.status)).length;
   $("summary").innerHTML = `<strong class="n-review">${n}</strong> need review<span class="sep" aria-hidden="true">·</span>`
-    + `<strong>${auto}</strong> auto-approved`
-    + (human ? `<span class="sep" aria-hidden="true">·</span><strong>${human}</strong> reviewed by staff` : "");
+    + `<strong>${auto}</strong> auto<span class="sum-long">-approved</span>`
+    + (human ? `<span class="sep" aria-hidden="true">·</span><strong>${human}</strong> <span class="sum-long">reviewed </span>by staff` : "");
 }
 
 function renderQueue() {
   const figs = visibleFigs();
   $("queue-count").textContent = `Showing ${figs.length} of ${state.figs.length}`;
   $("queue-empty").hidden = figs.length > 0 || !state.figs.length;
+  $("show-all").textContent = `Show all ${state.figs.length} figure${state.figs.length === 1 ? "" : "s"}`;
   $("queue-list").innerHTML = figs.map((f) => {
     const label = `${figName(f)}, ${STATUS_LABEL[f.status]}, ${pageLabel(f.page)}`;
     return `<li><button type="button" class="queue-item" data-id="${esc(f.id)}" aria-label="${esc(label)}"
@@ -484,6 +497,7 @@ function reviewer() {
 function showReviewer() {
   const who = (store("reviewer") || "").trim();
   $("reviewer-name").textContent = who;
+  $("reviewer-name").title = `Reviewing as ${who}`;
   $("reviewer-show").hidden = !who;
   $("reviewer-form").hidden = !!who;
 }
@@ -723,7 +737,18 @@ document.addEventListener("keydown", (ev) => {
 });
 
 // ---------- wiring ----------
-$("doc-select").addEventListener("change", (e) => { if (e.target.value) { state.dirty = false; loadDoc(e.target.value); } });
+$("doc-select").addEventListener("change", (e) => { updateDocFull(); if (e.target.value) { state.dirty = false; loadDoc(e.target.value); } });
+$("doc-select").addEventListener("keydown", (e) => { if (e.key === "Escape") $("doc-picker").classList.add("tip-dismissed"); });
+$("doc-picker").addEventListener("mouseleave", () => $("doc-picker").classList.remove("tip-dismissed"));
+$("doc-select").addEventListener("blur", () => $("doc-picker").classList.remove("tip-dismissed"));
+$("show-all").addEventListener("click", () => {
+  const box = $("filter-review");
+  box.checked = false;
+  box.dispatchEvent(new Event("change"));
+  const first = $("queue-list").querySelector(".queue-item");
+  if (first) first.focus();
+  announce(`Showing all ${state.figs.length} figures.`);
+});
 $("filter-review").addEventListener("change", (e) => {
   store("filter", e.target.checked ? "review" : "all");
   renderQueue();

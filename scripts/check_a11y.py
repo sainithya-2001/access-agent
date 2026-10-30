@@ -407,6 +407,57 @@ def keyboard_walk(page) -> list[str]:
     return problems
 
 
+def header_checks(page) -> list[str]:
+    """At 1440px and wider the header is one line and the legend one row; the document's full name
+    shows on keyboard focus (Esc hides it); an empty filtered queue offers Show all N figures."""
+    problems = []
+    one_line = """(sel) => { const r = [...document.querySelectorAll(sel)]
+      .filter(e => e.offsetParent && e.getBoundingClientRect().width > 2).map(e => e.getBoundingClientRect());
+      return r.every(a => r.every(b => a.top < b.bottom - 1 && b.top < a.bottom - 1)); }"""
+    size = page.viewport_size
+    for w in (1440, 1920):
+        page.set_viewport_size({"width": w, "height": size["height"]})
+        if not page.evaluate(one_line, ".topbar > *, .topbar-actions > *"):
+            problems.append(f"header wraps at {w}px")
+        if not page.evaluate(one_line, "#legend > span"):
+            problems.append(f"legend wraps at {w}px")
+    page.set_viewport_size(size)
+
+    page.locator("#doc-select").focus()
+    page.keyboard.press("Shift+Tab")
+    page.keyboard.press("Tab")  # keyboard focus, so :focus-visible applies
+    tip = page.locator("#doc-full")
+    want = page.evaluate("document.querySelector('#doc-select').selectedOptions[0]?.title || ''")
+    if not tip.is_visible() or tip.inner_text().strip() != want.strip() or not want:
+        problems.append("the full document name does not show on focus")
+    else:
+        total = report("document name shown on focus", run_axe(page))
+        problems += ["axe violations with the document name shown"] * bool(total)
+        page.keyboard.press("Escape")
+        if tip.is_visible():
+            problems.append("Esc did not hide the document name")
+
+    page.check("#filter-review", force=True)
+    if page.locator(".queue-item").count() == 0:
+        n = page.evaluate("state.figs.length")
+        btn = page.locator("#show-all")
+        if not btn.is_visible() or btn.inner_text() != f"Show all {n} figures":
+            problems.append(f"empty queue: no 'Show all {n} figures' button")
+        else:
+            total = report("empty queue (needs-review filter on)", run_axe(page))
+            problems += ["axe violations on the empty queue"] * bool(total)
+            btn.focus()
+            page.keyboard.press("Enter")
+            if page.locator(".queue-item").count() != n or page.is_checked("#filter-review"):
+                problems.append("Show all did not show every figure")
+            elif not page.evaluate("document.activeElement.classList.contains('queue-item')"):
+                problems.append("Show all did not move focus to the queue")
+    else:
+        print("(empty-queue state not checked: some figures still need review)")
+    page.uncheck("#filter-review", force=True)
+    return problems
+
+
 def check_review(url: str | None) -> int:
     from playwright.sync_api import sync_playwright
 
@@ -428,6 +479,11 @@ def check_review(url: str | None) -> int:
             print(f"axe-core review screen at {url}")
 
             total += report("review screen", run_axe(page))
+            problems = header_checks(page)
+            print(f"\n== review screen, header, document name and empty queue: {len(problems)} problem(s)")
+            for p in problems:
+                print(f"  - {p}")
+            total += len(problems)
             # A figure that needs review shows the reason, issues and a longer trace.
             item = page.locator(".queue-item .dot.needs_review").first
             if item.count():
