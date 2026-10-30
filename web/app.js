@@ -180,6 +180,7 @@ async function loadDoc(id) {
     a.setAttribute("aria-disabled", String(!ready));
     a.href = ready ? `${docPath(id)}/${a.id === "export-link" ? "export" : "preview"}` : "#";
   }
+  $("blindfold-btn").setAttribute("aria-disabled", String(!ready));
   if (state.doc.status === "failed") banner(`Processing failed: ${state.doc.error}`, "error");
   else if (!ready) banner(`Processing ${state.doc.name}: ${state.doc.progress || "queued"}…`);
   else banner("");
@@ -770,6 +771,20 @@ $("shortcuts-enabled").addEventListener("change", (e) => store("shortcuts", e.ta
 for (const a of [$("export-link"), $("preview-link")]) {
   a.addEventListener("click", (e) => { if (a.getAttribute("aria-disabled") === "true") e.preventDefault(); });
 }
+// Blindfold mode reads the exported document (with staff edits), so it opens on the preview's HTML.
+$("blindfold-btn").hidden = !(window.Blindfold && Blindfold.supported);
+$("blindfold-btn").addEventListener("click", async () => {
+  const btn = $("blindfold-btn");
+  if (btn.getAttribute("aria-disabled") === "true" || !state.docId) return;
+  try {
+    const res = await fetch(`${docPath(state.docId)}/preview`);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const doc = new DOMParser().parseFromString(await res.text(), "text/html");
+    Blindfold.open(Blindfold.fromDocument(doc), btn);
+  } catch (e) {
+    banner(`Could not open Blindfold mode: ${e.message}`, "error");
+  }
+});
 window.addEventListener("beforeunload", (e) => { if (state.dirty) e.preventDefault(); });
 $("filter-review").checked = store("filter") !== "all";  // on by default
 showReviewer();

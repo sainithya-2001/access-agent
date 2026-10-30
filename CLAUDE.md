@@ -67,7 +67,8 @@ Code controls the order; the model decides **per figure** inside a capped loop.
 | M8 | Benchmark | 🟡 dev set, 3 runs per backend before and after fixes A–G (`eval/results/dev_repeats.md`, `dev_repeats_r4-6.md`; scoring and hand checks in `eval/SCORING.md`): unsafe approvals Meta 3.7 (3–4) → 2.7 (2–3), Baseten 3.3 (3–4) → 4.7 (2–8), target 0; held-out run still to do |
 
 ## Add-ons (only after M8; decided later)
-Blindfold mode (browser TTS) · Reading profiles · Hear the chart (sonification of verified values) · Lecture → verified notes · Accessible exam conversion · Muse Image diagram redraws.
+✅ **Blindfold mode** (`web/blindfold.js`, in the export and the review screen's Blindfold button): blacks out the screen and reads the document with the browser's speech synthesis, block by block. "Original" = what a screen reader gets from the untreated PDF (`assemble.original_reading`: text blocks in PDF order, no headings, images only "Image", table/chart text as one stream); "Accessible" = read from the exported page (headings, alt text, long descriptions, table cells with their headers). Off by default, modal, caption hidden from assistive tech; `check_a11y.py` runs it with silent speech.
+Still open: Reading profiles · Hear the chart (sonification of verified values) · Lecture → verified notes · Accessible exam conversion · Muse Image diagram redraws.
 
 ## Related work (cite in README, do not copy)
 - ALADDIN (Georgia Tech, ACM ASSETS 2025): context-aware alt text for Word/PowerPoint with Gemini; all-or-nothing review; no accuracy numbers.

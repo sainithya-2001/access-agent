@@ -53,6 +53,42 @@ def report(label: str, result: dict) -> int:
     return len(violations)
 
 
+# Blindfold mode is checked with a silent stand-in for the browser's speech engine.
+SILENT_SPEECH = """
+Object.defineProperty(window, 'speechSynthesis', { configurable: true, value: {
+  cancel() { this.u = null; }, pause() {}, resume() {}, getVoices() { return []; },
+  speak(u) { this.u = u; setTimeout(() => { if (this.u === u && u.onend) u.onend(); }, 200); } } });
+window.SpeechSynthesisUtterance = function (t) { this.text = t; };
+"""
+
+
+def blindfold_keys(page, opener: str) -> list[str]:
+    """Open Blindfold mode from the keyboard, step through blocks, close with Esc."""
+    problems = []
+    page.locator(opener).focus()
+    page.keyboard.press("Enter")
+    try:
+        page.wait_for_selector("dialog.bf[open]", timeout=5000)
+    except Exception:
+        return [f"{opener} did not open Blindfold mode"]
+    if "bf-play" not in (page.evaluate("document.activeElement.className") or ""):
+        problems.append("Blindfold mode did not focus Play/Pause")
+    page.keyboard.press("Space")  # pause (Space on the focused button)
+    if page.inner_text(".bf-play") != "Play":
+        problems.append("Space did not pause Blindfold mode")
+    pos = page.inner_text(".bf-pos")
+    page.keyboard.press("Tab")  # to Next
+    page.keyboard.press("Enter")
+    if page.inner_text(".bf-pos") == pos:
+        problems.append("Next did not move to the next block")
+    page.keyboard.press("Escape")
+    if page.locator("dialog.bf").is_visible():
+        problems.append("Esc did not close Blindfold mode")
+    elif page.evaluate("'#' + document.activeElement.id") != opener:
+        problems.append(f"focus did not return to {opener} after Blindfold mode")
+    return problems
+
+
 # ---------- exported HTML ----------
 
 def check_export(arg: str | None) -> int:
@@ -68,11 +104,24 @@ def check_export(arg: str | None) -> int:
     with sync_playwright() as pw:
         browser = pw.chromium.launch()
         page = browser.new_page()
+        page.add_init_script(SILENT_SPEECH)
         page.goto(path.resolve().as_uri())
         result = run_axe(page)
         print(f"axe-core {page.evaluate('axe.version')} on {path}")
+        n = 0
+        if page.locator("#blindfold-open").count():
+            page.click("#blindfold-open")
+            n += report("exported HTML, Blindfold mode (accessible)", run_axe(page))
+            page.check("dialog.bf input[value=original]")
+            n += report("exported HTML, Blindfold mode (original)", run_axe(page))
+            page.keyboard.press("Escape")
+            problems = blindfold_keys(page, "#blindfold-open")
+            print(f"\n== exported HTML, Blindfold mode keyboard: {len(problems)} problem(s)")
+            for p in problems:
+                print(f"  - {p}")
+            n += len(problems)
         browser.close()
-    n = report("exported HTML", result)
+    n += report("exported HTML", result)
     (path.parent / "a11y_report.json").write_text(json.dumps(
         {"violations": result["violations"], "incomplete": result["incomplete"]}, indent=2), encoding="utf-8")
     return n
@@ -219,6 +268,7 @@ def check_review(url: str | None) -> int:
         with sync_playwright() as pw:
             browser = pw.chromium.launch()
             page = browser.new_page(viewport={"width": 1600, "height": 1000})
+            page.add_init_script(SILENT_SPEECH)
             page.add_init_script("try { localStorage.setItem('reviewer', 'a11y check'); "
                                  "localStorage.setItem('filter', 'all'); } catch (e) {}")
             page.goto(url)
@@ -261,11 +311,15 @@ def check_review(url: str | None) -> int:
             page.click("#shortcuts-open")
             total += report("shortcuts dialog", run_axe(page))
             page.click("#shortcuts-close")
+            page.click("#blindfold-btn")
+            page.wait_for_selector("dialog.bf[open]")
+            total += report("Blindfold mode", run_axe(page))
+            page.keyboard.press("Escape")
             page.uncheck("#filter-review", force=True)
 
             page.reload()
             page.wait_for_selector(".queue-item")
-            problems = keyboard_walk(page)
+            problems = keyboard_walk(page) + blindfold_keys(page, "#blindfold-btn")
             print(f"\n== keyboard only: {len(problems)} problem(s)")
             for p in problems:
                 print(f"  - {p}")

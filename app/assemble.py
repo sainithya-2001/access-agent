@@ -15,6 +15,7 @@ from __future__ import annotations
 
 import base64
 import html
+import json
 import re
 from collections import Counter
 from pathlib import Path
@@ -425,7 +426,46 @@ def assemble(doc: Document, regions: list[Region], results: dict[str, FigureResu
         body="\n".join(out),
         source=e(f"{book}, OpenStax, licensed under CC BY 4.0. PDF pages {first}–{last}."),
         css=CSS,
+        **_blindfold(doc, regions),
     )
+
+
+# ---------- 6. Blindfold mode ----------
+
+BLINDFOLD_JS = Path(__file__).resolve().parents[1] / "web" / "blindfold.js"
+
+
+def original_reading(doc: Document, regions: list[Region]) -> list[dict]:
+    """What a screen reader gets from the untreated PDF, for Blindfold mode's "Original" version:
+    every text block in the PDF's order, running headers included, no headings; an embedded image is
+    only "Image"; the text inside a table or chart runs together as one stream; a scanned page is
+    one image."""
+    out = []
+    for p in doc.pages:
+        if p.is_scanned:
+            out.append({"kind": "Image", "text": "", "page": p.number})
+            continue
+        regs = [r for r in regions if r.page == p.number]
+        items: list[list] = []  # [kind, text, y0, region]
+        for b in p.text_blocks:
+            text = re.sub(r"\s+", " ", b.text).strip()
+            if not text:
+                continue
+            region = next((r for r in regs if _inside(b, r)), None)
+            if region is not None and items and items[-1][3] is region:
+                items[-1][1] += " " + text
+            else:
+                items.append(["Text", text, b.bbox.y0, region])
+        for img in p.embedded_images:
+            at = next((i for i, it in enumerate(items) if it[2] >= img.bbox.y0), len(items))
+            items.insert(at, ["Image", "", img.bbox.y0, None])
+        out += [{"kind": k, "text": t, "page": p.number} for k, t, _, _ in items]
+    return out
+
+
+def _blindfold(doc: Document, regions: list[Region]) -> dict:
+    data = json.dumps(original_reading(doc, regions), ensure_ascii=False).replace("</", "<\\/")
+    return {"blindfold_data": data, "blindfold_js": BLINDFOLD_JS.read_text(encoding="utf-8")}
 
 
 def _ranges(nums: list[int]) -> str:
@@ -496,6 +536,8 @@ thead th { background: var(--panel); }
 .data-table caption { font-weight: 400; }
 .stem-values { font-size: 1rem; }
 .math { overflow-x: auto; font-size: 1.25rem; }
+.blindfold-launch button { font: inherit; font-size: 1rem; padding: 0.5rem 1rem; color: var(--bg);
+  background: var(--text); border: 2px solid var(--text); border-radius: 6px; cursor: pointer; }
 """
 
 PAGE = """<!doctype html>
@@ -511,10 +553,13 @@ PAGE = """<!doctype html>
 <main id="main" tabindex="-1">
 <h1>{h1}</h1>
 <p>{intro}</p>
+<p class="blindfold-launch" hidden><button type="button" id="blindfold-open">Blindfold mode: hear this page as a screen reader reads it</button></p>
 {review}
 {body}
 </main>
 <footer><p>Source: {source}</p></footer>
+<script type="application/json" id="blindfold-original">{blindfold_data}</script>
+<script>{blindfold_js}</script>
 </body>
 </html>
 """
