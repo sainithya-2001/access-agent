@@ -221,3 +221,29 @@ Also found: when a zoomed re-read is within tolerance of both earlier readings, 
 description, not the nearer reading (2.25, Q3: read 86.9, extraction 86.9, description 90). It
 changed no outcome in these runs (the re-read value replaces the extracted value either way).
 Neither this nor the no-scale gap is fixed in the code these runs used.
+
+## Follow-up decisions, Oct 29 (after runs 1–6; no dev rerun)
+**Re-read tie: fixed.** A re-read within tolerance of both readings is now credited to the nearer one,
+a tie to the extraction (the independent reading). Checked with a stubbed agent: 86.9 / 86.9 / 90 →
+extraction; 89.5 → description; 88.45 (halfway) → extraction; 60 → neither. It changed no outcome in
+runs 1–6, so the committed results stand.
+
+**Count and comparison checks on no-scale charts: measured, not adopted.** Replayed at $0: each chart
+item of runs 1–6 (96 per backend) with its cached extraction from its own repeat
+namespace (final crop after any recrop, re-read values applied; runs 1–3 with the extract prompt of
+6b2b8ec), through the committed `code_checks` and the changed one. One cache miss (Baseten run 1, 2.19), not
+replayed. New flags, all on 2.16 and 2.25, checked against the figure's true
+frequencies (1, 1, 3, 6, 3, 1, 1):
+
+| New flags | Count | Detail |
+|---|---|---|
+| Real errors, all also flagged by the judge | 7 | 2.16 ratios: "twice" (3x), "four to five times" / "three to four times" (6x), "one-half" (1/3), "one-third" (1/2) |
+| False alarm, ratio (correct claim, rough extraction) | 5 | 2.16: "half as tall" (read 0.43), "one-sixth" ×2 (read 0.12, 0.14), "one-third" (read 0.4), "twice" (read 2.7) |
+| False alarm, count (a subset, not the whole figure) | 3 | 2.25: "upper two intervals", "between two histogram bars", "two high-frequency intervals" |
+
+No tolerance separates them: the false alarms are 16–39% off the guessed heights, the real errors
+17–50%. Per item, the flags would have stopped 5 auto-approvals, all of them unsafe; but 3 of the 5 for
+the wrong claim, and on a correct ratio the rewrite feedback would push the description toward the
+wrong number. Guessed heights against unlabelled gridlines are too rough to check ratios, so no-scale
+charts keep the old rule (any number not in the page text → review) and their comparisons stay with
+the model check. This is the gap that let Baseten run 5's 2.16 through.

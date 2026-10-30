@@ -164,9 +164,11 @@ class FigureAgent:
                                 ref.value, ref.series, self.backend, zoom_path=self._zoom())
         old, ref.value = ref.value, rr.value
         self.reread_done.add((tools._key(label), series))
+        # The nearer reading within tolerance; a tie goes to the extraction (the independent one).
         tol = tools.value_tol(self.res.extracted)
-        side = ("description" if said is not None and abs(rr.value - said) <= tol
-                else "extraction" if abs(rr.value - old) <= tol else "neither")
+        near = sorted([(abs(rr.value - old), 0, "extraction")]
+                      + ([(abs(rr.value - said), 1, "description")] if said is not None else []))
+        side = near[0][2] if near[0][0] <= tol else "neither"
         self.log("reread_value", f"Zoomed in on '{label}': read {rr.value:g} (was {old:g}; description says "
                  f"{'—' if said is None else f'{said:g}'}) → agrees with "
                  + ("neither reading" if side == "neither" else f"the {side}") + why)
