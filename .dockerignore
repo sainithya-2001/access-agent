@@ -1,0 +1,7 @@
+# Only what the Dockerfile copies goes to the build: no .env, cache, output, node_modules or PDFs.
+*
+!requirements.txt
+!app/
+!web/
+!demo/
+**/__pycache__
