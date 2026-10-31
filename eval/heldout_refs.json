@@ -1,0 +1,724 @@
+{
+  "description": "Reference answers for the held-out set (eval/heldout.json), written from the figure crops and the textbook text only, without seeing any agent output. Same item format as benchmark.json. Scatter-plot points are under data.points (x, y) and are not scored by the series-based value check; use them with the model judge. region_id is filled in from the held-out run by caption.",
+  "source_pdf": "data/samples/introductory-statistics-2e_-_WEB.pdf",
+  "figures": [
+    {
+      "id": "fig-2.52",
+      "page": 168,
+      "caption": "Figure 2.52",
+      "type": "line_graph",
+      "region_type": "chart",
+      "x_axis": "Number of Times in Store",
+      "y_axis": "Frequency",
+      "data": {
+        "series": [
+          {
+            "name": "Frequency",
+            "points": [
+              {
+                "label": "1",
+                "value": 4
+              },
+              {
+                "label": "2",
+                "value": 10
+              },
+              {
+                "label": "3",
+                "value": 16
+              },
+              {
+                "label": "4",
+                "value": 6
+              },
+              {
+                "label": "5",
+                "value": 4
+              }
+            ]
+          }
+        ]
+      },
+      "values_source": "Read from the figure; every point lies exactly on a gridline (the exercise data are not on these pages)",
+      "reference": {
+        "alt_text": "Line graph of how often people visit a store; frequency rises to a peak of 16 at 3 visits, then falls to 4 at 5.",
+        "long_description": "Line graph with no markers. The horizontal axis is Number of Times in Store, from 1 to 5; the vertical axis is Frequency, from 0 to 18. 1 time, 4; 2 times, 10; 3 times, 16; 4 times, 6; 5 times, 4. The line rises steadily to a single peak at 3 and then drops sharply."
+      },
+      "notes": "Solution to Exercise 5. No point markers; values fall on gridlines.",
+      "title": null,
+      "expected_outcome": "auto_approve",
+      "region_id": null,
+      "verified": true
+    },
+    {
+      "id": "fig-2.56",
+      "page": 170,
+      "caption": "Figure 2.56",
+      "type": "histogram",
+      "region_type": "chart",
+      "x_axis": "Number of Cars Sold",
+      "y_axis": "Frequency",
+      "data": {
+        "series": [
+          {
+            "name": "Frequency",
+            "points": [
+              {
+                "label": "3–4",
+                "value": 14
+              },
+              {
+                "label": "4–5",
+                "value": 19
+              },
+              {
+                "label": "5–6",
+                "value": 12
+              },
+              {
+                "label": "6–7",
+                "value": 9
+              },
+              {
+                "label": "7–8",
+                "value": 11
+              }
+            ]
+          }
+        ]
+      },
+      "values_source": "Read from the figure against the gridlines (the solution says answers will vary; no data given)",
+      "reference": {
+        "alt_text": "Histogram of number of cars sold; the tallest bar is 4 to 5 cars with frequency 19.",
+        "long_description": "Histogram with five touching bars. The horizontal axis is Number of Cars Sold, with bar boundaries at 3, 4, 5, 6, 7 and 8; the vertical axis is Frequency, from 0 to 20. 3 to 4, 14; 4 to 5, 19; 5 to 6, 12; 6 to 7, 9; 7 to 8, 11. The peak is at 4 to 5 cars; frequencies drop through 6 to 7 and rise slightly at 7 to 8."
+      },
+      "notes": "Solution to Exercise 17 ('Answers will vary. One possible histogram'). The 6–7 bar is drawn slightly above 9; read as 9.",
+      "title": null,
+      "expected_outcome": "auto_approve",
+      "region_id": null,
+      "verified": true
+    },
+    {
+      "id": "fig-2.57",
+      "page": 170,
+      "caption": "Figure 2.57",
+      "type": "frequency_polygon",
+      "region_type": "chart",
+      "title": "Depth of Hunger",
+      "x_axis": "Depth of Hunger",
+      "y_axis": "Frequency",
+      "data": {
+        "series": [
+          {
+            "name": "Frequency",
+            "points": [
+              {
+                "label": "230–259",
+                "value": 21
+              },
+              {
+                "label": "260–289",
+                "value": 13
+              },
+              {
+                "label": "290–319",
+                "value": 5
+              },
+              {
+                "label": "320–349",
+                "value": 7
+              },
+              {
+                "label": "350–379",
+                "value": 1
+              },
+              {
+                "label": "380–409",
+                "value": 1
+              },
+              {
+                "label": "410–439",
+                "value": 1
+              }
+            ]
+          }
+        ]
+      },
+      "values_source": "Read from the figure against the gridlines (data not on these pages)",
+      "reference": {
+        "alt_text": "Frequency polygon of depth of hunger; highest at 230 to 259 (21), falling to 1 from 350 onward, with a small bump at 320 to 349.",
+        "long_description": "Frequency polygon titled Depth of Hunger, with square markers. The horizontal axis is Depth of Hunger, with seven classes from 230–259 to 410–439; the vertical axis is Frequency, from 0 to 24 in steps of 4. 230–259, 21; 260–289, 13; 290–319, 5; 320–349, 7; 350–379, 1; 380–409, 1; 410–439, 1. Frequencies fall steeply from the first class, rise slightly at 320–349, then stay at 1."
+      },
+      "notes": "The 320–349 point is drawn slightly above 7. The crop includes a cut-off fragment of body text ('es.') at the top left; it is not part of the graph.",
+      "expected_outcome": "auto_approve",
+      "region_id": null,
+      "verified": true
+    },
+    {
+      "id": "fig-2.62",
+      "page": 175,
+      "caption": "Figure 2.62",
+      "type": "histogram",
+      "region_type": "chart",
+      "title": "Onboard Charges for Singles 7-Day Cruise Sailing to the Mexican Riviera from LA",
+      "x_axis": "Amount ($)",
+      "y_axis": "Relative Frequency",
+      "data": {
+        "series": [
+          {
+            "name": "Relative frequency",
+            "points": [
+              {
+                "label": "50–100",
+                "value": 0.08
+              },
+              {
+                "label": "100–150",
+                "value": 0.17
+              },
+              {
+                "label": "150–200",
+                "value": 0.25
+              },
+              {
+                "label": "200–250",
+                "value": 0.25
+              },
+              {
+                "label": "250–300",
+                "value": 0.17
+              },
+              {
+                "label": "300–350",
+                "value": 0.08
+              }
+            ]
+          }
+        ]
+      },
+      "values_source": "Table 2.87 Singles (p. 174): relative frequencies 0.08, 0.17, 0.25, 0.25, 0.17, 0.08 (frequencies 5, 10, 15, 15, 10, 5)",
+      "reference": {
+        "alt_text": "Histogram of onboard cruise charges for singles, $50 to $350; symmetric, peaking at $150 to $250.",
+        "long_description": "Histogram titled Onboard Charges for Singles, 7-Day Cruise Sailing to the Mexican Riviera from LA. The horizontal axis is Amount ($), from 50 to 350 in $50 classes; the vertical axis is Relative Frequency, from 0 to 0.3. $50–100, 0.08; $100–150, 0.17; $150–200, 0.25; $200–250, 0.25; $250–300, 0.17; $300–350, 0.08. The distribution is symmetric with a single peak across $150 to $250."
+      },
+      "notes": "Exact values are in Table 2.87 on the previous page (a test of source-table matching on an unseen figure). The table labels classes 51–100 etc.; the figure's boundaries are 50, 100, ... 350.",
+      "expected_outcome": "auto_approve",
+      "region_id": null,
+      "verified": true
+    },
+    {
+      "id": "fig-2.63",
+      "page": 175,
+      "caption": "Figure 2.63",
+      "type": "histogram",
+      "region_type": "chart",
+      "title": "Onboard Charges for Singles 7-Day Cruise Sailing to the Mexican Riviera from LA",
+      "x_axis": "Amount ($)",
+      "y_axis": "Relative Frequency",
+      "data": {
+        "series": [
+          {
+            "name": "Relative frequency",
+            "points": [
+              {
+                "label": "100–150",
+                "value": 0.07
+              },
+              {
+                "label": "150–200",
+                "value": 0
+              },
+              {
+                "label": "200–250",
+                "value": 0.07
+              },
+              {
+                "label": "250–300",
+                "value": 0.07
+              },
+              {
+                "label": "300–350",
+                "value": 0.07
+              },
+              {
+                "label": "350–400",
+                "value": 0.14
+              },
+              {
+                "label": "400–450",
+                "value": 0.14
+              },
+              {
+                "label": "450–500",
+                "value": 0.14
+              },
+              {
+                "label": "500–550",
+                "value": 0.14
+              },
+              {
+                "label": "550–600",
+                "value": 0.07
+              },
+              {
+                "label": "600–650",
+                "value": 0.07
+              }
+            ]
+          }
+        ]
+      },
+      "values_source": "Table 2.88 Couples (pp. 174–175); 150–200 has no data (an empty class)",
+      "reference": {
+        "alt_text": "Histogram of onboard cruise charges, $100 to $650, with an empty $150 to $200 class and a plateau from $350 to $550.",
+        "long_description": "Histogram titled Onboard Charges for Singles, 7-Day Cruise Sailing to the Mexican Riviera from LA, although the surrounding solution and Table 2.88 present it as the couples data. The horizontal axis is Amount ($), from 100 to 650 in $50 classes; the vertical axis is Relative Frequency, from 0 to 0.3. $100–150, 0.07; $150–200, no bar; $200–250, 0.07; $250–300, 0.07; $300–350, 0.07; $350–400, 0.14; $400–450, 0.14; $450–500, 0.14; $500–550, 0.14; $550–600, 0.07; $600–650, 0.07. The highest bars form a flat plateau from $350 to $550."
+      },
+      "notes": "The printed title says 'Singles' but the figure shows Table 2.88 Couples (a textbook error). A description should report the title as printed; calling it couples is supported only by the page text. The empty 150–200 class must not be described as a bar.",
+      "expected_outcome": "auto_approve",
+      "region_id": null,
+      "verified": true
+    },
+    {
+      "id": "fig-12.2",
+      "page": 630,
+      "caption": "Figure 12.2",
+      "type": "line_graph",
+      "region_type": "chart",
+      "x_axis": "x",
+      "y_axis": "y",
+      "data": {
+        "series": [
+          {
+            "name": "y = -1 + 2x",
+            "points": [
+              {
+                "label": "-2",
+                "value": -5
+              },
+              {
+                "label": "0",
+                "value": -1
+              },
+              {
+                "label": "0.5",
+                "value": 0
+              },
+              {
+                "label": "10",
+                "value": 19
+              }
+            ]
+          }
+        ]
+      },
+      "values_source": "Example 12.2 text: 'Graph the equation y = –1 + 2x'; endpoints read from the figure",
+      "reference": {
+        "alt_text": "Graph of the line y = –1 + 2x, rising from (–2, –5) to (10, 19) and crossing the y-axis at –1.",
+        "long_description": "A straight line on x and y axes. The x-axis runs from –5 to 15 and the y-axis from –5 to 25, both marked every 5. The line rises from left to right, from about (–2, –5) to (10, 19). It crosses the y-axis at –1 and the x-axis at 0.5. The text says it is the graph of y = –1 + 2x, so the slope is 2."
+      },
+      "notes": "Shaded plot background. Axes are labeled only 'x' and 'y'.",
+      "title": null,
+      "expected_outcome": "auto_approve",
+      "region_id": null,
+      "verified": true
+    },
+    {
+      "id": "fig-12.6",
+      "page": 634,
+      "caption": "Figure 12.6",
+      "type": "scatter_plot",
+      "region_type": "chart",
+      "data": {
+        "panels": [
+          {
+            "label": "(a) Positive linear pattern (strong)",
+            "points": 6
+          },
+          {
+            "label": "(b) Linear pattern w/ one deviation",
+            "points": 7
+          }
+        ]
+      },
+      "values_source": "Counted from the figure; no axis numbers or labels",
+      "reference": {
+        "alt_text": "Two scatter plots: (a) six points rising in a strong straight-line pattern; (b) the same pattern plus one point far above at the left.",
+        "long_description": "Two scatter plots side by side, with no axis numbers or axis labels. (a) Positive linear pattern (strong): six points rising from lower left to upper right, close to a straight line. (b) Linear pattern with one deviation: six points rising the same way, plus one point near the top at the far left, well away from the pattern."
+      },
+      "notes": "No numeric scale: any coordinate values in a description are invented. Panel labels are printed below each plot.",
+      "title": null,
+      "x_axis": null,
+      "y_axis": null,
+      "expected_outcome": "auto_approve",
+      "region_id": null,
+      "verified": true
+    },
+    {
+      "id": "fig-12.9",
+      "page": 636,
+      "caption": "Figure 12.9 Scatter plot showing the scores on the final exam based on scores from the third exam.",
+      "type": "scatter_plot",
+      "region_type": "chart",
+      "x_axis": "Third Exam Score",
+      "y_axis": "Final Exam Score",
+      "data": {
+        "points": [
+          {
+            "x": 65,
+            "y": 175
+          },
+          {
+            "x": 67,
+            "y": 133
+          },
+          {
+            "x": 71,
+            "y": 185
+          },
+          {
+            "x": 71,
+            "y": 163
+          },
+          {
+            "x": 66,
+            "y": 126
+          },
+          {
+            "x": 75,
+            "y": 198
+          },
+          {
+            "x": 67,
+            "y": 153
+          },
+          {
+            "x": 70,
+            "y": 163
+          },
+          {
+            "x": 71,
+            "y": 159
+          },
+          {
+            "x": 69,
+            "y": 151
+          },
+          {
+            "x": 69,
+            "y": 159
+          }
+        ]
+      },
+      "values_source": "Table 12.3 (pp. 635–636), 11 students",
+      "reference": {
+        "alt_text": "Scatter plot of 11 students' final exam scores against third exam scores; a moderate positive relationship.",
+        "long_description": "Scatter plot of 11 points. The horizontal axis is Third Exam Score, from 60 to 80; the vertical axis is Final Exam Score, from 0 to 250. Values from Table 12.3 (third, final): 65, 175; 66, 126; 67, 133; 67, 153; 69, 151; 69, 159; 70, 163; 71, 159; 71, 163; 71, 185; 75, 198. Higher third exam scores tend to go with higher final scores, though the point at 65, 175 sits high for its third exam score."
+      },
+      "notes": "Repeated x values (67, 69 and 71). A data table keyed only by x repeats labels.",
+      "title": null,
+      "expected_outcome": "auto_approve",
+      "region_id": null,
+      "verified": true
+    },
+    {
+      "id": "fig-12.11",
+      "page": 639,
+      "caption": "Figure 12.11 Scatter plot of the data looks like a straight line.",
+      "type": "scatter_plot_with_line",
+      "region_type": "chart",
+      "title": "Temp vs Ice Cream Cones",
+      "x_axis": "Temp °F",
+      "y_axis": "Ice cream cones sold",
+      "data": {
+        "points": [
+          {
+            "x": 61,
+            "y": 38
+          },
+          {
+            "x": 65,
+            "y": 49
+          },
+          {
+            "x": 68,
+            "y": 89
+          },
+          {
+            "x": 70,
+            "y": 105
+          },
+          {
+            "x": 72,
+            "y": 147
+          },
+          {
+            "x": 75,
+            "y": 193
+          },
+          {
+            "x": 78,
+            "y": 196
+          },
+          {
+            "x": 80,
+            "y": 231
+          },
+          {
+            "x": 85,
+            "y": 240
+          }
+        ]
+      },
+      "values_source": "Table 12.5 (p. 638), nine days",
+      "reference": {
+        "alt_text": "Scatter plot of ice cream cones sold against noon temperature with a rising best-fit line; sales increase with temperature.",
+        "long_description": "Scatter plot titled Temp vs Ice Cream Cones, with a straight best-fit line. The horizontal axis is Temp °F, from 60 to 85; the vertical axis is Ice cream cones sold, from 0 to 300. Nine points (temperature, cones) from Table 12.5: 61, 38; 65, 49; 68, 89; 70, 105; 72, 147; 75, 193; 78, 196; 80, 231; 85, 240. The line rises from about 20 cones at 60 °F to about 270 at the right edge; the points lie close to it."
+      },
+      "notes": "The equation of this line is not given on these pages; its endpoints are read from the figure.",
+      "expected_outcome": "auto_approve",
+      "region_id": null,
+      "verified": true
+    },
+    {
+      "id": "fig-12.13",
+      "page": 640,
+      "caption": "Figure 12.13",
+      "type": "scatter_plot_with_line",
+      "region_type": "chart",
+      "x_axis": "Third Exam Score",
+      "y_axis": "Final Exam Score",
+      "data": {
+        "points": [
+          {
+            "x": 65,
+            "y": 175
+          },
+          {
+            "x": 67,
+            "y": 133
+          },
+          {
+            "x": 71,
+            "y": 185
+          },
+          {
+            "x": 71,
+            "y": 163
+          },
+          {
+            "x": 66,
+            "y": 126
+          },
+          {
+            "x": 75,
+            "y": 198
+          },
+          {
+            "x": 67,
+            "y": 153
+          },
+          {
+            "x": 70,
+            "y": 163
+          },
+          {
+            "x": 71,
+            "y": 159
+          },
+          {
+            "x": 69,
+            "y": 151
+          },
+          {
+            "x": 69,
+            "y": 159
+          }
+        ],
+        "line": {
+          "equation": "ŷ = –173.51 + 4.83x",
+          "x_range": [
+            65,
+            75
+          ]
+        }
+      },
+      "values_source": "Table 12.3 points; line equation from p. 641 (a = –173.513, b = 4.8273)",
+      "reference": {
+        "alt_text": "Scatter plot of final against third exam scores with an upward best-fit line, ŷ = –173.51 + 4.83x.",
+        "long_description": "The third-exam and final-exam scatter plot (11 points from Table 12.3) with the least-squares line drawn from x = 65 to x = 75. The horizontal axis is Third Exam Score, labeled at 64, 69 and 74; the vertical axis is Final Exam Score, from 0 to 250. The line rises from about 140 at x = 65 to about 189 at x = 75. The text gives its equation as ŷ = –173.51 + 4.83x: on average, each extra point on the third exam goes with 4.83 more points on the final."
+      },
+      "notes": "Unusual x tick labels (64, 69, 74). The equation is in the next page's text, not in the figure.",
+      "title": null,
+      "expected_outcome": "auto_approve",
+      "region_id": null,
+      "verified": true
+    },
+    {
+      "id": "fig-12.20",
+      "page": 649,
+      "caption": "Figure 12.20",
+      "type": "scatter_plot_with_line",
+      "region_type": "chart",
+      "x_axis": "x = Third exam score",
+      "y_axis": "y = Final exam score",
+      "data": {
+        "points": [
+          {
+            "x": 65,
+            "y": 175
+          },
+          {
+            "x": 67,
+            "y": 133
+          },
+          {
+            "x": 71,
+            "y": 185
+          },
+          {
+            "x": 71,
+            "y": 163
+          },
+          {
+            "x": 66,
+            "y": 126
+          },
+          {
+            "x": 75,
+            "y": 198
+          },
+          {
+            "x": 67,
+            "y": 153
+          },
+          {
+            "x": 70,
+            "y": 163
+          },
+          {
+            "x": 71,
+            "y": 159
+          },
+          {
+            "x": 69,
+            "y": 151
+          },
+          {
+            "x": 69,
+            "y": 159
+          }
+        ],
+        "line": {
+          "equation": "ŷ = –173.5 + 4.83x",
+          "band": "±2(16.4) dashed lines"
+        },
+        "annotation": {
+          "text": "Outlier",
+          "point": {
+            "x": 65,
+            "y": 175
+          }
+        }
+      },
+      "values_source": "Table 12.3 points; lines and s = 16.412 from Example 12.12 (p. 649)",
+      "reference": {
+        "alt_text": "Third exam vs final exam scatter plot with best-fit line and dashed lines two standard deviations away; the point at 65, 175 is labeled Outlier.",
+        "long_description": "Scatter plot of the 11 third-exam and final-exam points with a solid best-fit line and two dashed lines parallel to it, above and below. The horizontal axis is x = Third exam score, from 64 to 76; the vertical axis is y = Final exam score, from 100 to 240. An arrow labeled Outlier points to the student at 65, 175, which sits on the upper dashed line; every other point lies between the dashed lines. The text explains the dashed lines are two standard deviations of the residuals (s = 16.4) from ŷ = –173.5 + 4.83x."
+      },
+      "notes": "The figure itself shows no equations or s; those come from the text. The outlier point sits at (or just outside) the upper dashed line.",
+      "title": null,
+      "expected_outcome": "auto_approve",
+      "region_id": null,
+      "verified": true
+    },
+    {
+      "id": "fig-12.28",
+      "page": 666,
+      "caption": "Figure 12.28",
+      "type": "scatter_plot",
+      "region_type": "chart",
+      "x_axis": "x",
+      "y_axis": "y",
+      "data": {
+        "points": 20
+      },
+      "values_source": "Counted from the figure; no data table (Exercise 17 asks whether it is linear, strong or weak, positive or negative)",
+      "reference": {
+        "alt_text": "Scatter plot of 20 points rising from lower left to upper right; a fairly strong positive linear pattern.",
+        "long_description": "Scatter plot of 20 points with the x-axis from 0 to 9 and the y-axis from 0 to 7, labeled only x and y. The points rise from around y = 1 to 2 at the left (x near 1) to around y = 5 to 6.5 at the right (x near 8 to 9), with moderate scatter about a straight-line trend. The pattern is linear, positive and fairly strong."
+      },
+      "notes": "Exercise figure: the question asks the reader to judge strength and direction, so a description that answers it gives the exercise away; describing the pattern is still expected for accessibility. Individual coordinates are approximate.",
+      "title": null,
+      "expected_outcome": "auto_approve",
+      "region_id": null,
+      "verified": true
+    },
+    {
+      "id": "fig-12.32",
+      "page": 670,
+      "caption": "Figure 12.32",
+      "type": "scatter_plot_with_line",
+      "region_type": "chart",
+      "x_axis": "x",
+      "y_axis": "y",
+      "data": {
+        "points": [
+          {
+            "x": 0,
+            "y": 68
+          },
+          {
+            "x": 1,
+            "y": 70
+          },
+          {
+            "x": 2,
+            "y": 77
+          },
+          {
+            "x": 3,
+            "y": 79
+          },
+          {
+            "x": 4,
+            "y": 84
+          },
+          {
+            "x": 5,
+            "y": 86
+          },
+          {
+            "x": 6,
+            "y": 58
+          },
+          {
+            "x": 7,
+            "y": 89
+          },
+          {
+            "x": 8,
+            "y": 90
+          },
+          {
+            "x": 9,
+            "y": 95
+          },
+          {
+            "x": 10,
+            "y": 96
+          }
+        ]
+      },
+      "values_source": "Read from the figure against gridlines 20 apart (approximate, about ±2); context and r = 0.69 from the exercise text (p. 670)",
+      "reference": {
+        "alt_text": "Scatter plot of exam score against hours studied with a rising best-fit line; one point at 6 hours, 58, lies far below the rest.",
+        "long_description": "Scatter plot of 11 points, one at each whole number of hours from 0 to 10, with a best-fit line. The x-axis runs from 0 to 14 and the y-axis from 0 to 100, labeled only x and y; the exercise text says x is hours spent studying and y is exam score. Approximate points: 0, 68; 1, 70; 2, 77; 3, 79; 4, 84; 5, 86; 6, 58; 7, 89; 8, 90; 9, 95; 10, 96. Scores rise steadily with hours, except the point at 6 hours, 58, well below the line. The line rises from about 70 at x = 0 to about 103 at x = 14."
+      },
+      "notes": "Exercises 51–54 ask whether there is an outlier; the description reveals it, which is right for accessibility. Values are approximate readings.",
+      "title": null,
+      "expected_outcome": "auto_approve",
+      "region_id": null,
+      "verified": true
+    }
+  ]
+}
