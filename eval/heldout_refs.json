@@ -47,7 +47,7 @@
       "notes": "Solution to Exercise 5. No point markers; values fall on gridlines.",
       "title": null,
       "expected_outcome": "auto_approve",
-      "region_id": null,
+      "region_id": "p168_f0",
       "verified": true
     },
     {
@@ -95,7 +95,7 @@
       "notes": "Solution to Exercise 17 ('Answers will vary. One possible histogram'). The 6–7 bar is drawn slightly above 9; read as 9.",
       "title": null,
       "expected_outcome": "auto_approve",
-      "region_id": null,
+      "region_id": "p170_f0",
       "verified": true
     },
     {
@@ -151,7 +151,7 @@
       },
       "notes": "The 320–349 point is drawn slightly above 7. The crop includes a cut-off fragment of body text ('es.') at the top left; it is not part of the graph.",
       "expected_outcome": "auto_approve",
-      "region_id": null,
+      "region_id": "p170_f1",
       "verified": true
     },
     {
@@ -203,7 +203,7 @@
       },
       "notes": "Exact values are in Table 2.87 on the previous page (a test of source-table matching on an unseen figure). The table labels classes 51–100 etc.; the figure's boundaries are 50, 100, ... 350.",
       "expected_outcome": "auto_approve",
-      "region_id": null,
+      "region_id": "p175_f0",
       "verified": true
     },
     {
@@ -275,7 +275,7 @@
       },
       "notes": "The printed title says 'Singles' but the figure shows Table 2.88 Couples (a textbook error). A description should report the title as printed; calling it couples is supported only by the page text. The empty 150–200 class must not be described as a bar.",
       "expected_outcome": "auto_approve",
-      "region_id": null,
+      "region_id": "p175_f1",
       "verified": true
     },
     {
@@ -319,7 +319,7 @@
       "notes": "Shaded plot background. Axes are labeled only 'x' and 'y'.",
       "title": null,
       "expected_outcome": "auto_approve",
-      "region_id": null,
+      "region_id": "p630_f0",
       "verified": true
     },
     {
@@ -350,7 +350,7 @@
       "x_axis": null,
       "y_axis": null,
       "expected_outcome": "auto_approve",
-      "region_id": null,
+      "region_id": "p634_f0",
       "verified": true
     },
     {
@@ -417,7 +417,7 @@
       "notes": "Repeated x values (67, 69 and 71). A data table keyed only by x repeats labels.",
       "title": null,
       "expected_outcome": "auto_approve",
-      "region_id": null,
+      "region_id": "p636_f0",
       "verified": true
     },
     {
@@ -476,7 +476,7 @@
       },
       "notes": "The equation of this line is not given on these pages; its endpoints are read from the figure.",
       "expected_outcome": "auto_approve",
-      "region_id": null,
+      "region_id": "p639_f0",
       "verified": true
     },
     {
@@ -550,7 +550,7 @@
       "notes": "Unusual x tick labels (64, 69, 74). The equation is in the next page's text, not in the figure.",
       "title": null,
       "expected_outcome": "auto_approve",
-      "region_id": null,
+      "region_id": "p640_f0",
       "verified": true
     },
     {
@@ -628,7 +628,7 @@
       "notes": "The figure itself shows no equations or s; those come from the text. The outlier point sits at (or just outside) the upper dashed line.",
       "title": null,
       "expected_outcome": "auto_approve",
-      "region_id": null,
+      "region_id": "p649_f0",
       "verified": true
     },
     {
@@ -650,7 +650,7 @@
       "notes": "Exercise figure: the question asks the reader to judge strength and direction, so a description that answers it gives the exercise away; describing the pattern is still expected for accessibility. Individual coordinates are approximate.",
       "title": null,
       "expected_outcome": "auto_approve",
-      "region_id": null,
+      "region_id": "p666_f0",
       "verified": true
     },
     {
@@ -717,7 +717,7 @@
       "notes": "Exercises 51–54 ask whether there is an outlier; the description reveals it, which is right for accessibility. Values are approximate readings.",
       "title": null,
       "expected_outcome": "auto_approve",
-      "region_id": null,
+      "region_id": "p670_f0",
       "verified": true
     }
   ]

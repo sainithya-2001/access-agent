@@ -1,0 +1,218 @@
+{
+  "set": "heldout",
+  "backend": "baseten",
+  "rep": 1,
+  "judge_model": "muse-wonder-1.0",
+  "reference": "none (heldout.json: id, page, caption)",
+  "summary": {
+    "items": 13,
+    "auto_approved": 5,
+    "sent_to_review": 8,
+    "not_detected": 0,
+    "not_judged": 0,
+    "judged": 13,
+    "accurate": 12,
+    "unsafe_approvals": 1,
+    "unsafe_approvals_judged_by_model": 1,
+    "auto_approved_not_judged": 0,
+    "judge": {
+      "calls": 13,
+      "uncached": 13,
+      "input_tokens": 16468,
+      "output_tokens": 46953,
+      "usd": 1.0049,
+      "usd_fresh": 1.0049,
+      "fresh_estimated_calls": 0,
+      "model_seconds": 263.1
+    }
+  },
+  "items": [
+    {
+      "id": "fig-2.52",
+      "status": "auto_approved",
+      "auto_approved": true,
+      "judged": true,
+      "crop": "p168_f0.png",
+      "judge": {
+        "factual_errors": [],
+        "missing": [],
+        "accurate": true
+      },
+      "accurate": true,
+      "unsafe": false
+    },
+    {
+      "id": "fig-2.56",
+      "status": "auto_approved",
+      "auto_approved": true,
+      "judged": true,
+      "crop": "p170_f0.png",
+      "judge": {
+        "factual_errors": [],
+        "missing": [],
+        "accurate": true
+      },
+      "accurate": true,
+      "unsafe": false
+    },
+    {
+      "id": "fig-2.57",
+      "status": "auto_approved",
+      "auto_approved": true,
+      "judged": true,
+      "crop": "p170_f1.png",
+      "judge": {
+        "factual_errors": [],
+        "missing": [],
+        "accurate": true
+      },
+      "accurate": true,
+      "unsafe": false
+    },
+    {
+      "id": "fig-2.62",
+      "status": "auto_approved",
+      "auto_approved": true,
+      "judged": true,
+      "crop": "p175_f0.png",
+      "judge": {
+        "factual_errors": [],
+        "missing": [],
+        "accurate": true
+      },
+      "accurate": true,
+      "unsafe": false
+    },
+    {
+      "id": "fig-2.63",
+      "status": "needs_review",
+      "auto_approved": false,
+      "judged": true,
+      "crop": "p175_f1.png",
+      "judge": {
+        "factual_errors": [],
+        "missing": [],
+        "accurate": true
+      },
+      "accurate": true,
+      "unsafe": false
+    },
+    {
+      "id": "fig-12.2",
+      "status": "needs_review",
+      "auto_approved": false,
+      "judged": true,
+      "crop": "p630_f0.png",
+      "judge": {
+        "factual_errors": [],
+        "missing": [],
+        "accurate": true
+      },
+      "accurate": true,
+      "unsafe": false
+    },
+    {
+      "id": "fig-12.6",
+      "status": "auto_approved",
+      "auto_approved": true,
+      "judged": true,
+      "crop": "p634_f0.png",
+      "judge": {
+        "factual_errors": [
+          {
+            "claim": "Panel (a) shows seven teal dots, listed as seven coordinate pairs",
+            "why": "The image shows only six dots in panel (a), forming the strong positive linear pattern; there is no seventh dot."
+          }
+        ],
+        "missing": [],
+        "accurate": false
+      },
+      "accurate": false,
+      "unsafe": true
+    },
+    {
+      "id": "fig-12.9",
+      "status": "needs_review",
+      "auto_approved": false,
+      "judged": true,
+      "crop": "p636_f0.png",
+      "judge": {
+        "factual_errors": [],
+        "missing": [],
+        "accurate": true
+      },
+      "accurate": true,
+      "unsafe": false
+    },
+    {
+      "id": "fig-12.11",
+      "status": "needs_review",
+      "auto_approved": false,
+      "judged": true,
+      "crop": "p639_f0.png",
+      "judge": {
+        "factual_errors": [],
+        "missing": [],
+        "accurate": true
+      },
+      "accurate": true,
+      "unsafe": false
+    },
+    {
+      "id": "fig-12.13",
+      "status": "needs_review",
+      "auto_approved": false,
+      "judged": true,
+      "crop": "p640_f0.png",
+      "judge": {
+        "factual_errors": [],
+        "missing": [],
+        "accurate": true
+      },
+      "accurate": true,
+      "unsafe": false
+    },
+    {
+      "id": "fig-12.20",
+      "status": "needs_review",
+      "auto_approved": false,
+      "judged": true,
+      "crop": "p649_f0.png",
+      "judge": {
+        "factual_errors": [],
+        "missing": [],
+        "accurate": true
+      },
+      "accurate": true,
+      "unsafe": false
+    },
+    {
+      "id": "fig-12.28",
+      "status": "needs_review",
+      "auto_approved": false,
+      "judged": true,
+      "crop": "p666_f0.png",
+      "judge": {
+        "factual_errors": [],
+        "missing": [],
+        "accurate": true
+      },
+      "accurate": true,
+      "unsafe": false
+    },
+    {
+      "id": "fig-12.32",
+      "status": "needs_review",
+      "auto_approved": false,
+      "judged": true,
+      "crop": "p670_f0.png",
+      "judge": {
+        "factual_errors": [],
+        "missing": [],
+        "accurate": true
+      },
+      "accurate": true,
+      "unsafe": false
+    }
+  ]
+}

@@ -1,0 +1,2185 @@
+{
+  "set": "heldout",
+  "backend": "baseten",
+  "rep": 1,
+  "judge_model": "muse-wonder-1.0",
+  "reference": "eval/heldout_refs.json",
+  "summary": {
+    "items": 13,
+    "correct_outcome": 5,
+    "unsafe_approvals": 1,
+    "unsafe_approvals_code_scored": 0,
+    "unsafe_approvals_judge_on_code_scored": 0,
+    "unsafe_approvals_judged_by_model": 1,
+    "auto_approved": 5,
+    "sent_to_review": 8,
+    "review_effort": 0.615,
+    "review_effort_saved": 0.385,
+    "true_values": 38,
+    "values_correct": 34,
+    "values_wrong": 0,
+    "values_missing": 4,
+    "items_with_invented_content": 1,
+    "items_with_conflicting_rows": 0,
+    "judged_by_model": {
+      "items": 7,
+      "accurate": 5
+    },
+    "calls": 89,
+    "uncached_calls": 87,
+    "input_tokens": 130652,
+    "output_tokens": 241782,
+    "cost_usd": 1.191,
+    "cost_usd_fresh_run": 1.2415,
+    "fresh_cost_estimated_calls": 0,
+    "cost_per_figure_fresh": 0.0955,
+    "model_seconds": 1021.3,
+    "wall_seconds": 1024.8,
+    "judge": {
+      "calls": 13,
+      "uncached": 13,
+      "input_tokens": 18825,
+      "output_tokens": 55801,
+      "usd": 1.1913,
+      "usd_fresh": 1.1913,
+      "fresh_estimated_calls": 0,
+      "model_seconds": 293.2
+    }
+  },
+  "items": [
+    {
+      "id": "fig-2.52",
+      "page": 168,
+      "expected_outcome": "auto_approve",
+      "region_id": "p168_f0",
+      "status": "auto_approved",
+      "type": "chart",
+      "alt_text": "Frequency polygon of store visits peaking at about 16 for 3 visits and lower elsewhere.",
+      "long_description": "This is a frequency polygon (line chart) with no title inside the plot area. The horizontal axis is labeled Number of Times in Store and shows integer values from 1 to 5, with marks at 1, 2, 3, 4, and 5. The vertical axis is labeled Frequency and shows 0 to 18 in increments of 2, with grid lines at 0, 2, 4, 6, 8, 10, 12, 14, 16, and 18. A single dark line connects points at each integer on the horizontal axis. The values read from the vertical axis are about 4 at 1 time, about 10 at 2 times, about 16 at 3 times, about 6 at 4 times, and about 4 at 5 times. Straight line segments connect the points in order. The pattern rises steadily from 1 to a sharp peak at 3, then falls sharply to 4, then falls more gradually to 5.",
+      "data_table": [
+        {
+          "label": "1",
+          "value": 4.0,
+          "series": null
+        },
+        {
+          "label": "2",
+          "value": 10.0,
+          "series": null
+        },
+        {
+          "label": "3",
+          "value": 16.0,
+          "series": null
+        },
+        {
+          "label": "4",
+          "value": 6.0,
+          "series": null
+        },
+        {
+          "label": "5",
+          "value": 4.0,
+          "series": null
+        }
+      ],
+      "verifier": {
+        "passed": true,
+        "confidence": 0.98,
+        "issues": []
+      },
+      "escalation_reason": null,
+      "trace": [
+        {
+          "step": 1,
+          "action": "classify",
+          "summary": "Classified as chart: Frequency polygon line chart plotting Frequency against Number of Times in Store."
+        },
+        {
+          "step": 2,
+          "action": "extract_values",
+          "summary": "Read the figure independently: 17 labels, 5 values (estimated from axis)"
+        },
+        {
+          "step": 3,
+          "action": "describe",
+          "summary": "Wrote description: \"Frequency polygon of store visits peaking at about 16 for 3 visits and lower elsewhere.\""
+        },
+        {
+          "step": 4,
+          "action": "verify",
+          "summary": "PASS (0.98)"
+        },
+        {
+          "step": 5,
+          "action": "finish",
+          "summary": "Auto-approved"
+        }
+      ],
+      "page_text": "Figure 2.52 Figure 2.52\n5 .\nTable 2.86\n6 1\n5 6 7 7\n4 1 6 9\n3 0 0 1 2 3 3 5 5 5 7 7 9\n2 5 5 6 7 7 8\n3 . Stem Leaf\nTable 2.85\nAccess for free at openstax.org\n4 1 3 3\n3 1 1 2 2 3 4 5 6 7 7 8 8 8 8\nStem Leaf\n156     2 • Solutions",
+      "sent_to_review": false,
+      "usage": {
+        "calls": 4,
+        "uncached": 4,
+        "input_tokens": 5020,
+        "output_tokens": 8472,
+        "usd": 0.0423,
+        "usd_fresh": 0.0423,
+        "fresh_estimated_calls": 0,
+        "model_seconds": 37.3
+      },
+      "seconds": 37.5,
+      "judge": {
+        "factual_errors": [],
+        "missing": [],
+        "accurate": true
+      },
+      "values": {
+        "true_values": 5,
+        "correct": 5,
+        "wrong": 0,
+        "conflicting_rows": [],
+        "missing": 0,
+        "tolerance": "Frequency: 3% of 18 (reference: from 0 to 18)",
+        "values": [
+          {
+            "series": "Frequency",
+            "label": "1",
+            "value": 4.0,
+            "described": 4.0,
+            "described_label": "1",
+            "result": "correct"
+          },
+          {
+            "series": "Frequency",
+            "label": "2",
+            "value": 10.0,
+            "described": 10.0,
+            "described_label": "2",
+            "result": "correct"
+          },
+          {
+            "series": "Frequency",
+            "label": "3",
+            "value": 16.0,
+            "described": 16.0,
+            "described_label": "3",
+            "result": "correct"
+          },
+          {
+            "series": "Frequency",
+            "label": "4",
+            "value": 6.0,
+            "described": 6.0,
+            "described_label": "4",
+            "result": "correct"
+          },
+          {
+            "series": "Frequency",
+            "label": "5",
+            "value": 4.0,
+            "described": 4.0,
+            "described_label": "5",
+            "result": "correct"
+          }
+        ],
+        "invented_labels": []
+      },
+      "mentions": {
+        "x_axis": true,
+        "y_axis": true
+      },
+      "invented_numbers": [],
+      "code_accurate": true,
+      "judge_accurate": true,
+      "accurate": true,
+      "correct_outcome": true,
+      "unsafe": false,
+      "scored_by": "code + judge"
+    },
+    {
+      "id": "fig-2.56",
+      "page": 170,
+      "expected_outcome": "auto_approve",
+      "region_id": "p170_f0",
+      "status": "auto_approved",
+      "type": "chart",
+      "alt_text": "Histogram of number of cars sold by frequency, peaking at about 19 in the 4 to 5 cars interval.",
+      "long_description": "This is a vertical histogram (adjacent bar chart) with no title inside the plot area. The horizontal x-axis is labeled Number of Cars Sold and ranges from 3 to 8 with tick marks labeled 3, 4, 5, 6, 7, and 8. The vertical y-axis is labeled Frequency and ranges from 0 to 20 with major ticks at 0, 2, 4, 6, 8, 10, 12, 14, 16, 18, and 20. There are five adjacent turquoise bars that touch each other, each spanning a 1-unit interval on the x-axis. Heights are read from the y-axis and no values are printed on the bars, so all are about: 3 to 4 is about 14; 4 to 5 is about 19; 5 to 6 is about 12; 6 to 7 is about 9; 7 to 8 is about 11. The overall pattern shows frequency rising sharply to a clear peak in the 4 to 5 interval, then declining for higher numbers of cars sold, with a small increase in the last interval 7 to 8 compared to 6 to 7.",
+      "data_table": [
+        {
+          "label": "3 to 4",
+          "value": 14.0,
+          "series": null
+        },
+        {
+          "label": "4 to 5",
+          "value": 19.0,
+          "series": null
+        },
+        {
+          "label": "5 to 6",
+          "value": 12.0,
+          "series": null
+        },
+        {
+          "label": "6 to 7",
+          "value": 9.0,
+          "series": null
+        },
+        {
+          "label": "7 to 8",
+          "value": 11.0,
+          "series": null
+        }
+      ],
+      "verifier": {
+        "passed": true,
+        "confidence": 0.98,
+        "issues": []
+      },
+      "escalation_reason": null,
+      "trace": [
+        {
+          "step": 1,
+          "action": "classify",
+          "summary": "Classified as chart: Histogram displaying frequency distribution of number of cars sold."
+        },
+        {
+          "step": 2,
+          "action": "extract_values",
+          "summary": "Read the figure independently: 19 labels, 5 values (estimated from axis)"
+        },
+        {
+          "step": 3,
+          "action": "describe",
+          "summary": "Wrote description: \"Histogram of number of cars sold by frequency, peaking at about 19 in the 4 to 5 cars interval.\""
+        },
+        {
+          "step": 4,
+          "action": "verify",
+          "summary": "PASS (0.98)"
+        },
+        {
+          "step": 5,
+          "action": "finish",
+          "summary": "Auto-approved"
+        }
+      ],
+      "page_text": "Figure 2.56 Figure 2.56\n158     2 • Solutions\n19 . Find the midpoint for each class. These will be graphed on the x-axis. The frequency values will be graphed on the y-axis values.\nFigure 2.57\nAccess for free at openstax.org",
+      "sent_to_review": false,
+      "usage": {
+        "calls": 4,
+        "uncached": 4,
+        "input_tokens": 5121,
+        "output_tokens": 7594,
+        "usd": 0.0387,
+        "usd_fresh": 0.0387,
+        "fresh_estimated_calls": 0,
+        "model_seconds": 38.8
+      },
+      "seconds": 38.9,
+      "judge": {
+        "factual_errors": [],
+        "missing": [],
+        "accurate": true
+      },
+      "values": {
+        "true_values": 5,
+        "correct": 5,
+        "wrong": 0,
+        "conflicting_rows": [],
+        "missing": 0,
+        "tolerance": "Frequency: 3% of 20 (reference: from 0 to 20)",
+        "values": [
+          {
+            "series": "Frequency",
+            "label": "3–4",
+            "value": 14.0,
+            "described": 14.0,
+            "described_label": "3 to 4",
+            "result": "correct"
+          },
+          {
+            "series": "Frequency",
+            "label": "4–5",
+            "value": 19.0,
+            "described": 19.0,
+            "described_label": "4 to 5",
+            "result": "correct"
+          },
+          {
+            "series": "Frequency",
+            "label": "5–6",
+            "value": 12.0,
+            "described": 12.0,
+            "described_label": "5 to 6",
+            "result": "correct"
+          },
+          {
+            "series": "Frequency",
+            "label": "6–7",
+            "value": 9.0,
+            "described": 9.0,
+            "described_label": "6 to 7",
+            "result": "correct"
+          },
+          {
+            "series": "Frequency",
+            "label": "7–8",
+            "value": 11.0,
+            "described": 11.0,
+            "described_label": "7 to 8",
+            "result": "correct"
+          }
+        ],
+        "invented_labels": []
+      },
+      "mentions": {
+        "x_axis": true,
+        "y_axis": true
+      },
+      "invented_numbers": [],
+      "code_accurate": true,
+      "judge_accurate": true,
+      "accurate": true,
+      "correct_outcome": true,
+      "unsafe": false,
+      "scored_by": "code + judge"
+    },
+    {
+      "id": "fig-2.57",
+      "page": 170,
+      "expected_outcome": "auto_approve",
+      "region_id": "p170_f1",
+      "status": "auto_approved",
+      "type": "chart",
+      "alt_text": "Line chart titled Depth of Hunger shows frequency falls sharply as depth class increases from 230–259 to 410–439.",
+      "long_description": "The figure is a frequency polygon (line chart with square markers) titled 'Depth of Hunger' at the top. The horizontal axis is also labeled 'Depth of Hunger' and shows seven class intervals: 230–259, 260–289, 290–319, 320–349, 350–379, 380–409, and 410–439. The vertical axis is labeled 'Frequency' and ranges from 0 to 24, with marks and horizontal grid lines at 0, 4, 8, 12, 16, 20, and 24. Square markers connected by straight line segments show about 21 for 230–259, about 13 for 260–289, about 5 for 290–319, about 7 for 320–349, about 1 for 350–379, about 1 for 380–409, and about 1 for 410–439. Overall, frequency is highest at the lowest depth class and declines steeply as depth increases, with a small rise between 290–319 and 320–349, then drops to about 1 and remains flat for the three highest classes.",
+      "data_table": [
+        {
+          "label": "230–259",
+          "value": 21.0,
+          "series": null
+        },
+        {
+          "label": "260–289",
+          "value": 13.0,
+          "series": null
+        },
+        {
+          "label": "290–319",
+          "value": 5.0,
+          "series": null
+        },
+        {
+          "label": "320–349",
+          "value": 7.0,
+          "series": null
+        },
+        {
+          "label": "350–379",
+          "value": 1.0,
+          "series": null
+        },
+        {
+          "label": "380–409",
+          "value": 1.0,
+          "series": null
+        },
+        {
+          "label": "410–439",
+          "value": 1.0,
+          "series": null
+        }
+      ],
+      "verifier": {
+        "passed": true,
+        "confidence": 0.98,
+        "issues": []
+      },
+      "escalation_reason": null,
+      "trace": [
+        {
+          "step": 1,
+          "action": "classify",
+          "summary": "Classified as chart: Frequency polygon chart showing Frequency versus Depth of Hunger class intervals."
+        },
+        {
+          "step": 2,
+          "action": "extract_values",
+          "summary": "Read the figure independently: 14 labels, 7 values (estimated from axis)"
+        },
+        {
+          "step": 3,
+          "action": "describe",
+          "summary": "Wrote description: \"Line chart titled Depth of Hunger shows frequency falls sharply as depth class increases from 230–259 to 410–439.\""
+        },
+        {
+          "step": 4,
+          "action": "verify",
+          "summary": "PASS (0.98)"
+        },
+        {
+          "step": 5,
+          "action": "finish",
+          "summary": "Auto-approved"
+        }
+      ],
+      "page_text": "Figure 2.57 19 . Find the midpoint for each class. These will be graphed on the x-axis. The frequency values will be graphed on the y-axis values.\nFigure 2.57\nFigure 2.56\n158     2 • Solutions\nAccess for free at openstax.org",
+      "sent_to_review": false,
+      "usage": {
+        "calls": 4,
+        "uncached": 4,
+        "input_tokens": 5413,
+        "output_tokens": 8360,
+        "usd": 0.0423,
+        "usd_fresh": 0.0423,
+        "fresh_estimated_calls": 0,
+        "model_seconds": 38.4
+      },
+      "seconds": 38.5,
+      "judge": {
+        "factual_errors": [],
+        "missing": [],
+        "accurate": true
+      },
+      "values": {
+        "true_values": 7,
+        "correct": 7,
+        "wrong": 0,
+        "conflicting_rows": [],
+        "missing": 0,
+        "tolerance": "Frequency: 3% of 24 (reference: from 0 to 24)",
+        "values": [
+          {
+            "series": "Frequency",
+            "label": "230–259",
+            "value": 21.0,
+            "described": 21.0,
+            "described_label": "230–259",
+            "result": "correct"
+          },
+          {
+            "series": "Frequency",
+            "label": "260–289",
+            "value": 13.0,
+            "described": 13.0,
+            "described_label": "260–289",
+            "result": "correct"
+          },
+          {
+            "series": "Frequency",
+            "label": "290–319",
+            "value": 5.0,
+            "described": 5.0,
+            "described_label": "290–319",
+            "result": "correct"
+          },
+          {
+            "series": "Frequency",
+            "label": "320–349",
+            "value": 7.0,
+            "described": 7.0,
+            "described_label": "320–349",
+            "result": "correct"
+          },
+          {
+            "series": "Frequency",
+            "label": "350–379",
+            "value": 1.0,
+            "described": 1.0,
+            "described_label": "350–379",
+            "result": "correct"
+          },
+          {
+            "series": "Frequency",
+            "label": "380–409",
+            "value": 1.0,
+            "described": 1.0,
+            "described_label": "380–409",
+            "result": "correct"
+          },
+          {
+            "series": "Frequency",
+            "label": "410–439",
+            "value": 1.0,
+            "described": 1.0,
+            "described_label": "410–439",
+            "result": "correct"
+          }
+        ],
+        "invented_labels": []
+      },
+      "mentions": {
+        "title": true,
+        "x_axis": true,
+        "y_axis": true
+      },
+      "invented_numbers": [],
+      "code_accurate": true,
+      "judge_accurate": true,
+      "accurate": true,
+      "correct_outcome": true,
+      "unsafe": false,
+      "scored_by": "code + judge"
+    },
+    {
+      "id": "fig-2.62",
+      "page": 175,
+      "expected_outcome": "auto_approve",
+      "region_id": "p175_f0",
+      "status": "auto_approved",
+      "type": "chart",
+      "alt_text": "Histogram of relative frequency of onboard charges for singles on a 7-day cruise, peaking at $150 to $250.",
+      "long_description": "This is a histogram titled 'Onboard Charges for Singles 7-Day Cruise Sailing to the Mexican Riviera from LA'. The horizontal axis is labeled Amount ($) and ranges from 50 to 350, marked at 50, 100, 150, 200, 250, 300, and 350. The vertical axis is labeled Relative Frequency and ranges from 0 to 0.3, marked at 0, 0.05, 0.1, 0.15, 0.2, 0.25, and 0.3. There are six adjacent bars with no gaps, each covering a 50-dollar interval. The bar for 50 to 100 has a relative frequency of about 0.08. The bar for 100 to 150 has a relative frequency of about 0.17. The bar for 150 to 200 has a relative frequency of about 0.25. The bar for 200 to 250 has a relative frequency of about 0.25. The bar for 250 to 300 has a relative frequency of about 0.17. The bar for 300 to 350 has a relative frequency of about 0.08. The distribution is symmetric and roughly bell-shaped, with the two middle bars the tallest and height decreasing symmetrically toward the low and high ends.",
+      "data_table": [
+        {
+          "label": "50 to 100",
+          "value": 0.08,
+          "series": null
+        },
+        {
+          "label": "100 to 150",
+          "value": 0.17,
+          "series": null
+        },
+        {
+          "label": "150 to 200",
+          "value": 0.25,
+          "series": null
+        },
+        {
+          "label": "200 to 250",
+          "value": 0.25,
+          "series": null
+        },
+        {
+          "label": "250 to 300",
+          "value": 0.17,
+          "series": null
+        },
+        {
+          "label": "300 to 350",
+          "value": 0.08,
+          "series": null
+        }
+      ],
+      "verifier": {
+        "passed": true,
+        "confidence": 0.98,
+        "issues": []
+      },
+      "escalation_reason": null,
+      "trace": [
+        {
+          "step": 1,
+          "action": "classify",
+          "summary": "Classified as chart: The image is a histogram showing relative frequency distribution of cruise charges."
+        },
+        {
+          "step": 2,
+          "action": "extract_values",
+          "summary": "Read the figure independently: 14 labels, 6 values (estimated from axis)"
+        },
+        {
+          "step": 3,
+          "action": "describe",
+          "summary": "Wrote description: \"Histogram of relative frequency of onboard charges for singles on a 7-day cruise, peaking at $150 to $250.\""
+        },
+        {
+          "step": 4,
+          "action": "verify",
+          "summary": "PASS (0.98)"
+        },
+        {
+          "step": 5,
+          "action": "finish",
+          "summary": "Auto-approved"
+        }
+      ],
+      "page_text": "Figure 2.62 Figure 2.62\nvalues that fall on the left boundary are not counted (with the exception of the first interval where both boundary values are included).\nc. In the following histogram, the data values that fall on the right boundary are counted in the class interval,\na. See Table 2.87 and Table 2.88 . b. In the following histogram data values that fall on the right boundary are counted in the class interval, while\nwhile values that fall on the left boundary are not counted (with the exception of the first interval where values on both boundaries are included).\nTable 2.88 Couples\n601–650 5 0.07",
+      "sent_to_review": false,
+      "usage": {
+        "calls": 4,
+        "uncached": 4,
+        "input_tokens": 5451,
+        "output_tokens": 9841,
+        "usd": 0.0486,
+        "usd_fresh": 0.0486,
+        "fresh_estimated_calls": 0,
+        "model_seconds": 41.3
+      },
+      "seconds": 42.5,
+      "judge": {
+        "factual_errors": [],
+        "missing": [],
+        "accurate": true
+      },
+      "values": {
+        "true_values": 6,
+        "correct": 6,
+        "wrong": 0,
+        "conflicting_rows": [],
+        "missing": 0,
+        "tolerance": "Relative frequency: 3% of 0.3 (reference: from 0 to 0.3)",
+        "values": [
+          {
+            "series": "Relative frequency",
+            "label": "50–100",
+            "value": 0.08,
+            "described": 0.08,
+            "described_label": "50 to 100",
+            "result": "correct"
+          },
+          {
+            "series": "Relative frequency",
+            "label": "100–150",
+            "value": 0.17,
+            "described": 0.17,
+            "described_label": "100 to 150",
+            "result": "correct"
+          },
+          {
+            "series": "Relative frequency",
+            "label": "150–200",
+            "value": 0.25,
+            "described": 0.25,
+            "described_label": "150 to 200",
+            "result": "correct"
+          },
+          {
+            "series": "Relative frequency",
+            "label": "200–250",
+            "value": 0.25,
+            "described": 0.25,
+            "described_label": "200 to 250",
+            "result": "correct"
+          },
+          {
+            "series": "Relative frequency",
+            "label": "250–300",
+            "value": 0.17,
+            "described": 0.17,
+            "described_label": "250 to 300",
+            "result": "correct"
+          },
+          {
+            "series": "Relative frequency",
+            "label": "300–350",
+            "value": 0.08,
+            "described": 0.08,
+            "described_label": "300 to 350",
+            "result": "correct"
+          }
+        ],
+        "invented_labels": []
+      },
+      "mentions": {
+        "title": true,
+        "x_axis": true,
+        "y_axis": true
+      },
+      "invented_numbers": [],
+      "code_accurate": true,
+      "judge_accurate": true,
+      "accurate": true,
+      "correct_outcome": true,
+      "unsafe": false,
+      "scored_by": "code + judge"
+    },
+    {
+      "id": "fig-2.63",
+      "page": 175,
+      "expected_outcome": "auto_approve",
+      "region_id": "p175_f1",
+      "status": "needs_review",
+      "type": "chart",
+      "alt_text": "Histogram of onboard charges for singles on a 7-day cruise, peaking at $350–$550 with a gap at $150–$200.",
+      "long_description": "This is a histogram titled “Onboard Charges for Singles 7-Day Cruise Sailing to the Mexican Riviera from LA.” The horizontal axis shows Amount in dollars from 100 to 650, marked every 50 dollars. The vertical axis shows Relative Frequency from 0 to 0.3, marked every 0.05. There are 11 class intervals total, each with width 50 dollars, spanning from 100 to 650, and bars are adjacent except for one gap. The bar heights as read from the vertical axis are: 100 to 150 about 0.07; 150 to 200 no bar with frequency 0 (a gap); 200 to 250 about 0.07; 250 to 300 about 0.07; 300 to 350 about 0.07; 350 to 400 about 0.14; 400 to 450 about 0.14; 450 to 500 about 0.14; 500 to 550 about 0.14; 550 to 600 about 0.07; 600 to 650 about 0.07. The overall pattern shows a single broad peak that is flat across four consecutive intervals from 350 to 550, where the relative frequency is about 0.14, roughly double the height of the lower bars. The lower intervals on both ends have lower and similar frequencies of about 0.07, with one class interval at 150 to 200 containing no values.",
+      "data_table": [
+        {
+          "label": "100-150",
+          "value": 0.07,
+          "series": null
+        },
+        {
+          "label": "150-200",
+          "value": 0.0,
+          "series": null
+        },
+        {
+          "label": "200-250",
+          "value": 0.07,
+          "series": null
+        },
+        {
+          "label": "250-300",
+          "value": 0.07,
+          "series": null
+        },
+        {
+          "label": "300-350",
+          "value": 0.07,
+          "series": null
+        },
+        {
+          "label": "350-400",
+          "value": 0.14,
+          "series": null
+        },
+        {
+          "label": "400-450",
+          "value": 0.14,
+          "series": null
+        },
+        {
+          "label": "450-500",
+          "value": 0.14,
+          "series": null
+        },
+        {
+          "label": "500-550",
+          "value": 0.14,
+          "series": null
+        },
+        {
+          "label": "550-600",
+          "value": 0.07,
+          "series": null
+        },
+        {
+          "label": "600-650",
+          "value": 0.07,
+          "series": null
+        }
+      ],
+      "verifier": {
+        "passed": false,
+        "confidence": 0.6,
+        "issues": [
+          {
+            "kind": "wrong_count",
+            "detail": "'four consecutive intervals': the independent reading has 11 categories.",
+            "source": "code",
+            "label": null,
+            "series": null
+          }
+        ]
+      },
+      "escalation_reason": "Verifier repeatedly flags 'four consecutive intervals' as wrong_count despite description explicitly stating 11 total intervals 100-650 (width 50) with peak subset 350-550 across four bins at ~0.14; human reviewer needed to confirm phrasing distinguishes total vs peak and approve.",
+      "trace": [
+        {
+          "step": 1,
+          "action": "classify",
+          "summary": "Classified as chart: Image is a histogram showing relative frequency of onboard charges by dollar amount."
+        },
+        {
+          "step": 2,
+          "action": "extract_values",
+          "summary": "Read the figure independently: 19 labels, 11 values (estimated from axis)"
+        },
+        {
+          "step": 3,
+          "action": "describe",
+          "summary": "Wrote description: \"Histogram of relative frequency of onboard charges for singles on a 7-day cruise, peaking between $350 and $550 with a gap at $150–$200.\""
+        },
+        {
+          "step": 4,
+          "action": "verify",
+          "summary": "FAIL (0.60): wrong_count: 'four consecutive intervals': the independent reading has 11 categories."
+        },
+        {
+          "step": 5,
+          "action": "rewrite",
+          "summary": "Rewrote the description (attempt 1) (Verifier misread 'four intervals' as total count instead of peak subset; clarifying total 11 vs peak 4 should fix spurious wrong_count.)"
+        },
+        {
+          "step": 6,
+          "action": "verify",
+          "summary": "FAIL (0.60): wrong_count: 'four consecutive intervals': the independent reading has 11 categories."
+        },
+        {
+          "step": 7,
+          "action": "finish",
+          "summary": "Sent to human review: Verifier repeatedly flags 'four consecutive intervals' as wrong_count despite description explicitly stating 11 total intervals 100-650 (width 50) with peak subset 350-550 across four bins at ~0.14; human reviewer needed to confirm phrasing distinguishes total vs peak and approve."
+        }
+      ],
+      "page_text": "Figure 2.63 Figure 2.63\nwhile values that fall on the left boundary are not counted (with the exception of the first interval where values on both boundaries are included).\nd. Compare the two graphs:\ni. Answers may vary. Possible answers include: ▪ Both graphs have a single peak. ▪ Both graphs use class intervals with width equal to $50.\nc. In the following histogram, the data values that fall on the right boundary are counted in the class interval,\nFigure 2.62\nii. Answers may vary. Possible answers include:\n▪ The couples graph has a class interval with no values.",
+      "sent_to_review": true,
+      "usage": {
+        "calls": 8,
+        "uncached": 8,
+        "input_tokens": 14282,
+        "output_tokens": 16979,
+        "usd": 0.09,
+        "usd_fresh": 0.09,
+        "fresh_estimated_calls": 0,
+        "model_seconds": 79.2
+      },
+      "seconds": 79.4,
+      "judge": {
+        "factual_errors": [],
+        "missing": [],
+        "accurate": true
+      },
+      "values": {
+        "true_values": 11,
+        "correct": 11,
+        "wrong": 0,
+        "conflicting_rows": [],
+        "missing": 0,
+        "tolerance": "Relative frequency: 3% of 0.3 (reference: from 0 to 0.3)",
+        "values": [
+          {
+            "series": "Relative frequency",
+            "label": "100–150",
+            "value": 0.07,
+            "described": 0.07,
+            "described_label": "100-150",
+            "result": "correct"
+          },
+          {
+            "series": "Relative frequency",
+            "label": "150–200",
+            "value": 0.0,
+            "described": 0.0,
+            "described_label": "150-200",
+            "result": "correct"
+          },
+          {
+            "series": "Relative frequency",
+            "label": "200–250",
+            "value": 0.07,
+            "described": 0.07,
+            "described_label": "200-250",
+            "result": "correct"
+          },
+          {
+            "series": "Relative frequency",
+            "label": "250–300",
+            "value": 0.07,
+            "described": 0.07,
+            "described_label": "250-300",
+            "result": "correct"
+          },
+          {
+            "series": "Relative frequency",
+            "label": "300–350",
+            "value": 0.07,
+            "described": 0.07,
+            "described_label": "300-350",
+            "result": "correct"
+          },
+          {
+            "series": "Relative frequency",
+            "label": "350–400",
+            "value": 0.14,
+            "described": 0.14,
+            "described_label": "350-400",
+            "result": "correct"
+          },
+          {
+            "series": "Relative frequency",
+            "label": "400–450",
+            "value": 0.14,
+            "described": 0.14,
+            "described_label": "400-450",
+            "result": "correct"
+          },
+          {
+            "series": "Relative frequency",
+            "label": "450–500",
+            "value": 0.14,
+            "described": 0.14,
+            "described_label": "450-500",
+            "result": "correct"
+          },
+          {
+            "series": "Relative frequency",
+            "label": "500–550",
+            "value": 0.14,
+            "described": 0.14,
+            "described_label": "500-550",
+            "result": "correct"
+          },
+          {
+            "series": "Relative frequency",
+            "label": "550–600",
+            "value": 0.07,
+            "described": 0.07,
+            "described_label": "550-600",
+            "result": "correct"
+          },
+          {
+            "series": "Relative frequency",
+            "label": "600–650",
+            "value": 0.07,
+            "described": 0.07,
+            "described_label": "600-650",
+            "result": "correct"
+          }
+        ],
+        "invented_labels": []
+      },
+      "mentions": {
+        "title": true,
+        "x_axis": true,
+        "y_axis": true
+      },
+      "invented_numbers": [],
+      "code_accurate": true,
+      "judge_accurate": true,
+      "accurate": true,
+      "correct_outcome": false,
+      "unsafe": false,
+      "scored_by": "code + judge"
+    },
+    {
+      "id": "fig-12.2",
+      "page": 630,
+      "expected_outcome": "auto_approve",
+      "region_id": "p630_f0",
+      "status": "needs_review",
+      "type": "chart",
+      "alt_text": "Straight rising line on an x-y coordinate plane showing a positive linear relationship.",
+      "long_description": "This is a line chart on a pale yellow background with no title or legend. It shows a single unlabeled straight line segment on an x-y coordinate plane.\n\nThe horizontal x-axis is labeled x and spans from about -5 on the left to about 16 on the right. Tick marks are visible and labeled at -5, 0, 5, 10, and 15.\n\nThe vertical y-axis is labeled y and spans from about -6 at the bottom to about 25 at the top. Tick marks are visible and labeled at -5, 0, 5, 10, 15, 20, and 25.\n\nThere is one straight, dark line segment that rises from left to right with a constant positive slope. The line is not labeled inside the figure. It starts on the left at about x of -2 and y of -5 and ends on the right at about x of 10 and y of 19. Near the origin it passes just below the x-axis and just to the left of the y-axis, crossing from negative to positive y between x of 0 and x of 1. The overall pattern is a steady increase in y as x increases.",
+      "data_table": [],
+      "verifier": {
+        "passed": false,
+        "confidence": 0.6,
+        "issues": [
+          {
+            "kind": "invented_detail",
+            "detail": "The number 16 is in the description but not in the figure.",
+            "source": "code",
+            "label": null,
+            "series": null
+          },
+          {
+            "kind": "invented_detail",
+            "detail": "The number -6 is in the description but not in the figure.",
+            "source": "code",
+            "label": null,
+            "series": null
+          }
+        ]
+      },
+      "escalation_reason": "Verification FAIL (0.60) for invented_detail: axis ranges '16' and '-6' remain in description but are not labeled ticks; rewrites exhausted (0 left) and prior rewrites failed to remove invented ranges. Human must edit to describe axes only by visible tick labels (x: -5,0,5,10,15; y: -5,0,5,10,15,20,25) without estimating unlabeled span endpoints, then re-verify.",
+      "trace": [
+        {
+          "step": 1,
+          "action": "classify",
+          "summary": "Classified as chart: Line graph plotting the linear equation y = -1 + 2x described in Figure 12.2."
+        },
+        {
+          "step": 2,
+          "action": "extract_values",
+          "summary": "Read the figure independently: 9 labels, 4 values (estimated from axis)"
+        },
+        {
+          "step": 3,
+          "action": "describe",
+          "summary": "Wrote description: \"Straight-line graph on an x-y plane showing y increasing steadily with x along a line with positive slope.\""
+        },
+        {
+          "step": 4,
+          "action": "verify",
+          "summary": "FAIL (0.60): wrong_number: '5': description says 10, independent reading says 9.; invented_detail: The number 16 is in the description but not in the figure.; invented_detail: The number -7 is in the description but not in the figure."
+        },
+        {
+          "step": 5,
+          "action": "reread_value",
+          "summary": "Zoomed in on '5': read 9 (was 9; description says 10) → agrees with the extraction (Resolve 1-unit mismatch at x=5 with zoomed reading before addressing invented ranges.)"
+        },
+        {
+          "step": 6,
+          "action": "verify",
+          "summary": "FAIL (0.60): wrong_number: '5': description says 10, independent reading says 9.; invented_detail: The number 16 is in the description but not in the figure.; invented_detail: The number -7 is in the description but not in the figure."
+        },
+        {
+          "step": 7,
+          "action": "verify",
+          "summary": "FAIL (0.60): wrong_number: '5': description says 10, independent reading says 9.; invented_detail: The number 16 is in the description but not in the figure.; invented_detail: The number -7 is in the description but not in the figure."
+        },
+        {
+          "step": 8,
+          "action": "rewrite",
+          "summary": "Rewrote the description (attempt 1) (Must fix numeric mismatch and invented ranges via rewrite before next verify.)"
+        },
+        {
+          "step": 9,
+          "action": "verify",
+          "summary": "FAIL (0.60): missing_label: Vertical axis tick label '-5' is visible in the figure (y-axis extends below 0 with a -5 t; invented_detail: Description states the figure plots the equation 'y equals negative 1 plus 2x' as a labele; invented_detail: The number 13 is in the description but not in the figure."
+        },
+        {
+          "step": 10,
+          "action": "rewrite",
+          "summary": "Rewrote the description (attempt 2) (Verification failed for missing -5 label and invented equation/numbers - needs rewrite before verify.)"
+        },
+        {
+          "step": 11,
+          "action": "verify",
+          "summary": "FAIL (0.60): invented_detail: The number 16 is in the description but not in the figure.; invented_detail: The number -6 is in the description but not in the figure."
+        },
+        {
+          "step": 12,
+          "action": "finish",
+          "summary": "Sent to human review: Verification FAIL (0.60) for invented_detail: axis ranges '16' and '-6' remain in description but are not labeled ticks; rewrites exhausted (0 left) and prior rewrites failed to remove invented ranges. Human must edit to describe axes only by visible tick labels (x: -5,0,5,10,15; y: -5,0,5,10,15,20,25) without estimating unlabeled span endpoints, then re-verify."
+        }
+      ],
+      "page_text": "Figure 12.2 Figure 12.2\nGraph the equation y = –1 + 2x.\nEXAMPLE 12.2\nTRY IT 12.2\nThe graph of a linear equation of the form y = a + bx is a straight line . Any line that is not vertical can be described by this equation.\nIs the following an example of a linear equation? Why or why not?\ny = –0.125 – 3.5x\nIs the following an example of a linear equation?\nTRY IT 12.1\nThe following examples are linear equations.\nEXAMPLE 12.1\nAccess for free at openstax.org\n618     12 • Linear Regression and Correlation",
+      "sent_to_review": true,
+      "usage": {
+        "calls": 16,
+        "uncached": 14,
+        "input_tokens": 22206,
+        "output_tokens": 41117,
+        "usd": 0.2025,
+        "usd_fresh": 0.253,
+        "fresh_estimated_calls": 0,
+        "model_seconds": 181.1
+      },
+      "seconds": 181.6,
+      "judge": {
+        "factual_errors": [
+          {
+            "claim": "The horizontal x-axis spans from about -5 on the left to about 16 on the right",
+            "why": "Reference says the x-axis runs from -5 to 15; 16 is 1 unit, 5% of the 20-unit range, beyond 15"
+          },
+          {
+            "claim": "The vertical y-axis spans from about -6 at the bottom to about 25 at the top",
+            "why": "Reference says the y-axis runs from -5 to 25; -6 is 1 unit beyond -5"
+          }
+        ],
+        "missing": [
+          "The graph is of the equation y = -1 + 2x",
+          "The line crosses the y-axis at -1",
+          "The slope is 2",
+          "The line crosses the x-axis at 0.5"
+        ],
+        "accurate": false
+      },
+      "values": {
+        "true_values": 4,
+        "correct": 0,
+        "wrong": 0,
+        "conflicting_rows": [],
+        "missing": 4,
+        "tolerance": "y = -1 + 2x: 3% of 24 (span of the true values)",
+        "values": [
+          {
+            "series": "y = -1 + 2x",
+            "label": "-2",
+            "value": -5.0,
+            "described": null,
+            "result": "missing"
+          },
+          {
+            "series": "y = -1 + 2x",
+            "label": "0",
+            "value": -1.0,
+            "described": null,
+            "result": "missing"
+          },
+          {
+            "series": "y = -1 + 2x",
+            "label": "0.5",
+            "value": 0.0,
+            "described": null,
+            "result": "missing"
+          },
+          {
+            "series": "y = -1 + 2x",
+            "label": "10",
+            "value": 19.0,
+            "described": null,
+            "result": "missing"
+          }
+        ],
+        "invented_labels": []
+      },
+      "mentions": {
+        "x_axis": true,
+        "y_axis": true
+      },
+      "invented_numbers": [
+        "-6",
+        "16",
+        "20"
+      ],
+      "code_accurate": false,
+      "judge_accurate": false,
+      "accurate": false,
+      "correct_outcome": false,
+      "unsafe": false,
+      "scored_by": "code + judge"
+    },
+    {
+      "id": "fig-12.6",
+      "page": 634,
+      "expected_outcome": "auto_approve",
+      "region_id": "p634_f0",
+      "status": "auto_approved",
+      "type": "chart",
+      "alt_text": "Two scatterplots show a strong positive linear pattern and the same linear pattern with one high outlier breaking the trend.",
+      "long_description": "Figure 12.6 contains two side-by-side scatterplots on pale yellow plotting areas with thin black horizontal (x) and vertical (y) axes. Neither axis has a title, tick marks, numbers, scale, gridlines, or units, so no numeric values can be read; all positions are relative from the bottom-left corner of each plotting area. The left panel is labeled below as (a) Positive linear pattern (strong) and the right panel as (b) Linear pattern w/ one deviation. Panel (a) shows seven teal dots that increase together from left to right and lie very close to an imaginary straight upward-sloping line: from left to right, about 12% across and about 11% up from the bottom; about 28% across and about 20% up; about 44% across and about 37% up; about 55% across and about 46% up; about 63% across and about 50% up; about 78% across and about 66% up; and about 90% across and about 83% up. The overall pattern is a strong, tight positive linear trend. Panel (b) shows seven teal dots with the same general upward trend but with one clear deviation. From left to right the dots are: a high outlier at about 10% across and about 80% up; a very low point at about 18% across and about 9% up; about 32% across and about 18% up; about 52% across and about 36% up; about 64% across and about 43% up; about 80% across and about 61% up; and about 92% across and about 80% up at the far right. Apart from the single high point on the far left that sits well above the others, the remaining six points follow the same tight positive linear increase as in panel (a).",
+      "data_table": [],
+      "verifier": {
+        "passed": true,
+        "confidence": 0.98,
+        "issues": []
+      },
+      "escalation_reason": "passed verification after rewrite",
+      "trace": [
+        {
+          "step": 1,
+          "action": "classify",
+          "summary": "Classified as chart: Image shows two scatterplots illustrating the strong positive linear pattern and deviation discussed in the text."
+        },
+        {
+          "step": 2,
+          "action": "extract_values",
+          "summary": "Read the figure independently: 2 labels"
+        },
+        {
+          "step": 3,
+          "action": "describe",
+          "summary": "Wrote description: \"Two scatterplots illustrate a strong positive linear relationship, one with all points tightly aligned and one with a single outlier at top left.\""
+        },
+        {
+          "step": 4,
+          "action": "verify",
+          "summary": "FAIL (0.45): invented_detail: DATA TABLE lists precise numeric y-values (15.0, 25.0, 45.0, 52.0, 68.0, 88.0 for panel a ; wrong_number: Several y-position estimates exceed ~3% tolerance despite 'about' qualifier: Panel (a) Poi"
+        },
+        {
+          "step": 5,
+          "action": "rewrite",
+          "summary": "Rewrote the description (attempt 1) (Invented numeric data and 5-7% y-position overestimates require rewrite before re-verification.)"
+        },
+        {
+          "step": 6,
+          "action": "verify",
+          "summary": "PASS (0.98)"
+        },
+        {
+          "step": 7,
+          "action": "finish",
+          "summary": "Auto-approved: passed verification after rewrite"
+        }
+      ],
+      "page_text": "Figure 12.6 Figure 12.6\nWhen you look at a scatterplot, you want to notice the overall pattern and any deviations from the pattern. The following scatterplot examples illustrate these concepts.\nYou can determine the strength of the relationship by looking at the scatter plot and seeing how close the points are to a line, a power function, an exponential function, or to some other type of function. For a linear relationship there is an exception. Consider a scatter plot where all the points fall on a horizontal line providing a \"perfect fit.\" The horizontal line would in fact show no relationship.",
+      "sent_to_review": false,
+      "usage": {
+        "calls": 7,
+        "uncached": 7,
+        "input_tokens": 10157,
+        "output_tokens": 22116,
+        "usd": 0.1067,
+        "usd_fresh": 0.1067,
+        "fresh_estimated_calls": 0,
+        "model_seconds": 91.9
+      },
+      "seconds": 92.1,
+      "judge": {
+        "factual_errors": [
+          {
+            "claim": "Panel (a) shows seven teal dots, listing seven positions from left to right",
+            "why": "Reference says panel (a) has six points rising in a strong straight-line pattern"
+          }
+        ],
+        "missing": [],
+        "accurate": false
+      },
+      "accurate": false,
+      "correct_outcome": true,
+      "unsafe": true,
+      "scored_by": "judged by model"
+    },
+    {
+      "id": "fig-12.9",
+      "page": 636,
+      "expected_outcome": "auto_approve",
+      "region_id": "p636_f0",
+      "status": "needs_review",
+      "type": "chart",
+      "alt_text": "Scatter plot of final exam score versus third exam score showing a weak positive relationship.",
+      "long_description": "Scatter plot titled \"Figure 12.9 Scatter plot showing the scores on the final exam based on scores from the third exam.\" The horizontal axis is labeled Third Exam Score and goes from about 59 to 81, with tick marks labeled 60, 65, 70, 75 and 80. The vertical axis is labeled Final Exam Score and goes from 0 to 250, with tick marks labeled 0, 50, 100, 150, 200 and 250. The plot background is pale yellow and the data are shown as 11 blue dots with no line. Values are not printed on the dots, so all positions are approximate as read from the axes. From left to right: a dot at about 65 on the third exam and about 174 on the final; a dot at about 66 on the third exam and about 126 on the final; a dot at about 67 on the third exam and about 133 on the final; a dot at about 67 on the third exam and about 152 on the final; a dot at about 69 on the third exam and about 151 on the final; a dot at about 69 on the third exam and about 160 on the final; a dot at about 70 on the third exam and about 164 on the final; a dot at about 71 on the third exam and about 158 on the final; a dot at about 71 on the third exam and about 164 on the final; a dot at about 71 on the third exam and about 185 on the final; and a dot at about 75 on the third exam and about 198 on the final. Overall, final exam scores tend to increase slightly as third exam scores increase, indicating a weak positive association with considerable scatter. The highest final score is about 198 at about 75 on the third exam, and the dot at about 65 on the third exam with about 174 on the final sits relatively high above the main cloud at the low end.",
+      "data_table": [
+        {
+          "label": "65",
+          "value": 174.0,
+          "series": null
+        },
+        {
+          "label": "66",
+          "value": 126.0,
+          "series": null
+        },
+        {
+          "label": "67",
+          "value": 133.0,
+          "series": null
+        },
+        {
+          "label": "67",
+          "value": 152.0,
+          "series": null
+        },
+        {
+          "label": "69",
+          "value": 151.0,
+          "series": null
+        },
+        {
+          "label": "69",
+          "value": 160.0,
+          "series": null
+        },
+        {
+          "label": "70",
+          "value": 164.0,
+          "series": null
+        },
+        {
+          "label": "71",
+          "value": 158.0,
+          "series": null
+        },
+        {
+          "label": "71",
+          "value": 164.0,
+          "series": null
+        },
+        {
+          "label": "71",
+          "value": 185.0,
+          "series": null
+        },
+        {
+          "label": "75",
+          "value": 198.0,
+          "series": null
+        }
+      ],
+      "verifier": {
+        "passed": false,
+        "confidence": 0.6,
+        "issues": [
+          {
+            "kind": "invented_detail",
+            "detail": "Description claims plot is titled 'Figure 12.9 Scatter plot showing the scores on the final exam based on scores from the third exam' but no title is visible in the image; extracted metadata shows title null and the image shows only axes and data points with no title text.",
+            "source": "model",
+            "label": null,
+            "series": null
+          },
+          {
+            "kind": "duplicate_rows",
+            "detail": "The data table has several rows for '67', '69', '71'; give one value per label (for a dot plot, the number of marks at each value).",
+            "source": "code",
+            "label": null,
+            "series": null
+          },
+          {
+            "kind": "wrong_count",
+            "detail": "'11 blue dots': the independent reading has 1763 marks.",
+            "source": "code",
+            "label": null,
+            "series": null
+          }
+        ]
+      },
+      "escalation_reason": "The independent reading lists several values at one label, so it can't check the description",
+      "trace": [
+        {
+          "step": 1,
+          "action": "classify",
+          "summary": "Classified as chart: Scatter plot showing final exam scores versus third exam scores."
+        },
+        {
+          "step": 2,
+          "action": "extract_values",
+          "summary": "Read the figure independently: 11 labels, 11 values (estimated from axis)"
+        },
+        {
+          "step": 3,
+          "action": "describe",
+          "summary": "Wrote description: \"Scatter plot of final exam score versus third exam score showing a weak positive relationship.\""
+        },
+        {
+          "step": 4,
+          "action": "verify",
+          "summary": "FAIL (0.60): invented_detail: Description claims plot is titled 'Figure 12.9 Scatter plot showing the scores on the fina; duplicate_rows: The data table has several rows for '67', '69', '71'; give one value per label (for a dot ; wrong_count: '11 blue dots': the independent reading has 1763 marks."
+        },
+        {
+          "step": 5,
+          "action": "escalate",
+          "summary": "The independent reading has several values at '67', '69', '71' (e.g. one row per mark) → it can't check the description; a person must check the values"
+        },
+        {
+          "step": 6,
+          "action": "finish",
+          "summary": "Sent to human review: The independent reading lists several values at one label, so it can't check the description"
+        }
+      ],
+      "page_text": "Figure 12.9 Scatter plot showing the scores on the final exam based on scores from the third exam. Figure 12.9 Scatter plot showing the scores on the final exam based on scores from the third exam.\nTable 12.3 Table showing the scores on the final exam based on scores from the third exam.\nTRY IT 12.6\n69 159\nSCUBA divers have maximum dive times they cannot exceed when going to different depths. The data in Table 12.4 show different depths with the maximum dive times in minutes. Use your calculator to find the least squares regression line and predict the maximum dive time for 110 feet.\n69 151\n71 159\nX (depth in feet) Y (maximum dive time)\n70 163\n50 80\n67 153\n60 55\n75 198\n70 45",
+      "sent_to_review": true,
+      "usage": {
+        "calls": 4,
+        "uncached": 4,
+        "input_tokens": 5344,
+        "output_tokens": 16410,
+        "usd": 0.0764,
+        "usd_fresh": 0.0764,
+        "fresh_estimated_calls": 0,
+        "model_seconds": 66.6
+      },
+      "seconds": 66.7,
+      "judge": {
+        "factual_errors": [
+          {
+            "claim": "ALT TEXT: showing a weak positive relationship",
+            "why": "Reference alt text says a moderate positive relationship"
+          },
+          {
+            "claim": "LONG DESCRIPTION: final exam scores tend to increase slightly, indicating a weak positive association with considerable scatter",
+            "why": "Reference says a moderate positive relationship: higher third exam scores tend to go with higher final scores"
+          }
+        ],
+        "missing": [],
+        "accurate": false
+      },
+      "accurate": false,
+      "correct_outcome": false,
+      "unsafe": false,
+      "scored_by": "judged by model"
+    },
+    {
+      "id": "fig-12.11",
+      "page": 639,
+      "expected_outcome": "auto_approve",
+      "region_id": "p639_f0",
+      "status": "needs_review",
+      "type": "chart",
+      "alt_text": "Scatter plot of temperature versus ice cream cones sold shows a strong positive linear increase with a straight trend line.",
+      "long_description": "Scatter plot titled \"Temp vs Ice Cream Cones\" at top center. Horizontal x-axis at bottom labeled \"Temp °F\" ranging from about 60 to about 87, with major ticks labeled 60, 65, 70, 75, 80, 85. Vertical y-axis on left labeled \"Ice cream cones sold\" ranging from 0 to about 320, with major ticks labeled 50, 100, 150, 200, 250, 300. Plot area has a pale yellow background with no gridlines. A dark teal solid straight trend line runs diagonally from about 20 cones at 60°F on the lower left to about 272 cones at 87°F on the upper right. Nine cyan circular data points are plotted, values read from the axes are about: at about 61°F about 35 cones; at about 65°F about 47 cones; at about 68°F about 88 cones; at about 70°F about 103 cones; at about 72°F about 146 cones; at about 75°F about 192 cones; at about 78°F about 195 cones; at about 80°F about 231 cones; at about 85°F about 239 cones. Overall pattern is a strong positive linear association: as temperature increases, ice cream cones sold increase, and the points lie close to the trend line, scattered slightly above and below it. Values from Table 12.5: Temperature ° F 61, 38; Temperature ° F 65, 49; Temperature ° F 68, 89; Temperature ° F 70, 105; Temperature ° F 72, 147; Temperature ° F 75, 193; Temperature ° F 78, 196; Temperature ° F 80, 231; Temperature ° F 85, 240.",
+      "data_table": [
+        {
+          "label": "61",
+          "value": 38.0,
+          "series": null
+        },
+        {
+          "label": "65",
+          "value": 49.0,
+          "series": null
+        },
+        {
+          "label": "68",
+          "value": 89.0,
+          "series": null
+        },
+        {
+          "label": "70",
+          "value": 105.0,
+          "series": null
+        },
+        {
+          "label": "72",
+          "value": 147.0,
+          "series": null
+        },
+        {
+          "label": "75",
+          "value": 193.0,
+          "series": null
+        },
+        {
+          "label": "78",
+          "value": 196.0,
+          "series": null
+        },
+        {
+          "label": "80",
+          "value": 231.0,
+          "series": null
+        },
+        {
+          "label": "85",
+          "value": 240.0,
+          "series": null
+        }
+      ],
+      "verifier": {
+        "passed": false,
+        "confidence": 0.6,
+        "issues": [
+          {
+            "kind": "invented_detail",
+            "detail": "The number 320 is in the description but not in the figure.",
+            "source": "code",
+            "label": null,
+            "series": null
+          }
+        ]
+      },
+      "escalation_reason": "Human must fix invented y-axis max: description says 0 to about 320 but figure shows 0-300 with ticks at 0,50,100,150,200,250,300; no rewrites remain.",
+      "trace": [
+        {
+          "step": 1,
+          "action": "classify",
+          "summary": "Classified as chart: Scatter plot with regression line showing relationship between temperature and ice cream cones sold."
+        },
+        {
+          "step": 2,
+          "action": "extract_values",
+          "summary": "Read the figure independently: 15 labels, 9 values (estimated from axis)"
+        },
+        {
+          "step": 3,
+          "action": "describe",
+          "summary": "Wrote description: \"Scatter plot of temperature versus ice cream cones sold shows nine points rising along a straight regression line.\""
+        },
+        {
+          "step": 4,
+          "action": "verify",
+          "summary": "FAIL (0.60): invented_detail: The number 330 is in the description but not in the figure."
+        },
+        {
+          "step": 5,
+          "action": "rewrite",
+          "summary": "Rewrote the description (attempt 1) (Verification failed for invented 330, need rewrite to remove it.)"
+        },
+        {
+          "step": 6,
+          "action": "verify",
+          "summary": "FAIL (0.86): invented_detail: Long description states 'as the caption notes the scatter looks like a straight line' but "
+        },
+        {
+          "step": 7,
+          "action": "rewrite",
+          "summary": "Rewrote the description (attempt 2) (Verification failed for invented caption detail that must be removed via rewrite.)"
+        },
+        {
+          "step": 8,
+          "action": "verify",
+          "summary": "FAIL (0.60): invented_detail: The number 320 is in the description but not in the figure."
+        },
+        {
+          "step": 9,
+          "action": "source_table",
+          "summary": "Every reading matches Table 12.5 (PDF page 638) within ±8.12 → using the table's exact values: 61 38 (read 35), 65 49 (read 47), 68 89 (read 88), 70 105 (read 103), 72 147 (read 145), 75 193 (read 191), 78 196 (read 194), 80 231 (read 230), 85 240 (read 238)"
+        },
+        {
+          "step": 10,
+          "action": "finish",
+          "summary": "Sent to human review: Human must fix invented y-axis max: description says 0 to about 320 but figure shows 0-300 with ticks at 0,50,100,150,200,250,300; no rewrites remain."
+        }
+      ],
+      "page_text": "Figure 12.11 Scatter plot of the data looks like a straight line. Figure 12.11 Scatter plot of the data looks like a straight line.\n12.3 • The Regression Equation     627\nFigure 12.12 Residuals plot appears random.\nLeast Squares Criteria for Best Fit",
+      "sent_to_review": true,
+      "usage": {
+        "calls": 11,
+        "uncached": 11,
+        "input_tokens": 17672,
+        "output_tokens": 26462,
+        "usd": 0.1346,
+        "usd_fresh": 0.1346,
+        "fresh_estimated_calls": 0,
+        "model_seconds": 119.3
+      },
+      "seconds": 119.5,
+      "judge": {
+        "factual_errors": [],
+        "missing": [],
+        "accurate": true
+      },
+      "accurate": true,
+      "correct_outcome": false,
+      "unsafe": false,
+      "scored_by": "judged by model"
+    },
+    {
+      "id": "fig-12.13",
+      "page": 640,
+      "expected_outcome": "auto_approve",
+      "region_id": "p640_f0",
+      "status": "needs_review",
+      "type": "chart",
+      "alt_text": "Scatter plot of 11 paired Third Exam versus Final Exam scores with a gently rising best-fit line showing a weak positive association.",
+      "long_description": "Scatter plot with a straight line of best fit, shown on a pale yellow plot area with a white border. The horizontal axis is labeled Third Exam Score and shows about 64 to about 77, with tick marks labeled 64, 69, 74 and unlabeled ticks between. The vertical axis is labeled Final Exam Score and shows 0 to 250, with tick marks labeled 0, 50, 100, 150, 200, 250. A dark teal straight best-fit line rises gently from left to right from about 140 in Final Exam Score at a Third Exam Score of about 65 to about 188 at a Third Exam Score of about 75. There are 11 blue circular dots representing individual students. From left to right in Third Exam Score, the dots are about: Third about 65 with Final about 175; Third about 66 with Final about 126; Third about 67 with Final about 132; Third about 67 with Final about 152; Third about 69 with Final about 151; Third about 69 with Final about 160; Third about 70 with Final about 164; Third about 71 with Final about 158; Third about 71 with Final about 165; Third about 71 with Final about 185; and Third about 75 with Final about 197. Two dots share about 67 in Third Exam Score but have different Final scores, two share about 69, and three share about 71. Overall, higher Third Exam Scores tend to correspond to somewhat higher Final Exam Scores, but the points are scattered around the line, indicating a weak positive linear pattern, with one lower dot at about 66,126 below the line and one higher dot at about 71,185 well above the line.",
+      "data_table": [
+        {
+          "label": "Third about 65",
+          "value": 175.0,
+          "series": null
+        },
+        {
+          "label": "Third about 66",
+          "value": 126.0,
+          "series": null
+        },
+        {
+          "label": "Third about 67 (lower)",
+          "value": 132.0,
+          "series": null
+        },
+        {
+          "label": "Third about 67 (upper)",
+          "value": 152.0,
+          "series": null
+        },
+        {
+          "label": "Third about 69 (lower)",
+          "value": 151.0,
+          "series": null
+        },
+        {
+          "label": "Third about 69 (upper)",
+          "value": 160.0,
+          "series": null
+        },
+        {
+          "label": "Third about 70",
+          "value": 164.0,
+          "series": null
+        },
+        {
+          "label": "Third about 71 (lower)",
+          "value": 158.0,
+          "series": null
+        },
+        {
+          "label": "Third about 71 (middle)",
+          "value": 165.0,
+          "series": null
+        },
+        {
+          "label": "Third about 71 (upper)",
+          "value": 185.0,
+          "series": null
+        },
+        {
+          "label": "Third about 75",
+          "value": 197.0,
+          "series": null
+        }
+      ],
+      "verifier": {
+        "passed": false,
+        "confidence": 0.6,
+        "issues": [
+          {
+            "kind": "wrong_count",
+            "detail": "'11 blue circular dots': the independent reading has 1763 marks.",
+            "source": "code",
+            "label": null,
+            "series": null
+          },
+          {
+            "kind": "wrong_count",
+            "detail": "'Two dots': the independent reading has 1763 marks.",
+            "source": "code",
+            "label": null,
+            "series": null
+          },
+          {
+            "kind": "invented_detail",
+            "detail": "The number 71185 is in the description but not in the figure.",
+            "source": "code",
+            "label": null,
+            "series": null
+          },
+          {
+            "kind": "invented_detail",
+            "detail": "The number 66126 is in the description but not in the figure.",
+            "source": "code",
+            "label": null,
+            "series": null
+          }
+        ]
+      },
+      "escalation_reason": "Human to verify: verification hallucinates 1763 marks while its own independent reading lists 11 paired points (Third Exam ~65-75 vs Final 0-250); flags valid coordinates ~66,126 and ~71,185 as invented. Confirm 11 blue dots with listed scores, horizontal ticks at 64,69,74 (axis ~64-75+) and vertical 0-250, and gently rising best-fit line ~140 at 65 to ~190 at 75.",
+      "trace": [
+        {
+          "step": 1,
+          "action": "classify",
+          "summary": "Classified as chart: Scatter plot with line of best fit showing Third Exam Score versus Final Exam Score."
+        },
+        {
+          "step": 2,
+          "action": "extract_values",
+          "summary": "Read the figure independently: 11 labels, 11 values (estimated from axis)"
+        },
+        {
+          "step": 3,
+          "action": "describe",
+          "summary": "Wrote description: \"Scatter plot of final exam score versus third exam score with an upward-sloping best-fit line showing positive association.\""
+        },
+        {
+          "step": 4,
+          "action": "verify",
+          "summary": "FAIL (0.60): invented_detail: The number 78 is in the description but not in the figure."
+        },
+        {
+          "step": 5,
+          "action": "rewrite",
+          "summary": "Rewrote the description (attempt 1) (Verification failed for invented 78; need to fix axis range without inventing unlabeled limit.)"
+        },
+        {
+          "step": 6,
+          "action": "verify",
+          "summary": "FAIL (0.60): duplicate_rows: The data table has several rows for 'third exam about 67', 'third exam about 69', 'third e; wrong_count: '11 blue dots': the independent reading has 1763 marks."
+        },
+        {
+          "step": 7,
+          "action": "rewrite",
+          "summary": "Rewrote the description (attempt 2) (Verification misreads scatter pairs as dot-plot duplicates and hallucinates count; clarify to pass.)"
+        },
+        {
+          "step": 8,
+          "action": "verify",
+          "summary": "FAIL (0.60): wrong_count: '11 blue circular dots': the independent reading has 1763 marks.; wrong_count: 'Two dots': the independent reading has 1763 marks.; invented_detail: The number 71185 is in the description but not in the figure."
+        },
+        {
+          "step": 9,
+          "action": "finish",
+          "summary": "Sent to human review: Human to verify: verification hallucinates 1763 marks while its own independent reading lists 11 paired points (Third Exam ~65-75 vs Final 0-250); flags valid coordinates ~66,126 and ~71,185 as invented. Confirm 11 blue dots with listed scores, horizontal ticks at 64,69,74 (axis ~64-75+) and vertical 0-250, and gently rising best-fit line ~140 at 65 to ~190 at 75."
+        }
+      ],
+      "page_text": "Figure 12.13 Figure 12.13\nThe graph of the line of best fit for the third-exam/final-exam example is as follows:\nTHIRD EXAM vs FINAL EXAM EXAMPLE:\nThe least squares regression line (best-fit line) for the third-exam/final-exam example has the equation:\n628     12 • Linear Regression and Correlation\nREMINDER",
+      "sent_to_review": true,
+      "usage": {
+        "calls": 11,
+        "uncached": 11,
+        "input_tokens": 16694,
+        "output_tokens": 28798,
+        "usd": 0.1433,
+        "usd_fresh": 0.1433,
+        "fresh_estimated_calls": 0,
+        "model_seconds": 120.3
+      },
+      "seconds": 120.6,
+      "judge": {
+        "factual_errors": [],
+        "missing": [
+          "The regression equation ŷ = –173.51 + 4.83x given in the text",
+          "The slope interpretation: on average, each extra point on the third exam goes with 4.83 more points on the final"
+        ],
+        "accurate": true
+      },
+      "accurate": true,
+      "correct_outcome": false,
+      "unsafe": false,
+      "scored_by": "judged by model"
+    },
+    {
+      "id": "fig-12.20",
+      "page": 649,
+      "expected_outcome": "auto_approve",
+      "region_id": "p649_f0",
+      "status": "needs_review",
+      "type": "chart",
+      "alt_text": "Scatter plot of third versus final exam scores shows scores rise together, with one outlier above the upper dashed line.",
+      "long_description": "Scatter plot with no title on a pale yellow background showing relationship between third exam score and final exam score. The horizontal axis is labeled x = Third exam score and goes from 64 to 76. The vertical axis is labeled y = Final exam score and goes from 100 to 240. There are 11 blue circular data points: one at about x=65, y=175 labeled “Outlier” with an arrow pointing to it; one at about x=66, y=126; two at about x=67 with y about 133 and about 152; two at about x=69 with y about 150 and about 159; one at about x=70, y=162; three at about x=71 with y about 158, about 162, and about 185; and one at about x=75, y=197. A solid dark regression line runs diagonally from about (65, 140) at the lower left to about (75, 188) at the upper right. Two parallel dashed gold lines form a band around it: the upper dashed line runs from about (65, 173) to about (75, 221) and the lower dashed line runs from about (66, 108) to about (75, 156). All points except the labeled outlier lie between the two dashed lines, with the outlier sitting just above the upper dashed line near x=65. Overall, as third exam score increases, final exam score tends to increase.",
+      "data_table": [
+        {
+          "label": "65",
+          "value": 175.0,
+          "series": null
+        },
+        {
+          "label": "66",
+          "value": 126.0,
+          "series": null
+        },
+        {
+          "label": "67",
+          "value": 133.0,
+          "series": null
+        },
+        {
+          "label": "67",
+          "value": 152.0,
+          "series": null
+        },
+        {
+          "label": "69",
+          "value": 150.0,
+          "series": null
+        },
+        {
+          "label": "69",
+          "value": 159.0,
+          "series": null
+        },
+        {
+          "label": "70",
+          "value": 162.0,
+          "series": null
+        },
+        {
+          "label": "71",
+          "value": 158.0,
+          "series": null
+        },
+        {
+          "label": "71",
+          "value": 162.0,
+          "series": null
+        },
+        {
+          "label": "71",
+          "value": 185.0,
+          "series": null
+        },
+        {
+          "label": "75",
+          "value": 197.0,
+          "series": null
+        }
+      ],
+      "verifier": {
+        "passed": false,
+        "confidence": 0.6,
+        "issues": [
+          {
+            "kind": "duplicate_rows",
+            "detail": "The data table has several rows for '67', '69', '71'; give one value per label (for a dot plot, the number of marks at each value).",
+            "source": "code",
+            "label": null,
+            "series": null
+          },
+          {
+            "kind": "wrong_count",
+            "detail": "'Two parallel dashed gold lines': the independent reading has 1 series.",
+            "source": "code",
+            "label": null,
+            "series": null
+          },
+          {
+            "kind": "wrong_count",
+            "detail": "'two dashed lines': the independent reading has 1 series.",
+            "source": "code",
+            "label": null,
+            "series": null
+          },
+          {
+            "kind": "invented_detail",
+            "detail": "The number 108 is in the description but not in the figure.",
+            "source": "code",
+            "label": null,
+            "series": null
+          }
+        ]
+      },
+      "escalation_reason": "The independent reading lists several values at one label, so it can't check the description",
+      "trace": [
+        {
+          "step": 1,
+          "action": "classify",
+          "summary": "Classified as chart: Scatter plot of exam scores with regression line and flagged outlier illustrating outlier detection."
+        },
+        {
+          "step": 2,
+          "action": "extract_values",
+          "summary": "Read the figure independently: 16 labels, 11 values (estimated from axis)"
+        },
+        {
+          "step": 3,
+          "action": "describe",
+          "summary": "Wrote description: \"Scatter plot of third versus final exam scores shows scores rise together, with one outlier above the upper dashed line.\""
+        },
+        {
+          "step": 4,
+          "action": "verify",
+          "summary": "FAIL (0.60): duplicate_rows: The data table has several rows for '67', '69', '71'; give one value per label (for a dot ; wrong_count: 'Two parallel dashed gold lines': the independent reading has 1 series.; wrong_count: 'two dashed lines': the independent reading has 1 series."
+        },
+        {
+          "step": 5,
+          "action": "escalate",
+          "summary": "The independent reading has several values at '67', '69', '71' (e.g. one row per mark) → it can't check the description; a person must check the values"
+        },
+        {
+          "step": 6,
+          "action": "finish",
+          "summary": "Sent to human review: The independent reading lists several values at one label, so it can't check the description"
+        }
+      ],
+      "page_text": "Figure 12.20 Figure 12.20\nSometimes a point is so close to the lines used to flag outliers on the graph that it is difficult to tell if the point is between or outside the lines. On a computer, enlarging the graph may help; on a small calculator screen, zooming in may make the graph clearer. Note that when the graph does not give a clear enough picture, you can use the numerical comparisons to identify outliers.\nTRY IT 12.12",
+      "sent_to_review": true,
+      "usage": {
+        "calls": 4,
+        "uncached": 4,
+        "input_tokens": 5271,
+        "output_tokens": 15904,
+        "usd": 0.0742,
+        "usd_fresh": 0.0742,
+        "fresh_estimated_calls": 0,
+        "model_seconds": 57.6
+      },
+      "seconds": 57.7,
+      "judge": {
+        "factual_errors": [],
+        "missing": [
+          "The dashed lines are two standard deviations of the residuals (s = 16.4) from the best-fit line ŷ = –173.5 + 4.83x"
+        ],
+        "accurate": true
+      },
+      "accurate": true,
+      "correct_outcome": false,
+      "unsafe": false,
+      "scored_by": "judged by model"
+    },
+    {
+      "id": "fig-12.28",
+      "page": 666,
+      "expected_outcome": "auto_approve",
+      "region_id": "p666_f0",
+      "status": "needs_review",
+      "type": "chart",
+      "alt_text": "Scatter plot of 20 points with x from 0 to 9 and y from 0 to 7, showing a strong positive linear trend.",
+      "long_description": "Scatter plot with 20 turquoise dots on a pale yellow plotting area. There is no title inside the plot. The horizontal axis is labeled x at the right, ranging from 0 to 9 with tick marks at each integer 0, 1, 2, 3, 4, 5, 6, 7, 8, 9. The vertical axis is labeled y at the top, ranging from 0 to about 7.5 with tick marks at each integer 0, 1, 2, 3, 4, 5, 6, 7. No units are shown.\n\nThe 20 points, read from left to right, are about:\n- x 0.6, y 2.2\n- x 1.0, y 1.0\n- x 1.3, y 2.2\n- x 1.8, y 1.2\n- x 2.1, y 2.2\n- x 2.5, y 3.0\n- x 3.4, y 3.4\n- x 3.6, y 2.3\n- x 4.2, y 3.7\n- x 4.3, y 4.5\n- x 5.3, y 4.4\n- x 5.4, y 5.0\n- x 6.4, y 5.0\n- x 6.5, y 5.6\n- x 7.1, y 6.3\n- x 7.6, y 5.1\n- x 7.7, y 5.7\n- x 8.1, y 6.4\n- x 8.5, y 5.3\n- x 8.9, y 6.4\n\nOverall pattern: As x increases, y tends to increase. The points are fairly close to an upward straight line from lower left to upper right, indicating a strong positive linear association with relatively little scatter around the trend.",
+      "data_table": [
+        {
+          "label": "0.6",
+          "value": 2.2,
+          "series": null
+        },
+        {
+          "label": "1.0",
+          "value": 1.0,
+          "series": null
+        },
+        {
+          "label": "1.3",
+          "value": 2.2,
+          "series": null
+        },
+        {
+          "label": "1.8",
+          "value": 1.2,
+          "series": null
+        },
+        {
+          "label": "2.1",
+          "value": 2.2,
+          "series": null
+        },
+        {
+          "label": "2.5",
+          "value": 3.0,
+          "series": null
+        },
+        {
+          "label": "3.4",
+          "value": 3.4,
+          "series": null
+        },
+        {
+          "label": "3.6",
+          "value": 2.3,
+          "series": null
+        },
+        {
+          "label": "4.2",
+          "value": 3.7,
+          "series": null
+        },
+        {
+          "label": "4.3",
+          "value": 4.5,
+          "series": null
+        },
+        {
+          "label": "5.3",
+          "value": 4.4,
+          "series": null
+        },
+        {
+          "label": "5.4",
+          "value": 5.0,
+          "series": null
+        },
+        {
+          "label": "6.4",
+          "value": 5.0,
+          "series": null
+        },
+        {
+          "label": "6.5",
+          "value": 5.6,
+          "series": null
+        },
+        {
+          "label": "7.1",
+          "value": 6.3,
+          "series": null
+        },
+        {
+          "label": "7.6",
+          "value": 5.1,
+          "series": null
+        },
+        {
+          "label": "7.7",
+          "value": 5.7,
+          "series": null
+        },
+        {
+          "label": "8.1",
+          "value": 6.4,
+          "series": null
+        },
+        {
+          "label": "8.5",
+          "value": 5.3,
+          "series": null
+        },
+        {
+          "label": "8.9",
+          "value": 6.4,
+          "series": null
+        }
+      ],
+      "verifier": {
+        "passed": false,
+        "confidence": 0.6,
+        "issues": [
+          {
+            "kind": "invented_detail",
+            "detail": "The number 7.5 is in the description but not in the figure.",
+            "source": "code",
+            "label": null,
+            "series": null
+          },
+          {
+            "kind": "invented_detail",
+            "detail": "The number 20 is in the description but not in the figure.",
+            "source": "code",
+            "label": null,
+            "series": null
+          },
+          {
+            "kind": "invented_detail",
+            "detail": "The number 7.6 is in the description but not in the figure.",
+            "source": "code",
+            "label": null,
+            "series": null
+          },
+          {
+            "kind": "invented_detail",
+            "detail": "The number 8.5 is in the description but not in the figure.",
+            "source": "code",
+            "label": null,
+            "series": null
+          },
+          {
+            "kind": "invented_detail",
+            "detail": "The number 7.7 is in the description but not in the figure.",
+            "source": "code",
+            "label": null,
+            "series": null
+          }
+        ]
+      },
+      "escalation_reason": "The independent reading lists several values at one label, so it can't check the description",
+      "trace": [
+        {
+          "step": 1,
+          "action": "classify",
+          "summary": "Classified as chart: Scatter plot showing data points on x and y axes."
+        },
+        {
+          "step": 2,
+          "action": "extract_values",
+          "summary": "Read the figure independently: 12 labels, 20 values (estimated from axis)"
+        },
+        {
+          "step": 3,
+          "action": "describe",
+          "summary": "Wrote description: \"Scatter plot of 20 points with x from 0 to 9 and y from 0 to 7, showing a strong positive linear trend.\""
+        },
+        {
+          "step": 4,
+          "action": "verify",
+          "summary": "FAIL (0.60): invented_detail: The number 7.5 is in the description but not in the figure.; invented_detail: The number 20 is in the description but not in the figure.; invented_detail: The number 7.6 is in the description but not in the figure."
+        },
+        {
+          "step": 5,
+          "action": "escalate",
+          "summary": "The independent reading has several values at '4.3', '5.4', '6.5' (e.g. one row per mark) → it can't check the description; a person must check the values"
+        },
+        {
+          "step": 6,
+          "action": "finish",
+          "summary": "Sent to human review: The independent reading lists several values at one label, so it can't check the description"
+        }
+      ],
+      "page_text": "Figure 12.28 Figure 12.28\n18 . Does the scatter plot appear linear? Strong or weak? Positive or negative?\n654     12 • Practice\nFigure 12.29\n19 . Does the scatter plot appear linear? Strong or weak? Positive or negative?\nFigure 12.30\nAccess for free at openstax.org",
+      "sent_to_review": true,
+      "usage": {
+        "calls": 4,
+        "uncached": 4,
+        "input_tokens": 5842,
+        "output_tokens": 10015,
+        "usd": 0.0499,
+        "usd_fresh": 0.0499,
+        "fresh_estimated_calls": 0,
+        "model_seconds": 36.6
+      },
+      "seconds": 36.7,
+      "judge": {
+        "factual_errors": [],
+        "missing": [],
+        "accurate": true
+      },
+      "accurate": true,
+      "correct_outcome": false,
+      "unsafe": false,
+      "scored_by": "judged by model"
+    },
+    {
+      "id": "fig-12.32",
+      "page": 670,
+      "expected_outcome": "auto_approve",
+      "region_id": "p670_f0",
+      "status": "needs_review",
+      "type": "chart",
+      "alt_text": "Scatter plot of y versus x with a rising line of best fit showing a positive trend and one distinct low outlier at about x equals 6.",
+      "long_description": "This is a scatter plot with a straight line of best fit on a pale yellow background. There is no title inside the figure itself; the caption outside is Figure 12.32. The horizontal axis is labeled \"x\" with tick marks labeled 0, 2, 4, 6, 8, 10, 12, and 14, and the axis extends from 0 to about 15. The vertical axis is labeled \"y\" with tick marks labeled 0, 20, 40, 60, 80, and 100, and the axis extends from 0 at the bottom to just above 100 at the top; the plotted area and the line of best fit continue slightly above the 100 tick to about 103 to 105 for the line, without an additional labeled tick at 105. The data are shown as small solid blue circles. There are 11 points, each read as about: at x about 0, y about 68; at x about 1, y about 69; at x about 2, y about 77; at x about 3, y about 79; at x about 4, y about 84; at x about 5, y about 86; at x about 6, y about 58; at x about 7, y about 89; at x about 8, y about 90; at x about 9, y about 95; and at x about 10, y about 96. The straight dark-colored line of best fit has a gentle positive slope, starting near (x about 0, y about 71) at the left edge and rising to about (x about 15, y about 103) at the right edge, passing slightly below most of the points. Overall, as x increases y tends to increase, with 10 points forming a fairly tight upward band close to the line, while the single point at about (6, 58) lies well below the line and well below the surrounding points, appearing as a low outlier.",
+      "data_table": [
+        {
+          "label": "x about 0",
+          "value": 68.0,
+          "series": null
+        },
+        {
+          "label": "x about 1",
+          "value": 69.0,
+          "series": null
+        },
+        {
+          "label": "x about 2",
+          "value": 77.0,
+          "series": null
+        },
+        {
+          "label": "x about 3",
+          "value": 79.0,
+          "series": null
+        },
+        {
+          "label": "x about 4",
+          "value": 84.0,
+          "series": null
+        },
+        {
+          "label": "x about 5",
+          "value": 86.0,
+          "series": null
+        },
+        {
+          "label": "x about 6",
+          "value": 58.0,
+          "series": null
+        },
+        {
+          "label": "x about 7",
+          "value": 89.0,
+          "series": null
+        },
+        {
+          "label": "x about 8",
+          "value": 90.0,
+          "series": null
+        },
+        {
+          "label": "x about 9",
+          "value": 95.0,
+          "series": null
+        },
+        {
+          "label": "x about 10",
+          "value": 96.0,
+          "series": null
+        }
+      ],
+      "verifier": {
+        "passed": false,
+        "confidence": 0.6,
+        "issues": [
+          {
+            "kind": "invented_detail",
+            "detail": "The number 105 is in the description but not in the figure.",
+            "source": "code",
+            "label": null,
+            "series": null
+          }
+        ]
+      },
+      "escalation_reason": "Verification FAIL persists for invented number '105' after a rewrite that was instructed to keep 'about 105'; human must rewrite y-axis/line extent using only visible ticks 0,20,40,60,80,100 and qualitatively state 'just above 100' without inventing a numeric value like 102/103/105.",
+      "trace": [
+        {
+          "step": 1,
+          "action": "classify",
+          "summary": "Classified as chart: Scatter plot with line of best fit showing hours studying vs exam scores."
+        },
+        {
+          "step": 2,
+          "action": "extract_values",
+          "summary": "Read the figure independently: 15 labels, 11 values (estimated from axis)"
+        },
+        {
+          "step": 3,
+          "action": "describe",
+          "summary": "Wrote description: \"Scatter plot of y versus x with a rising line of best fit; most points follow the line except one outlier far below near x equals 6.\""
+        },
+        {
+          "step": 4,
+          "action": "verify",
+          "summary": "FAIL (0.60): invented_detail: The number 105 is in the description but not in the figure."
+        },
+        {
+          "step": 5,
+          "action": "rewrite",
+          "summary": "Rewrote the description (attempt 1) (Verification failed for invented 105, requires rewrite without invented detail.)"
+        },
+        {
+          "step": 6,
+          "action": "verify",
+          "summary": "FAIL (0.60): invented_detail: The number 105 is in the description but not in the figure."
+        },
+        {
+          "step": 7,
+          "action": "finish",
+          "summary": "Sent to human review: Verification FAIL persists for invented number '105' after a rewrite that was instructed to keep 'about 105'; human must rewrite y-axis/line extent using only visible ticks 0,20,40,60,80,100 and qualitatively state 'just above 100' without inventing a numeric value like 102/103/105."
+        }
+      ],
+      "page_text": "Figure 12.32 Figure 12.32\nUse the following information to answer the next four exercises. The scatter plot shows the relationship between hours spent studying and exam scores. The line shown is the calculated line of best fit. The correlation coefficient is 0.69.\n51 . Do there appear to be any outliers?\n12.6 Outliers\n52 . A point is removed, and the line of best fit is recalculated. The new correlation coefficient is 0.98. Does the point appear to have been an outlier? Why?\n53 . What effect did the potential outlier have on the line of best fit?\n658     12 • Homework",
+      "sent_to_review": true,
+      "usage": {
+        "calls": 8,
+        "uncached": 8,
+        "input_tokens": 12179,
+        "output_tokens": 29714,
+        "usd": 0.1415,
+        "usd_fresh": 0.1415,
+        "fresh_estimated_calls": 0,
+        "model_seconds": 112.9
+      },
+      "seconds": 113.1,
+      "judge": {
+        "factual_errors": [],
+        "missing": [
+          "x represents hours spent studying and y represents exam score"
+        ],
+        "accurate": true
+      },
+      "accurate": true,
+      "correct_outcome": false,
+      "unsafe": false,
+      "scored_by": "judged by model"
+    }
+  ]
+}
