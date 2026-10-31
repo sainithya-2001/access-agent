@@ -247,3 +247,24 @@ the wrong claim, and on a correct ratio the rewrite feedback would push the desc
 wrong number. Guessed heights against unlabelled gridlines are too rough to check ratios, so no-scale
 charts keep the old rule (any number not in the page text → review) and their comparisons stay with
 the model check. This is the gap that let Baseten run 5's 2.16 through.
+
+## Error type 1: a rewrite copied the extractor's wrong reading (dev runs 1–6, checked Oct 31)
+A correct description failed verification because the independent reading was wrong; the agent
+rewrote the description to match that reading, verification then passed, and the figure was
+auto-approved with the wrong value. Checked against the saved results (`dev_<backend>_r1.json` …
+`_r6.json`: each unsafe approval with a rewrite in its trace, compared with the reference):
+
+| Figure | Run | What happened |
+|---|---|---|
+| 2.19 (dot plot) | Meta r2 | Counts per value (3: 4 dots, 4: 1, 7: 1, 9: 1) were right; the extraction had one row per dot (value = label), and two rewrites matched it |
+| 2.19 | Meta r3 | Same as r2 |
+| 2.25 (box plot over histogram) | Meta r3 | Q3 described as 90 (reference 90); rewritten to the reading 86.9 |
+| 2.44 (three box plots) | Baseten r2 | China maximum 5 (reference: a line from 0 to 5); rewrite told to "correct China max to 4.5" |
+| 2.25 | Meta r6 | Q3 90 again rewritten to 86.9, after the reread-before-rewrite rule (fix A): the zoomed reread also read 86.9 |
+
+5 cases in 12 runs (reps 1–6 on both backends), all unsafe: 4 in reps 1–3, before fix A, and 1 in
+rep 6. The Oct 29 error analysis counted 3 (2.19 in Meta r2 and r3, 2.44 in Baseten r2); the two
+2.25 cases were listed there as reading errors. Rewrites of 2.14 toward the drawn Q1 (Baseten r1–r3)
+belong to the drawing-vs-book case and are not counted. In the final runs (reps 7–9, 6 runs on frozen
+code) no unsafe approval came from this type: their rewrites removed invented numbers or added a
+missing title.
