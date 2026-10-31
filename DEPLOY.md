@@ -1,5 +1,8 @@
 # Deploying the demo (Render)
 
+**Live:** https://access-agent-y65u.onrender.com (Render, auto-deploys from `main`). The passcode is
+set in the Render dashboard only, never in the repo.
+
 The public demo is the staff review screen serving precomputed documents: pages 84–97, 109, 124 and
 130 of OpenStax *Introductory Statistics 2e* (CC BY), 14 figures, 2 of them waiting for review
 (Figure 2.9, series told apart by color only; Figure 2.25, no numeric scale). Figure 2.3 quotes its
@@ -7,7 +10,8 @@ values from the printed Table 2.9. With
 `DEMO_MODE=1` the app makes **no model calls**: any call that misses the cache raises (`app/llm.py`
 `BLOCKED`). Uploading a PDF or recropping a figure runs the agent, so both need the passcode in
 `DEMO_PASSCODE`, and passcode uploads are capped at 5 pages (25 MB). Approve / edit / reject,
-Preview, Export, Blindfold and Hear the chart work for everyone.
+Preview, Export, Blindfold and Hear the chart work for everyone, and so does the student inbox
+(Student inbox in the header): one precomputed course with the test lecture's notes page.
 
 What the image contains (`Dockerfile`, `.dockerignore`): `app/`, `web/`, and `demo/` copied as
 the working directory (`output/review.db`, page images, crops, overlays, and the source PDF trimmed to
@@ -53,9 +57,9 @@ works fully except uploads.
 ## 3. Check the live URL in a logged-out browser
 
 Use a private / incognito window (no Render or GitHub session, no cached files), at the
-`https://<service>.onrender.com` URL:
+`https://access-agent-y65u.onrender.com` URL:
 
-1. `https://<service>.onrender.com/api/config` shows `{"demo_mode":true,...}`. If it says
+1. `https://access-agent-y65u.onrender.com/api/config` shows `{"demo_mode":true,...}`. If it says
    `false`, stop the service and fix `DEMO_MODE`.
 2. The review screen loads with the document "Pages 84-97,109,124,130 · introductory-statistics-2e…"
    and 2 figures in the queue ("Needs review only" is on). Turn it off: 14 figures.
