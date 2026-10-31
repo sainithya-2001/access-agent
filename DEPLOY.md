@@ -35,7 +35,7 @@ Optional, if Docker is installed: `docker build -t access-agent . && docker run 
 2. In the Render dashboard: **New → Web Service** → connect the GitHub repo → branch `main`.
 3. **Language / Runtime: Docker** (Render finds the `Dockerfile` in the repo root). Leave the build
    and start commands empty: the Dockerfile's `CMD` starts uvicorn on Render's `$PORT`.
-4. **Instance type**: see "Free or paid" below.
+4. **Instance type**: Free (see "Instance type: Free, kept awake" below).
 5. **Health Check Path**: `/api/config`.
 6. Add the environment variables (next section), then **Create Web Service**. The first build takes
    a few minutes; later pushes to `main` redeploy automatically.
@@ -77,41 +77,36 @@ Use a private / incognito window (no Render or GitHub session, no cached files),
    page tried a model call and was stopped).
 8. Try it on a phone too (the review screen and export work at 375 px).
 
-## Free or paid
+## Instance type: Free, kept awake
 
-**Free** (512 MB RAM, 0.1 CPU, $0) works, but has two problems for judges:
+The demo stays on **Free** (512 MB RAM, 0.1 CPU, $0). On its own, Free spins down after 15 minutes
+without traffic and the next visit waits about a minute for a cold start, which can look broken to a
+judge. To prevent that, an **UptimeRobot** monitor requests
+`https://access-agent-y65u.onrender.com/api/config` **every 5 minutes**, so the service never goes
+15 minutes without traffic and never sleeps.
 
-- **It sleeps.** After 15 minutes without traffic the service spins down, and the next visit waits
-  about a minute while it starts again. A judge who opens the link cold sees a loading screen for a
-  minute, which can look broken. (750 free instance hours a month, enough to stay up all month if
-  something keeps it awake.)
-- **Its disk is ephemeral.** Every spin-down, restart or redeploy throws away what visitors
-  changed and the demo returns to the bundled state. That is mostly good (see "Clean state for
-  every judge" below), but on Free it also happens mid-visit: a judge who comes back after 15 idle
-  minutes finds their approvals gone.
+- **Instance hours.** Free gives 750 instance hours a month per workspace; one service awake all
+  month uses at most 744 (31 days), so it fits only if no other Free service in the workspace is
+  running. Check the usage in the Render dashboard.
 - **Memory is not the problem.** Measured locally: ~170 MB idle, ~180 MB after serving every page,
   crop and export, 320–370 MB peak while a 5-page passcode upload is processed (4 figure workers;
-  two measurements, pages 85–89 and 107–111). That
-  fits 512 MB for viewing; several passcode uploads at once could not, but uploads run one at a
-  time (`api._lock`). The 0.1 CPU makes page rendering in uploads slow, not the review screen.
-
-**Recommended: Starter from Nov 3 to Nov 16** (submission on Nov 4, then the judging period; legacy
-name `starter`, plan `0.5c-512mb`: 0.5 CPU, 512 MB, about **$7/month**, so roughly half that for two
-weeks if billed pro rata). It never sleeps, so judges never wait for a cold start. Switch the
-instance type to Starter on Nov 3 and back to Free (or suspend the service) on Nov 16. The $7 comes from third-party price lists (Render's docs
-give only the specs), so confirm it on https://render.com/pricing before choosing. The next tier,
-Standard (1 CPU, 2 GB, about $25/month), is only worth it for many passcode uploads. A persistent
-disk (paid plans only) is not needed: the demo data ships in the image.
+  two measurements, pages 85–89 and 107–111). That fits 512 MB for viewing; several passcode
+  uploads at once could not, but uploads run one at a time (`api._lock`). The 0.1 CPU makes page
+  rendering in uploads slow, not the review screen.
+- A persistent disk is not needed: the demo data ships in the image.
 
 ## Clean state for every judge
 
-The demo's data lives in the image, and the disk is ephemeral on every Render plan, so each restart
-or redeploy restores the bundled state: the same 14 figures, 2 waiting for review, no staff edits,
-no uploads. Judges' approvals, edits, rejections and passcode uploads are never kept.
+The demo's data lives in the image and the disk is ephemeral, so each restart or redeploy restores
+the bundled state: the same 14 figures, 2 waiting for review, no staff edits, no uploads, and the
+one precomputed lecture course. Judges' approvals, edits, rejections and passcode uploads are never
+kept.
 
-- On **Free** this happens on its own after every 15 idle minutes, so in practice each judge starts
-  clean.
-- On **Starter** the service never sleeps, so visitors share one state until the next restart:
-  judge B would see what judge A approved. To reset it, use **Manual Deploy → Restart service** in
-  the Render dashboard (about a minute, data back to the bundle). Do it once a day during judging,
-  and before anyone you know is about to look.
+Because the monitor keeps the service awake, it no longer resets itself: **all visitors share one
+state until the next restart**, so judge B would see what judge A approved. Reset it with
+**Manual Deploy → Restart service** in the Render dashboard (about a minute, data back to the bundle):
+
+- **before judging starts**, and
+- **once a day during judging** (and before anyone you know is about to look).
+
+A push to `main` also redeploys and so resets the state.
