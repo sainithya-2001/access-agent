@@ -18,7 +18,7 @@ demo/output/portal/index.json               the course portal listing those lect
 A database with staff edits is refused (build a clean one with scripts/reset_review_db.py --db ...),
 unless --keep-edits. No model calls.
 
-Lectures (default: the test lecture, scripts/make_test_lecture.py) go into one course, --course, as
+Lectures (default: the demo lecture, scripts/make_lecture2.py) go into one course, --course, as
 ready materials; the portal watcher never runs in DEMO_MODE, so the index is served as written.
 """
 
@@ -31,7 +31,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-TEST_LECTURE = "0d05f0e901c0"  # data/lectures/test_lecture.mp4 with its slides PDF
+DEMO_LECTURE = "6a8b1811b37c"  # data/portal/stats101/lecture2.mp4 with lecture2.pdf (scripts/make_lecture2.py)
 sys.stdout.reconfigure(encoding="utf-8")
 
 import pymupdf as fitz  # noqa: E402
@@ -118,8 +118,8 @@ def main() -> None:
     ap.add_argument("--out", default="demo")
     ap.add_argument("--keep-edits", action="store_true", help="bundle a database that has staff edits")
     ap.add_argument("--lecture", action="append", help="lecture id under output/lectures (repeatable; "
-                    "default: the test lecture); --lecture none for no lectures")
-    ap.add_argument("--course", default="stat-101")
+                    "default: the demo lecture); --lecture none for no lectures")
+    ap.add_argument("--course", default="stats101")
     ap.add_argument("--course-title", default="Introductory Statistics")
     args = ap.parse_args()
 
@@ -172,7 +172,7 @@ def main() -> None:
         trimmed_pdf(pdf_src, keep, out / pdf_dst)
         size += (out / pdf_dst).stat().st_size
     size += db_path.stat().st_size
-    lectures = [x for x in (args.lecture or [TEST_LECTURE]) if x != "none"]
+    lectures = [x for x in (args.lecture or [DEMO_LECTURE]) if x != "none"]
     if lectures:
         size += bundle_lectures(lectures, args.course, args.course_title, out)
     figs = sqlite3.connect(db_path).execute("SELECT status, COUNT(*) FROM figures GROUP BY status").fetchall()

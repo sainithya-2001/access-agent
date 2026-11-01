@@ -1,0 +1,41 @@
+{
+  "violations": [],
+  "incomplete": [
+    {
+      "id": "link-in-text-block",
+      "impact": null,
+      "description": "Ensure links are distinguished from surrounding text in a way that does not rely on color",
+      "message": "Unable to parse color \"\"",
+      "stack": "Error: Unable to parse color \"\"\n    at e.value (C:\\dev\\access-agent\\node_modules\\axe-core\\axe.min.js:12:264019)\n    at Nh.l (C:\\dev\\access-agent\\node_modules\\axe-core\\axe.min.js:12:384880)\n    at Nh (C:\\dev\\access-agent\\node_modules\\axe-core\\axe.min.js:12:385044)\n    at Object.Lg (C:\\dev\\access-agent\\node_modules\\axe-core\\axe.min.js:12:402286)\n    at A0.run (C:\\dev\\access-agent\\node_modules\\axe-core\\axe.min.js:12:435046)\n    at C:\\dev\\access-agent\\node_modules\\axe-core\\axe.min.js:12:437687\n    at c (C:\\dev\\access-agent\\node_modules\\axe-core\\axe.min.js:12:103293)\n    at Object.defer (C:\\dev\\access-agent\\node_modules\\axe-core\\axe.min.js:12:103573)\n    at C:\\dev\\access-agent\\node_modules\\axe-core\\axe.min.js:12:437665\n    at Array.forEach (<anonymous>)",
+      "error": "Unable to parse color \"\"",
+      "errorNode": {
+        "selector": [
+          "a[href$=\"video.mp4\"]"
+        ],
+        "source": "<a href=\"video.mp4\">Download it</a>",
+        "xpath": [
+          "/video[@id='lecture-video']/p/a"
+        ],
+        "ancestry": [
+          "html > body > main:nth-child(3) > video:nth-child(5) > p:nth-child(2) > a"
+        ],
+        "nodeIndexes": [
+          102
+        ],
+        "fromFrame": false
+      },
+      "tags": [
+        "cat.color",
+        "wcag2a",
+        "wcag141",
+        "TTv5",
+        "TT13.a",
+        "EN-301-549",
+        "EN-9.1.4.1"
+      ],
+      "help": "Links must be distinguishable without relying on color",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.10/link-in-text-block?application=axeAPI",
+      "nodes": []
+    }
+  ]
+}

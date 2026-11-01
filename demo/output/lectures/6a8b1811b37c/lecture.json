@@ -1,0 +1,541 @@
+{
+  "id": "6a8b1811b37c",
+  "title": "Bar Graphs and Histograms",
+  "video": "data/portal/stats101/lecture2.mp4",
+  "transcript": {
+    "source": "data\\portal\\stats101\\lecture2.mp4",
+    "model": "muse-voice-transcribe-1.0",
+    "duration": 148.0,
+    "segments": [
+      {
+        "id": 0,
+        "start": 1.26,
+        "end": 6.38,
+        "text": "Today we're looking at two ways to display data, bar graphs and histograms."
+      },
+      {
+        "id": 1,
+        "start": 7.58,
+        "end": 9.1,
+        "text": "Let'sLet's start with the bar graph."
+      },
+      {
+        "id": 2,
+        "start": 10.22,
+        "end": 15.58,
+        "text": "This one shows the proportion of TikTok users in the United States by age group."
+      },
+      {
+        "id": 3,
+        "start": 16.54,
+        "end": 25.26,
+        "text": "The horizontal axis lists five age groups and the vertical axis shows the percent of users from 0 to 35%."
+      },
+      {
+        "id": 4,
+        "start": 26.54,
+        "end": 33.82,
+        "text": "As you can see here, the tallest bar is the youngest group, ages 10 to 19, at 32 and a half percent."
+      },
+      {
+        "id": 5,
+        "start": 34.78,
+        "end": 39.66,
+        "text": "Ages 20 to 29 are close behind at 29 and 29 and a half percent."
+      },
+      {
+        "id": 6,
+        "start": 40.7,
+        "end": 53.18,
+        "text": "Then there's a big drop. Ages 30 to 39 are are 16.4%, 40 to 49 are 13.9%, and 50 and over are just 7.1%."
+      },
+      {
+        "id": 7,
+        "start": 54.46,
+        "end": 59.58,
+        "text": "So the pattern is clear. The older the age group, the smaller its share of users."
+      },
+      {
+        "id": 8,
+        "start": 60.38,
+        "end": 64.54,
+        "text": "The two youngest groups together make make up more than 60%."
+      },
+      {
+        "id": 9,
+        "start": 65.82,
+        "end": 72.06,
+        "text": "One thing to remember about bar graphs, the bars bars are separate because the categories are separate."
+      },
+      {
+        "id": 10,
+        "start": 73.66,
+        "end": 75.74,
+        "text": "Now compare that with a histogram."
+      },
+      {
+        "id": 11,
+        "start": 76.62,
+        "end": 81.02,
+        "text": "This one shows how many books 50 part-time students bought for the semester."
+      },
+      {
+        "id": 12,
+        "start": 82.3,
+        "end": 89.18,
+        "text": "The horizontal axis is the number of books and the vertical axis is frequency meaning how many students"
+      },
+      {
+        "id": 13,
+        "start": 90.78,
+        "end": 92.46,
+        "text": "Notice the bars touch each other."
+      },
+      {
+        "id": 14,
+        "start": 93.66,
+        "end": 99.82,
+        "text": "That's what makes makes it a histogram. The data are numbers on a scale so the bars sit side by side."
+      },
+      {
+        "id": 15,
+        "start": 100.78,
+        "end": 105.34,
+        "text": "Each bar is centered on a whole number of books with boundaries at the halves."
+      },
+      {
+        "id": 16,
+        "start": 106.78,
+        "end": 113.34,
+        "text": "11 students bought one book, 10 bought two, and the tallest bar is three books with 16 students."
+      },
+      {
+        "id": 17,
+        "start": 114.38,
+        "end": 120.38,
+        "text": "after that it falls off, six students bought four books, five bought five, and only two bought six."
+      },
+      {
+        "id": 18,
+        "start": 121.98,
+        "end": 127.34,
+        "text": "So the most common number of books is three and fewer students bought large numbers of books."
+      },
+      {
+        "id": 19,
+        "start": 128.22,
+        "end": 131.58,
+        "text": "The distribution has a longer tail on the right side."
+      },
+      {
+        "id": 20,
+        "start": 132.86,
+        "end": 141.1,
+        "text": "To sum up, use a bar graph when your categories are separate groups groups and a histogram when your data are numbers on a continuous scale."
+      },
+      {
+        "id": 21,
+        "start": 142.14,
+        "end": 145.98,
+        "text": "In both, the height of each bar tells you how many or what share."
+      }
+    ],
+    "text": "Today we're looking at two ways to display data, bar graphs and histograms. Let'sLet's start with the bar graph. This one shows the proportion of TikTok users in the United States by age group. The horizontal axis lists five age groups and the vertical axis shows the percent of users from 0 to 35%. As you can see here, the tallest bar is the youngest group, ages 10 to 19, at 32 and a half percent. Ages 20 to 29 are close behind at 29 and 29 and a half percent. Then there's a big drop. Ages 30 to 39 are are 16.4%, 40 to 49 are 13.9%, and 50 and over are just 7.1%. So the pattern is clear. The older the age group, the smaller its share of users. The two youngest groups together make make up more than 60%. One thing to remember about bar graphs, the bars bars are separate because the categories are separate. Now compare that with a histogram. This one shows how many books 50 part-time students bought for the semester. The horizontal axis is the number of books and the vertical axis is frequency meaning how many students Notice the bars touch each other. That's what makes makes it a histogram. The data are numbers on a scale so the bars sit side by side. Each bar is centered on a whole number of books with boundaries at the halves. 11 students bought one book, 10 bought two, and the tallest bar is three books with 16 students. after that it falls off, six students bought four books, five bought five, and only two bought six. So the most common number of books is three and fewer students bought large numbers of books. The distribution has a longer tail on the right side. To sum up, use a bar graph when your categories are separate groups groups and a histogram when your data are numbers on a continuous scale. In both, the height of each bar tells you how many or what share."
+  },
+  "slides": [
+    {
+      "index": 1,
+      "start": 0.0,
+      "end": 73.0,
+      "image_path": "output/lectures/6a8b1811b37c/slides/slide_001.png",
+      "segment_ids": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "pdf_page": 1,
+      "source_page": 1,
+      "match": 0.994,
+      "document": "lecture-6a8b1811b37c-pdf"
+    },
+    {
+      "index": 2,
+      "start": 73.0,
+      "end": 148.0,
+      "image_path": "output/lectures/6a8b1811b37c/slides/slide_002.png",
+      "segment_ids": [
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21
+      ],
+      "pdf_page": 2,
+      "source_page": 2,
+      "match": 0.995,
+      "document": "lecture-6a8b1811b37c-pdf"
+    }
+  ],
+  "slides_document": "lecture-6a8b1811b37c-pdf",
+  "notes": {
+    "title": "Bar Graphs and Histograms",
+    "sections": [
+      {
+        "heading": "Bar Graph of TikTok Users by Age Group",
+        "slide": 1,
+        "points": [
+          {
+            "kind": "key_point",
+            "text": "This bar graph shows the proportion of TikTok users in the United States by age group.",
+            "term": null,
+            "segments": [
+              2
+            ],
+            "supported": false,
+            "check": "The cited segment says 'This one shows...' but does not state that it is a bar graph."
+          },
+          {
+            "kind": "key_point",
+            "text": "The horizontal axis lists 5 age groups.",
+            "term": null,
+            "segments": [
+              3
+            ],
+            "supported": true,
+            "check": null
+          },
+          {
+            "kind": "key_point",
+            "text": "The vertical axis shows the percent of users from 0 to 35%.",
+            "term": null,
+            "segments": [
+              3
+            ],
+            "supported": true,
+            "check": null
+          },
+          {
+            "kind": "key_point",
+            "text": "The tallest bar is the youngest group, ages 10 to 19, at 32.5%.",
+            "term": null,
+            "segments": [
+              4
+            ],
+            "supported": true,
+            "check": null
+          },
+          {
+            "kind": "key_point",
+            "text": "Ages 20 to 29 are at 29.5%.",
+            "term": null,
+            "segments": [
+              5
+            ],
+            "supported": true,
+            "check": null
+          },
+          {
+            "kind": "key_point",
+            "text": "Then there is a big drop.",
+            "term": null,
+            "segments": [
+              6
+            ],
+            "supported": true,
+            "check": null
+          },
+          {
+            "kind": "key_point",
+            "text": "Ages 30 to 39 are 16.4%.",
+            "term": null,
+            "segments": [
+              6
+            ],
+            "supported": true,
+            "check": null
+          },
+          {
+            "kind": "key_point",
+            "text": "Ages 40 to 49 are 13.9%.",
+            "term": null,
+            "segments": [
+              6
+            ],
+            "supported": true,
+            "check": null
+          },
+          {
+            "kind": "key_point",
+            "text": "Ages 50 and over are 7.1%.",
+            "term": null,
+            "segments": [
+              6
+            ],
+            "supported": true,
+            "check": null
+          },
+          {
+            "kind": "key_point",
+            "text": "The older the age group, the smaller its share of users.",
+            "term": null,
+            "segments": [
+              7
+            ],
+            "supported": true,
+            "check": null
+          },
+          {
+            "kind": "key_point",
+            "text": "The two youngest groups together make up more than 60%.",
+            "term": null,
+            "segments": [
+              8
+            ],
+            "supported": true,
+            "check": null
+          },
+          {
+            "kind": "emphasis",
+            "text": "The instructor emphasized that in bar graphs the bars are separate because the categories are separate.",
+            "term": null,
+            "segments": [
+              9
+            ],
+            "supported": true,
+            "check": null
+          }
+        ],
+        "visuals": [
+          {
+            "segment": 4,
+            "phrase": "As you can see here",
+            "slide": 1,
+            "figure_id": "lecture-6a8b1811b37c-pdf:p1_f0",
+            "after_point": 3
+          }
+        ]
+      },
+      {
+        "heading": "Histogram of Books Bought by Part-Time Students",
+        "slide": 2,
+        "points": [
+          {
+            "kind": "key_point",
+            "text": "This histogram shows how many books 50 part-time students bought for the semester.",
+            "term": null,
+            "segments": [
+              11
+            ],
+            "supported": false,
+            "check": "The cited segments say 'This one' but do not state that it is a histogram."
+          },
+          {
+            "kind": "key_point",
+            "text": "The horizontal axis is the number of books.",
+            "term": null,
+            "segments": [
+              12
+            ],
+            "supported": true,
+            "check": null
+          },
+          {
+            "kind": "key_point",
+            "text": "The vertical axis is frequency.",
+            "term": null,
+            "segments": [
+              12
+            ],
+            "supported": true,
+            "check": null
+          },
+          {
+            "kind": "definition",
+            "text": "Frequency means how many students.",
+            "term": "frequency",
+            "segments": [
+              12
+            ],
+            "supported": true,
+            "check": null
+          },
+          {
+            "kind": "key_point",
+            "text": "The bars touch each other.",
+            "term": null,
+            "segments": [
+              13
+            ],
+            "supported": true,
+            "check": null
+          },
+          {
+            "kind": "key_point",
+            "text": "The data are numbers on a scale so the bars sit side by side.",
+            "term": null,
+            "segments": [
+              14
+            ],
+            "supported": true,
+            "check": null
+          },
+          {
+            "kind": "key_point",
+            "text": "Each bar is centered on a whole number of books with boundaries at the halves.",
+            "term": null,
+            "segments": [
+              15
+            ],
+            "supported": true,
+            "check": null
+          },
+          {
+            "kind": "key_point",
+            "text": "11 students bought 1 book.",
+            "term": null,
+            "segments": [
+              16
+            ],
+            "supported": true,
+            "check": null
+          },
+          {
+            "kind": "key_point",
+            "text": "10 students bought 2 books.",
+            "term": null,
+            "segments": [
+              16
+            ],
+            "supported": true,
+            "check": null
+          },
+          {
+            "kind": "key_point",
+            "text": "The tallest bar is 3 books with 16 students.",
+            "term": null,
+            "segments": [
+              16
+            ],
+            "supported": true,
+            "check": null
+          },
+          {
+            "kind": "key_point",
+            "text": "After that it falls off.",
+            "term": null,
+            "segments": [
+              17
+            ],
+            "supported": true,
+            "check": null
+          },
+          {
+            "kind": "key_point",
+            "text": "6 students bought 4 books.",
+            "term": null,
+            "segments": [
+              17
+            ],
+            "supported": true,
+            "check": null
+          },
+          {
+            "kind": "key_point",
+            "text": "5 students bought 5 books.",
+            "term": null,
+            "segments": [
+              17
+            ],
+            "supported": true,
+            "check": null
+          },
+          {
+            "kind": "key_point",
+            "text": "2 students bought 6 books.",
+            "term": null,
+            "segments": [
+              17
+            ],
+            "supported": true,
+            "check": null
+          },
+          {
+            "kind": "key_point",
+            "text": "The most common number of books is 3.",
+            "term": null,
+            "segments": [
+              18
+            ],
+            "supported": true,
+            "check": null
+          },
+          {
+            "kind": "key_point",
+            "text": "Fewer students bought large numbers of books.",
+            "term": null,
+            "segments": [
+              18
+            ],
+            "supported": true,
+            "check": null
+          },
+          {
+            "kind": "key_point",
+            "text": "The distribution has a longer tail on the right side.",
+            "term": null,
+            "segments": [
+              19
+            ],
+            "supported": true,
+            "check": null
+          },
+          {
+            "kind": "key_point",
+            "text": "Use a bar graph when your categories are separate groups.",
+            "term": null,
+            "segments": [
+              20
+            ],
+            "supported": true,
+            "check": null
+          },
+          {
+            "kind": "key_point",
+            "text": "Use a histogram when your data are numbers on a continuous scale.",
+            "term": null,
+            "segments": [
+              20
+            ],
+            "supported": true,
+            "check": null
+          },
+          {
+            "kind": "key_point",
+            "text": "In both, the height of each bar tells you how many or what share.",
+            "term": null,
+            "segments": [
+              21
+            ],
+            "supported": true,
+            "check": null
+          }
+        ],
+        "visuals": []
+      }
+    ]
+  }
+}

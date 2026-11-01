@@ -11,7 +11,7 @@ values from the printed Table 2.9. With
 `BLOCKED`). Uploading a PDF or recropping a figure runs the agent, so both need the passcode in
 `DEMO_PASSCODE`, and passcode uploads are capped at 5 pages (25 MB). Approve / edit / reject,
 Preview, Export, Blindfold and Hear the chart work for everyone, and so does the student inbox
-(Student inbox in the header): one precomputed course with the test lecture's notes page.
+(Student inbox in the header): one precomputed course with the demo lecture's notes page.
 
 What the image contains (`Dockerfile`, `.dockerignore`): `app/`, `web/`, and `demo/` copied as
 the working directory (`output/review.db`, page images, crops, overlays, and the source PDF trimmed to
@@ -71,7 +71,7 @@ Use a private / incognito window (no Render or GitHub session, no cached files),
    passcode: refused with a message. (With the right one and ≤ 5 pages it processes; that spends
    credits.)
 6. **Student inbox** in the header opens the course portal: "Introductory Statistics" with the
-   lecture "Two Ways to Display Data". Open it: the video plays with captions, "Play from" buttons
+   lecture "Bar Graphs and Histograms" (2.5 min, synthetic narration). Open it: the video plays with captions, "Play from" buttons
    seek, and the notes show Figures 2.3 and 2.6 with their descriptions.
 7. Render dashboard → **Logs**: no tracebacks; no `ModelCallsBlocked` errors (they would mean some
    page tried a model call and was stopped).
