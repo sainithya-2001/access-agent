@@ -2,7 +2,7 @@
 
 **An agent that makes course materials accessible for students with print disabilities, and checks its own work before a person has to.**
 
-Live demo: https://access-agent-y65u.onrender.com · Demo video: {VIDEO_URL}
+Live demo: https://access-agent-y65u.onrender.com · Demo video: [Watch on YouTube](https://youtu.be/w8TodRx_pPI)
 
 Built solo for the Meta Global AI Developer Hackathon (Oct 27 – Nov 4, 2026), track: *Build for Your World*. Everything in this repository was written during the hackathon (see the commit history).
 
